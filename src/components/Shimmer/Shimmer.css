@@ -1,0 +1,27 @@
+/* src/components/Shimmer.css */
+.shimmer {
+  background: linear-gradient(90deg, var(--border-color) 25%, var(--bg-primary) 50%, var(--border-color) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-text {
+  height: 20px;
+  margin-bottom: 12px;
+}
+
+.shimmer-card {
+  height: 150px;
+  margin-bottom: 16px;
+}
+
+.shimmer-table-row {
+  height: 50px;
+  margin-bottom: 8px;
+}

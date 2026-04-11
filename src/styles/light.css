@@ -1,0 +1,24 @@
+/* light.css */
+.light {
+  --primary-color: #6366f1;
+  --primary-dark: #4f46e5;
+  --secondary-color: #10b981;
+  --background: #f9fafb;
+  --card-bg: #ffffff;
+  --text-color: #111827;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --hover-bg: #f3f4f6;
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #374151;
+  --header-bg: #ffffff;
+  --input-bg: #ffffff;
+  --dropdown-bg: #ffffff;
+  --unread-bg: #fef3c7;
+  --login-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.light body {
+  background: var(--background);
+  color: var(--text-color);
+}

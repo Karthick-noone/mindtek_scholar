@@ -1,0 +1,107 @@
+/* global.css */
+/* Light Theme (default) */
+:root {
+  --primary-color: #1116f4;
+  --primary-dark: #3b82f6;
+  --secondary-color: #059669;
+  --background: #f9fafb;
+  --card-bg: #ffffff;
+  --text-color: #111827;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
+  --hover-bg: #f3f4f6;
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #374151;
+  --header-bg: #ffffff;
+  --input-bg: #ffffff;
+  --dropdown-bg: #ffffff;
+  --dropdown-hover: #f3f4f6;
+  --unread-bg: #fef3c7;
+  --login-bg: linear-gradient(135deg, #1116f4 0%, #3b82f6 100%);
+  --shimmer-start: #f3f4f6;
+  --shimmer-end: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --scrollbar-track: #e5e7eb;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+}
+
+/* Dark Theme */
+[data-theme="dark"],
+body.dark {
+  --primary-color: #3b82f6;
+  --primary-dark: #2563eb;
+  --secondary-color: #10b981;
+  --background: #0f172a;
+  --card-bg: #1e293b;
+  --text-color: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --hover-bg: #334155;
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #e2e8f0;
+  --header-bg: #1e293b;
+  --input-bg: #0f172a;
+  --dropdown-bg: #1e293b;
+  --dropdown-hover: #334155;
+  --unread-bg: #451a03;
+  --login-bg: linear-gradient(135deg, #1e293b 0%, #1e3a8a 100%);
+  --shimmer-start: #334155;
+  --shimmer-end: #475569;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  --scrollbar-track: #1e293b;
+  --scrollbar-thumb: #475569;
+  --scrollbar-thumb-hover: #64748b;
+}
+
+body {
+  background: var(--background);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar styling - Light colors */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease;
+}
