@@ -21,6 +21,32 @@
   box-shadow: var(--shadow-md);
 }
 
+.user-glass-avatar {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.header-prof-img1 {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header-prof-img2 {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
 /* Sidebar Collapsed Effect */
 .main-content.expanded .header {
   left: 80px;
@@ -762,7 +788,7 @@
   width: 50px;
   height: 50px;
   font-size: 20px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  /* background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -784,6 +810,7 @@
 .dropdown-email {
   font-size: 12px;
   color: var(--text-muted);
+  margin: 0;
 }
 
 .dropdown-divider {
@@ -880,14 +907,14 @@
   }
   
   .notification-dropdown {
-    width: calc(100vw - 100px);
+    width: calc(100vw - 0px);
     right: -10px;
     top: 69px;
     zoom: .9;
   }
   
   .user-dropdown {
-    width: calc(100vw - 100px);
+    /* width: calc(100vw - 100px); */
     right: -10px;
     top: 57px;
     zoom: .9;

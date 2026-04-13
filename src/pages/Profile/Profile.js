@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, FolderOpen, GraduationCap, Building, Users, FileText, Briefcase, BriefcaseBusiness } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './Profile.css';
+import { useScholar } from '../../hooks/useScholar';
+import { secureStorage } from '../../utils/secureStorage';
+import { useUploadProfileImage } from "../../hooks/useProfile";
 
 const Profile = () => {
     const [loading, setLoading] = useState(true);
@@ -9,23 +12,19 @@ const Profile = () => {
     const [profileImage, setProfileImage] = useState(null);
     const [hoverImage, setHoverImage] = useState(false);
 
-  const fileInputRef = useRef(null);
+    const fileInputRef = useRef(null);
 
-    const [profile, setProfile] = useState({
-        name: 'Karthick Scholar',
-        email: 'karthick.scholar@example.com',
-        phone: '+91 9876543210',
-        address: '123 Academic Street, University City, CA 90210',
-        joinDate: 'September 2023',
-        department: 'Computer Science',
-        studentId: 'CS2023001',
-        bda: 'Dr. Sarah Johnson',
-        bdaContact: '+91 8778361612',
-        technicalExpert: 'Dr. Karthick',
-        workDescription: 'Passionate researcher in Artificial Intelligence and Machine Learning with focus on deep learning applications.'
-    });
 
-    const [formData, setFormData] = useState(profile);
+    const scholar = secureStorage.getScholar();
+    const { data: scholarData } = useScholar();
+    // console.log("SCholar data", scholar)
+    // console.log("SCholar datafhdfhdfd", scholarData)
+
+    const scholarImage = scholarData?.scholar_profile
+        ? `http://scholarapi.seasense.in/${scholarData.scholar_profile}`
+        : null;
+
+    const [formData, setFormData] = useState();
     const [workProgress, setWorkProgress] = useState(65);
 
     //   useEffect(() => {
@@ -34,42 +33,40 @@ const Profile = () => {
     //     }, 1500);
     //   }, []);
 
-    const handleImageClick = () => {
-        fileInputRef.current.click();
-    };
+ const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setProfileImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+  const { mutate: uploadImage } = useUploadProfileImage();
 
-    const handleEdit = () => {
-        setEditing(true);
-        setFormData(profile);
-    };
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
 
-    const handleSave = () => {
-        setProfile(formData);
-        setEditing(false);
-    };
+    if (file) {
+      const formData = new FormData();
+      formData.append("scholar_profile", file);
 
-    const handleCancel = () => {
-        setEditing(false);
-        setFormData(profile);
-    };
+      uploadImage(formData);
+    }
+  };
+const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
-    };
+const handleDeleteImage = () => {
+  setShowDeleteConfirm(true);
+};
+
+const confirmDelete = () => {
+  const formData = new FormData();
+  formData.append("remove", 1);
+  uploadImage(formData);
+  setShowDeleteConfirm(false);
+};
+
+ const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+  };
+
+
 
     //   if (loading) {
     //     return (
@@ -102,11 +99,11 @@ const Profile = () => {
                             onMouseLeave={() => setHoverImage(false)}
                             onClick={handleImageClick}
                         >
-                            {profileImage ? (
-                                <img src={profileImage} alt="Profile" className="avatar-premium-image" />
+                            {scholarImage ? (
+                                <img src={scholarImage} alt="Profile" className="avatar-premium-image" />
                             ) : (
                                 <div className="avatar-premium-placeholder">
-                                    <span>{profile.name.charAt(0)}</span>
+                                    <span>{scholar?.user_name.charAt(0)}</span>
                                 </div>
                             )}
                             {hoverImage && (
@@ -123,10 +120,10 @@ const Profile = () => {
                                 style={{ display: 'none' }}
                             />
                         </div>
-                        <h2>{profile.name}</h2>
+                        <h2>{scholar?.user_name}</h2>
                         <p className="profile-role">PhD Scholar</p>
                         <div className="profile-badge">
-                            <span className="badge">{profile.studentId}</span>
+                            <span className="badge">{scholar?.user_id}</span>
                         </div>
                     </div>
 
@@ -135,15 +132,19 @@ const Profile = () => {
                         <h4>Contact Information</h4>
                         <div className="contact-item">
                             <Mail size={16} />
-                            <span>{profile.email}</span>
+                            <span>{scholar?.email}</span>
                         </div>
                         <div className="contact-item">
                             <Phone size={16} />
-                            <span>{profile.phone}</span>
+                            <span>{scholar?.contact}</span>
                         </div>
                         <div className="contact-item">
-                            <MapPin size={16} />
-                            <span>{profile.address}</span>
+                            <Calendar size={16} />
+                            <span>{new Date(scholar?.reg_date).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric"
+                            })}</span>
                         </div>
                     </div>
 
@@ -315,10 +316,17 @@ const Profile = () => {
                                 <div className="form-grid">
 
                                     <div className="form-field">
-                                        <label>Date Of Registration</label>
+                                        <label>Domain</label>
                                         <div className="field-value">
                                             <Calendar size={16} />
-                                            <span>{profile.joinDate}</span>
+                                            <span>{scholarData?.domain.domain}</span>
+                                        </div>
+                                    </div>
+                                    <div className="form-field">
+                                        <label>Journal Index</label>
+                                        <div className="field-value">
+                                            <Calendar size={16} />
+                                            <span>{scholarData?.journal_index.journal_index}</span>
                                         </div>
                                     </div>
 
@@ -326,7 +334,14 @@ const Profile = () => {
                                         <label>Technical Expert</label>
                                         <div className="field-value">
                                             <Calendar size={16} />
-                                            <span>{profile.technicalExpert}</span>
+                                            <span>{scholarData?.tech_expert.staff_name}</span>
+                                        </div>
+                                    </div>
+                                    <div className="form-field">
+                                        <label>Technical Expert Contact</label>
+                                        <div className="field-value">
+                                            <Calendar size={16} />
+                                            <span>+91 {scholarData?.tech_expert.staff_contact}</span>
                                         </div>
                                     </div>
 
@@ -334,7 +349,7 @@ const Profile = () => {
                                         <label>BDA Name</label>
                                         <div className="field-value">
                                             <Users size={16} />
-                                            <span>{profile.bda}</span>
+                                            <span>{scholarData?.bda.bda_name}</span>
                                         </div>
                                     </div>
 
@@ -342,7 +357,7 @@ const Profile = () => {
                                         <label>BDA Contact</label>
                                         <div className="field-value">
                                             <Users size={16} />
-                                            <span>{profile.bdaContact}</span>
+                                            <span>+91 {scholarData?.bda.bda_contact}</span>
                                         </div>
                                     </div>
 
@@ -351,7 +366,7 @@ const Profile = () => {
 
                                         <div className="field-value bio-text">
                                             <FileText size={16} />
-                                            <span>{profile.workDescription}</span>
+                                            <span>{scholar?.work_description}</span>
                                         </div>
 
                                     </div>

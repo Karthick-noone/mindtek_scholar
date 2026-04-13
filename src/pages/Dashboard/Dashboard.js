@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './Dashboard.css';
+import { secureStorage } from '../../utils/secureStorage';
+import { useComplaintCounts } from '../../hooks/useComplaints'
+import { getPaymentData } from '../../services/paymentService';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -22,36 +25,73 @@ const Dashboard = () => {
 
   const [pendingPayment, setPendingPayment] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
-  const [resolvedComplaints, setResolvedComplaints] = useState(0);
-  const [pendingComplaints, setPendingComplaints] = useState(0);
 
-  useEffect(() => {
-    setTimeout(() => {
+
+  const scholar = secureStorage.getScholar();
+
+  // console.log("SCholor details", scholar)
+  const company = secureStorage.getCompany();
+const { data: counts } = useComplaintCounts();
+
+const [resolvedComplaints, setResolvedComplaints] = useState(0);
+const [pendingComplaints, setPendingComplaints] = useState(0);
+
+useEffect(() => {
+  if (counts) {
+    // console.log("Counts", counts);
+
+    animateCount(setResolvedComplaints, counts.resolved || 0);
+    animateCount(setPendingComplaints, counts.pending || 0);
+  }
+}, [counts]);
+
+  // const [resolvedComplaints, setResolvedComplaints] = useState(counts?.resolved);
+  // const [pendingComplaints, setPendingComplaints] = useState(counts?.pending);
+ useEffect(() => {
+  const fetchDashboard = async () => {
+    try {
+      const scholar = secureStorage.getScholar();
+      if (!scholar?.id) return;
+
+      const res = await getPaymentData(scholar.id);
+      const response = res.data;
+
+      const payment = response.data?.[0];
+
       setLoading(false);
 
-      // animate after loading
-      animateCount(setPendingPayment, 12500);
-      animateCount(setTotalPaid, 87500);
-      animateCount(setResolvedComplaints, 42);
-      animateCount(setPendingComplaints, 8);
+      animateCount(setPendingPayment, Number(payment?.bal_amt) || 0);
+      animateCount(setTotalPaid, Number(payment?.tot_paid) || 0);
 
-      // animate progress
-      let progress = 0;
-      const end = 65;
+      const total = Number(payment?.total_amount) || 0;
+      const paid = Number(payment?.tot_paid) || 0;
 
-      const timer = setInterval(() => {
-        progress += 1;
+      const progress = total ? Math.round((paid / total) * 100) : 0;
+      animateProgress(progress);
 
-        if (progress >= end) {
-          setWorkProgress(end);
-          clearInterval(timer);
-        } else {
-          setWorkProgress(progress);
-        }
-      }, 20); // speed (lower = faster)
+    } catch (err) {
+      console.error("Dashboard API Error:", err);
+      setLoading(false);
+    }
+  };
 
-    },);
-  }, []);
+  fetchDashboard();
+}, []);
+
+  const animateProgress = (end) => {
+    let progress = 0;
+
+    const timer = setInterval(() => {
+      progress += 1;
+
+      if (progress >= end) {
+        setWorkProgress(end);
+        clearInterval(timer);
+      } else {
+        setWorkProgress(progress);
+      }
+    }, 10);
+  };
 
   const animateCount = (setValue, end, duration = 1000) => {
     let start = 0;

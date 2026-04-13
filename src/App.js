@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
+import useInternetStatus from './hooks/useInternetStatus';
+import NoInternet from './components/NoInternet/NoInternet';
 import './App.css';
 
 import Sidebar from './components/Sidebar/Sidebar';
@@ -18,41 +20,32 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 function App() {
   const { theme } = useTheme();
   const location = useLocation();
+  const { isOnline } = useInternetStatus();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [mobileOpen, setMobileOpen] = useState(false);
-  //  auth directly from localStorage (IMPORTANT FIX)
+
+  // Auth check
   const isAuthenticated = !!localStorage.getItem('authToken');
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-      if (window.innerWidth <= 768) {
-        setSidebarCollapsed(true);
-      }
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) setSidebarCollapsed(true);
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleLogin = (scholarId, password) => {
-    if (scholarId === 'user' && password === 'user123') {
-      localStorage.setItem('authToken', 'dummy-token');
-      localStorage.setItem(
-        'user',
-        JSON.stringify({ scholarId, name: 'Karthick Scholar' })
-      );
-      window.location.href = '/'; // force redirect cleanly
-      return true;
-    }
-    return false;
-  };
-
+  // Logout only
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('scholar');
     localStorage.removeItem('user');
+    localStorage.removeItem('company');
     window.location.href = '/';
   };
 
@@ -62,9 +55,14 @@ function App() {
 
   const isLoginPage = location.pathname === '/login';
 
+  // Show No Internet component if offline
+  if (!isOnline) {
+    return <NoInternet />;
+  }
+
   return (
     <div className={`app ${theme}`}>
-      {/*  Show layout only when NOT on login */}
+      {/* Protected Layout */}
       {!isLoginPage && isAuthenticated && (
         <div className="app-layout">
           <Sidebar
@@ -74,6 +72,7 @@ function App() {
             mobileOpen={mobileOpen}
             setMobileOpen={setMobileOpen}
           />
+
           <div
             className={`main-content ${sidebarCollapsed && !isMobile ? 'expanded' : ''
               }`}
@@ -84,26 +83,28 @@ function App() {
               onLogout={handleLogout}
               setMobileOpen={setMobileOpen}
             />
+
             <div className="page-container">
-              <AppRoutes isAuthenticated={isAuthenticated} handleLogin={handleLogin} />
+              <AppRoutes isAuthenticated={isAuthenticated} />
             </div>
           </div>
         </div>
       )}
 
-      {/*  Login page (no layout) */}
+      {/* Public/Login */}
       {(isLoginPage || !isAuthenticated) && (
-        <AppRoutes isAuthenticated={isAuthenticated} handleLogin={handleLogin} />
+        <AppRoutes isAuthenticated={isAuthenticated} />
       )}
     </div>
   );
 }
 
-function AppRoutes({ isAuthenticated, handleLogin }) {
+function AppRoutes({ isAuthenticated }) {
+  
   return (
     <Routes>
       {/* Public */}
-      <Route path="/login" element={<Login onLogin={handleLogin} />} />
+      <Route path="/login" element={<Login />} />
 
       {/* Private */}
       <Route
@@ -126,7 +127,8 @@ function AppRoutes({ isAuthenticated, handleLogin }) {
         path="/change-password"
         element={
           <PrivateRoute>
-            <ChangePassword />
+            <ChangePassword
+            />
           </PrivateRoute>
         }
       />
@@ -147,7 +149,7 @@ function AppRoutes({ isAuthenticated, handleLogin }) {
         }
       />
 
-      {/* Default Routes */}
+      {/* Default */}
       <Route
         path="/"
         element={

@@ -22,6 +22,8 @@ import {
 import { useTheme } from '../../contexts/ThemeContext';
 import './Header.css';
 import { Link } from 'react-router-dom';
+import { secureStorage } from '../../utils/secureStorage';
+import { useScholar } from '../../hooks/useScholar';
 
 const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) => {
   const { theme, toggleTheme } = useTheme();
@@ -30,7 +32,12 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [scrolled, setScrolled] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const scholar = secureStorage.getScholar();
+
+  const { data: scholarData } = useScholar();
+  const scholarImage = scholarData?.scholar_profile
+    ? `http://scholarapi.seasense.in/${scholarData.scholar_profile}`
+    : null;
 
   const notificationRef = useRef();
   const profileRef = useRef();
@@ -78,8 +85,8 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const handleMobileMenu = () => {
-  setMobileOpen(true);
-};
+    setMobileOpen(true);
+  };
 
   return (
     <header className={`header ${scrolled ? 'scrolled' : ''}`}>
@@ -183,11 +190,17 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
           >
             <div className="user-avatar">
               <div className="avatar-initials">
-                {user.name ? user.name.charAt(0) : 'S'}
+                {scholarImage ? (
+                  <img src={scholarImage} alt="Profile" className='header-prof-img1' />
+                ) : (
+                  <div className="user-glass-avatar">
+                    <span>{scholar?.user_name?.charAt(0) || 'S'}</span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="user-info">
-              <span className="user-name">{user.name || 'Scholar'}</span>
+              <span className="user-name">{scholar?.user_name || 'Scholar'}</span>
               <span className="user-role">Scholar</span>
             </div>
             <ChevronDown size={16} className="chevron-icon" />
@@ -198,12 +211,18 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
               <div className="dropdown-user-info">
                 <div className="dropdown-avatar">
                   <div className="avatar-initials large">
-                    {user.name ? user.name.charAt(0) : 'S'}
+                    {scholarImage ? (
+                      <img src={scholarImage} alt="Profile" className='header-prof-img2' />
+                    ) : (
+                      <div className="user-glass-avatar">
+                        <span>{scholar?.user_name?.charAt(0) || 'S'}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="dropdown-user-details">
-                  <p className="dropdown-name">{user.name || 'Scholar'}</p>
-                  <p className="dropdown-email">{user.email || 'scholar@example.com'}</p>
+                  <p className="dropdown-name">{scholar?.user_name || 'Scholar'}</p>
+                  <p className="dropdown-email">{scholar?.email || 'scholar@example.com'}</p>
                 </div>
               </div>
               {/* <div className="dropdown-divider"></div> */}

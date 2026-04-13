@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { User, Lock, GraduationCap, Eye, EyeOff, LogIn } from 'lucide-react';
 import './Login.css';
 import logo from './../../assets/img/logo.png';
+import { loginUser } from './../../services/authService';
+import { secureStorage } from "../../utils/secureStorage";
 
 const Login = ({ onLogin }) => {
   const [scholarId, setScholarId] = useState('');
@@ -12,20 +14,35 @@ const Login = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
-    setTimeout(() => {
-      const success = onLogin(scholarId, password);
-      if (success) {
-        navigate('/dashboard');
-      } else {
-        setError('Invalid scholar ID or password');
-      }
+
+    try {
+      const res = await loginUser({
+        user_id: scholarId,
+        pwd: password,
+      });
+
+      const { token, user, scholar,  company_details, last_work_details } = res.data;
+
+      secureStorage.setToken(token);
+      secureStorage.setUser(user);
+      secureStorage.setScholar(scholar);
+      secureStorage.setCompany(company_details);
+      secureStorage.setWork(last_work_details);
+
+      
+      navigate("/dashboard");
+
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Login failed. Try again."
+      );
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
