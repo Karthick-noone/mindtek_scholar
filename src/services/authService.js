@@ -8,3 +8,7 @@ export const loginUser = (data) => {
 export const changePassword = ({ id, data }) => {
   return apiClient.post(`/change-password/${id}`, data);
 };
+
+export const logoutUser = () => {
+  return apiClient.post("/logout"); 
+};

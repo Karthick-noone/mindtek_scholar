@@ -40,14 +40,7 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Logout only
-  const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('scholar');
-    localStorage.removeItem('user');
-    localStorage.removeItem('company');
-    window.location.href = '/';
-  };
+
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
@@ -67,7 +60,6 @@ function App() {
         <div className="app-layout">
           <Sidebar
             collapsed={sidebarCollapsed}
-            onLogout={handleLogout}
             onToggle={toggleSidebar}
             mobileOpen={mobileOpen}
             setMobileOpen={setMobileOpen}
@@ -80,7 +72,6 @@ function App() {
             <Header
               onToggleSidebar={toggleSidebar}
               sidebarCollapsed={sidebarCollapsed}
-              onLogout={handleLogout}
               setMobileOpen={setMobileOpen}
             />
 

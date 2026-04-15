@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
 import html2canvas from 'html2canvas';
@@ -7,11 +7,11 @@ import * as jspdf from 'jspdf';
 import { usePayments } from '../../hooks/usePayments';
 import { secureStorage } from '../../utils/secureStorage';
 
+
 const PaymentHistory = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [downloadReceipt, setDownloadReceipt] = useState(null);
-
   const {
     data: paymentData = [],
     isLoading,
@@ -251,291 +251,420 @@ const PaymentHistory = () => {
 
   return (
     <div className="payment-history-page">
-      <div className="page-header">
-        <h1>Payment History</h1>
-        <p>View and manage your payment transactions</p>
-      </div>
+      <div className="payment-limit">
 
-      <div className="payment-stats">
-        <div className="stat-card">
-          <div className="stat-icon green">
-            <IndianRupee size={24} />
-          </div>
-          <div className="stat-info">
-            <span className="stat-label">Total Amount</span>
-            <span className="stat-value">{"50000"}</span>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon purple">
-            <CheckCircle size={24} />
-          </div>
-          <div className="stat-info">
-            <span className="stat-label">Total Paid</span>
-            <span className="stat-value">₹{payment?.total_amount}</span>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon orange">
-            <AlertCircle size={24} />
-          </div>
-          <div className="stat-info">
-            <span className="stat-label">Pending Payment</span>
-            <span className="stat-value">₹{payment?.bal_amt}</span>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon violet">
-            <Wallet size={24} />
-          </div>
-          <div className="stat-info">
-            <span className="stat-label">Total Transactions</span>
-            <span className="stat-value">{paymentData?.filter(p => p.pay_status === 'approved').length}</span>
-          </div>
+        <div className="payment-header">
+            <h1>Payment History</h1>
+            <p>View and manage your payment transactions</p>
         </div>
 
-      </div>
+        <div className="payment-stats">
+          <div className="stat-card">
+            <div className="stat-icon green">
+              <IndianRupee size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Total Amount</span>
+              <span className="stat-value">₹{payment?.total_amount}</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon purple">
+              <CheckCircle size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Total Paid</span>
+              <span className="stat-value">₹{payment?.tot_paid}</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon orange">
+              <AlertCircle size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Pending Payment</span>
+              <span className="stat-value">₹{payment?.bal_amt}</span>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon violet">
+              <Wallet size={24} />
+            </div>
+            <div className="stat-info">
+              <span className="stat-label">Total Transactions</span>
+              {/* <span className="stat-value">{paymentData?.length}</span> */}
+              <span className="stat-value">{paymentData?.filter(p => p.pay_status === 'approved').length}</span>
+            </div>
+          </div>
 
-      <div className="payments-table-container">
-        <table className="payments-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Payment Purpose</th>
-              <th>Amount</th>
-              <th>Bank</th>
-              <th>Status</th>
-              <th>View</th>
-              <th>Print</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading || isFetching ? (
-              <tr className="complaint-loading-row">
-                <td colSpan="7" className="complaint-loading-cell">
-                  <div className="complaint-loading-state">
-                    <div className="loading-spinner"></div>
-                    <p>Loading payments...</p>
-                  </div>
-                </td>
-              </tr>
-            ) : (currentRows.length > 0 ? (
-              <tr key={payment.id}>
-                <td>{new Date(payment.pay_dt_tm).toLocaleDateString()}</td>
-                <td>{payment.purpose.pay_purpose}</td>
-                <td>₹{payment.pay_received}</td>
-                <td>{payment.bank.bank_nm}</td>
-                <td>
-                  <span className={`status-badge ${payment.pay_status}`}>
-                    {payment.pay_status}
-                  </span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button
-                      className="action-btn view-btn"
-                      onClick={() => setSelectedPayment(payment)}
-                    >
-                      <Eye size={16} />
-                    </button>
+        </div>
 
-                  </div>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button
-                      className="action-btn view-btn"
-                      onClick={() => setDownloadReceipt(payment)}
-                    >
-                      <Download size={16} />
-                    </button>
+        <div className="payment-pagination-premium-controls top">
+          <div className="rows-per-page-premium">
+            <label>Rows per page:</label>
+            <select
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+              className="rows-select-premium"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+          <div className="pagination-info-premium">
+            Showing {indexOfFirstRow + 1} to {Math.min(indexOfLastRow, paymentData.length)} of {paymentData.length} entries
+          </div>
+        </div>
 
-                  </div>
-                </td>
-              </tr>
-            ) : (
+        <div className="payments-table-container">
+          <table className="payments-table">
+            <thead>
               <tr>
-                <td colSpan="7" className="empty-table-cell">
-                  <div className="empty-table-state">
-                    {/* <span>📭</span> */}
-                    <p>No payment records found</p>
-                  </div>
-                </td>
+                <th>Date</th>
+                <th>Payment Purpose</th>
+                <th>Amount</th>
+                <th>Bank</th>
+                <th>Status</th>
+                <th>View</th>
+                <th>Print</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {isLoading || isFetching ? (
+                <tr className="complaint-loading-row">
+                  <td colSpan="7" className="complaint-loading-cell">
+                    <div className="complaint-loading-state">
+                      <div className="loading-spinner"></div>
+                      <p>Loading payments...</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (currentRows.length > 0 ? (
+                currentRows.map(payment => (
+                  <tr key={payment.id}>
+                    <td>
+                      {new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric"
+                      })}
+                    </td>
+                    <td>{payment.purpose.pay_purpose}</td>
+                    <td className="amount-cell">₹{payment.pay_received.toLocaleString()}</td>
+                    <td>{payment.bank.bank_nm}</td>
+                    <td>
+                      <span className={`payment-status-badge-${payment.pay_status}`}>
+                        {capsLetter(payment.pay_status)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="payment-action-btn view-btn"
+                          onClick={() => setSelectedPayment(payment)}
+                        >
+                          <Eye size={16} />
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="payment-action-btn view-btn"
+                          onClick={() => setDownloadReceipt(payment)}
+                        >
+                          <Download size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="empty-table-cell">
+                    <div className="empty-table-state">
+                      {/* <span>📭</span> */}
+                      <p>No payment records found</p>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {selectedPayment && (
-        <div className="modal-overlay" onClick={() => setSelectedPayment(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Payment Details</h3>
-              <button className="complaint-modal-close-btn" onClick={() => setSelectedPayment(null)}>
-                <XCircle size={24} />
+        {paymentData.length > 0 && (
+          <div className="payment-pagination-premium-controls bottom">
+            <div className="payment-pagination-buttons-premium">
+              <button
+                onClick={() => goToPage(1)}
+                disabled={currentPage === 1}
+                className="payment-pagination-btn-premium"
+                title="First Page"
+              >
+                <ChevronsLeft size={16} />
+              </button>
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="payment-pagination-btn-premium"
+                title="Previous"
+              >
+                <ChevronLeft size={16} />
+              </button>
+
+              <div className="payment-pagination-numbers-premium">
+                {getPageNumbers().map((page, index) => (
+                  <button
+                    key={index}
+                    onClick={() => typeof page === 'number' && goToPage(page)}
+                    className={`payment-pagination-number-premium ${currentPage === page ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
+                    disabled={page === '...'}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="payment-pagination-btn-premium"
+                title="Next"
+              >
+                <ChevronRight size={16} />
+              </button>
+              <button
+                onClick={() => goToPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="payment-pagination-btn-premium"
+                title="Last Page"
+              >
+                <ChevronsRight size={16} />
               </button>
             </div>
-            <div className="modal-details">
-              <div className="detail-row">
-                <span className="detail-label">Receipt Number:</span>
-                <span>{selectedPayment.receipt}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Date:</span>
-                <span>{new Date(selectedPayment.date).toLocaleDateString()}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Payment Purpose:</span>
-                <span>{selectedPayment.purpose}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Amount:</span>
-                <span>₹{selectedPayment.amount.toLocaleString()}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Payment Bank:</span>
-                <span>{selectedPayment.bank}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Status:</span>
-                <span className={`status-badge ${selectedPayment.status}`}>
-                  {selectedPayment.status}
-                </span>
-              </div>
+
+            <div className="payment-pagination-stats-premium">
+              Page {currentPage} of {totalPages}
             </div>
-            {/* <button className="close-modal" onClick={() => setSelectedPayment(null)}>
+          </div>
+        )}
+
+        {selectedPayment && (
+          <div className="modal-overlay" onClick={() => setSelectedPayment(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Payment Details</h3>
+                <button className="complaint-modal-close-btn" onClick={() => setSelectedPayment(null)}>
+                  <XCircle size={24} />
+                </button>
+              </div>
+              <div className="modal-details">
+                {/* <div className="detail-row">
+                  <span className="detail-label">Receipt Number:</span>
+                  <span>{selectedPayment.receipt}</span>
+                </div> */}
+                <div className="detail-row">
+                  <span className="detail-label">Date:</span>
+                  <span>{new Date(selectedPayment.pay_dt_tm).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric"
+                  })}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Payment Purpose:</span>
+                  <span>{selectedPayment.purpose.pay_purpose}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Amount:</span>
+                  <span>₹{selectedPayment.pay_received}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Payment Bank:</span>
+                  <span>{selectedPayment.bank.bank_nm}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Status:</span>
+                  <span className={`payment-status-badge-${selectedPayment.pay_status}`}>
+                    {capsLetter(selectedPayment.pay_status)}
+                  </span>
+                </div>
+              </div>
+              {/* <button className="close-modal" onClick={() => setSelectedPayment(null)}>
               Close
             </button> */}
-          </div>
-        </div>
-      )}
-      {downloadReceipt && (
-        <div className="modal-overlay" onClick={() => setDownloadReceipt(null)}>
-          <div className="receipt-modal-container" onClick={(e) => e.stopPropagation()}>
-            {/* Fixed Header */}
-            <div className="receipt-modal-header">
-              <h3>Payment Receipt</h3>
-              <button className="receipt-modal-close-btn" onClick={() => setDownloadReceipt(null)}>
-                <XCircle size={24} />
-              </button>
             </div>
+          </div>
+        )}
 
-            {/* Scrollable Body */}
-            <div className="receipt-modal-body">
-              <div className="receipt-content" id="receipt-content">
-                {/* Receipt Header */}
-                <div className="receipt-header">
-                  <div className="receipt-logo">
-                    <FileText size={25} className="receipt-logo-icon" />
-                    <h2>Payment Receipt</h2>
-                  </div>
-                  <div className="receipt-number">
-                    <span className="receipt-label">Receipt No:</span>
-                    <span className="receipt-value">{downloadReceipt.receipt}</span>
-                  </div>
-                </div>
+        {downloadReceipt && (
+          <div className="receipt-premium-overlay" onClick={() => setDownloadReceipt(null)}>
+            <div className="receipt-premium-container" onClick={(e) => e.stopPropagation()}>
+              {/* Header */}
+              <div className="receipt-premium-header">
+                <h3>Payment Receipt</h3>
+                <button className="receipt-premium-close" onClick={() => setDownloadReceipt(null)}>
+                  <XCircle size={22} />
+                </button>
+              </div>
 
-                {/* Company Info */}
-                <div className="company-info">
-                  <h3>Complaint Management System</h3>
-                  <p>123 Business Avenue, Corporate Park</p>
-                  <p>Mumbai - 400001, India</p>
-                  <p>Email: support@complaintsystem.com | Tel: +91 22 1234 5678</p>
-                </div>
+              {/* Body */}
+              <div className="receipt-premium-body">
+                <div className="receipt-premium-content" id="receipt-content">
 
-                <div className="receipt-divider"></div>
 
-                {/* Receipt Details */}
-                <div className="receipt-details">
-                  <div className="detail-section">
-                    <h4>Transaction Details</h4>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Receipt Number:</span>
-                      <span className="detail-value">{downloadReceipt.receipt}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Transaction Date:</span>
-                      <span className="detail-value">{new Date(downloadReceipt.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Transaction Time:</span>
-                      <span className="detail-value">{new Date(downloadReceipt.date).toLocaleTimeString('en-IN')}</span>
-                    </div>
+                  {/* <div className="receipt-premium-badge">
+              <FileText size={18} />
+              <span>RECEIPT</span>
+            </div> */}
+
+                  <div className="receipt-premium-company">
+                    <h3>{companyDetails.company_name}</h3>
+                    <p>{companyDetails.address}</p>
+                    {/* <p>{companyDetails.location}, India</p> */}
+                    <p>Email: {companyDetails.email_id} | Contact: {companyDetails.com_contact}</p>
                   </div>
 
-                  <div className="detail-section">
-                    <h4>Payment Information</h4>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Payment Purpose:</span>
-                      <span className="detail-value">{downloadReceipt.purpose}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Amount Paid:</span>
-                      <span className="detail-value amount">₹{downloadReceipt.amount.toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Amount in Words:</span>
-                      <span className="detail-value">{numberToWords(downloadReceipt.amount)} Rupees Only</span>
+                  {/* Date Row */}
+                  <div className="receipt-premium-row date-row">
+                    <strong>
+                      {new Date(downloadReceipt.pay_dt_tm).toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
+                      })}
+                    </strong>
+                    <div>
+                      <span className={`receipt-premium-status ${downloadReceipt.pay_status}`}>{capsLetter(downloadReceipt.pay_status)}</span>
                     </div>
                   </div>
 
-                  <div className="detail-section">
+                  <div className="receipt-premium-divider"></div>
+
+                  {/* Section 1: Customer Details */}
+                  <div className="receipt-premium-section">
+                    <h4>Customer Details</h4>
+                    <div className="receipt-premium-info-row">
+                      <div className="receipt-premium-info-item">
+                        <label>Customer Name</label>
+                        <p>{scholarDetails.user_name}</p>
+                      </div>
+                      <div className="receipt-premium-info-item">
+                        <label>Scholar ID</label>
+                        <p>{scholarDetails.user_id}</p>
+                      </div>
+                      <div className="receipt-premium-info-item">
+                        <label>Email</label>
+                        <p>{scholarDetails.email}</p>
+                      </div>
+                      <div className="receipt-premium-info-item">
+                        <label>Contact Number</label>
+                        <p>{scholarDetails.contact}</p>
+                      </div>
+                      <div className="receipt-premium-info-item full-width">
+                        <label>Work Description</label>
+                        <p>{scholarDetails.work_description}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 2: Payment Details */}
+                  <div className="receipt-premium-section">
+                    <h4>Payment Details</h4>
+
+                    <table className="receipt-premium-table">
+                      <tbody>
+                        <tr>
+                          <th>Payment Purpose</th>
+                          <td>{downloadReceipt.purpose.pay_purpose}</td>
+                        </tr>
+
+                        <tr>
+                          <th>Total Amount</th>
+                          <td>₹{downloadReceipt.total_amount}</td>
+                        </tr>
+
+                        <tr className="highlight-row">
+                          <th>Paid Amount</th>
+                          <td>₹{downloadReceipt.pay_received}</td>
+                        </tr>
+
+                        <tr>
+                          <th>Balance Amount</th>
+                          <td>₹{downloadReceipt.bal_amt}</td>
+                        </tr>
+
+                        <tr className="full-width-row">
+                          <th>Amount in Words</th>
+                          <td>
+                            {numberToWords(downloadReceipt.pay_received)} Rupees Only
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Section 3: Bank Details */}
+                  <div className="receipt-premium-section">
                     <h4>Bank Details</h4>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Bank Name:</span>
-                      <span className="detail-value">{downloadReceipt.bank}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Transaction ID:</span>
-                      <span className="detail-value">{downloadReceipt.transactionId || 'N/A'}</span>
-                    </div>
-                    <div className="detail-row">
-                      <span className="download-detail-label">Payment Mode:</span>
-                      <span className="detail-value">{downloadReceipt.paymentMode || 'Online Transfer'}</span>
+                    <div className="receipt-bank-info-row">
+                      <div className="receipt-premium-info-item">
+                        <label>Payment Method</label>
+                        <p>Bank Transfer - {downloadReceipt.bank.bank_nm}</p>
+                      </div>
+                      <div className="receipt-premium-info-item">
+                        <label>Transaction ID</label>
+                        <p>{downloadReceipt.id || 'N/A'}</p>
+                      </div>
+                      <div className="receipt-premium-info-item">
+                        <label>Account Status</label>
+                        <p>{scholarDetails.gst_status === "gst" ? "Account 1" : "Account 2"}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="detail-section">
-                    <h4>Status</h4>
-                    <div className="detail-row">
-                      <span className={`receipt-status-badge ${downloadReceipt.status === 'success' ? 'status-success' : downloadReceipt.status === 'pending' ? 'status-pending' : 'status-failed'}`}>
-                        {downloadReceipt.status === 'success' ? '✓ Payment Successful' :
-                          downloadReceipt.status === 'pending' ? '⏳ Payment Pending' :
-                            '✗ Payment Failed'}
-                      </span>
+                  {/* Section 4: Status */}
+                  {/* <div className="receipt-premium-section status-section">
+            <div className={`receipt-premium-status ${downloadReceipt.pay_status}`}>
+              {downloadReceipt.pay_status === 'approved' ? '✓ PAYMENT SUCCESSFUL' : 
+               downloadReceipt.pay_status === 'pending' ? '⏳ PAYMENT PENDING' : '✗ PAYMENT FAILED'}
+            </div>
+          </div> */}
+
+                  <div className="receipt-premium-divider"></div>
+
+                  {/* Footer */}
+                  <div className="receipt-premium-footer">
+                    <div className="receipt-premium-signature">
+                      <p>Authorized Signature</p>
+                      {/* <div className="signature-line"></div> */}
+                      <span>{companyDetails.company_name}</span>
                     </div>
-                  </div>
-                </div>
-
-                <div className="receipt-divider"></div>
-
-                {/* Footer */}
-                <div className="receipt-footer">
-                  <div className="footer-note">
-                    <p>This is a computer generated receipt and does not require signature.</p>
-                    <p>For any queries, please contact support within 7 days of transaction.</p>
-                  </div>
-                  <div className="footer-thankyou">
-                    <p>Thank you for your payment!</p>
+                    {/* <div className="receipt-premium-thanks">
+              <p>Thank you for your payment!</p>
+            </div> */}
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Fixed Footer with Download Button */}
-            <div className="receipt-modal-footer">
-              <button className="receipt-cancel-btn" onClick={() => setDownloadReceipt(null)}>
-                Close
-              </button>
-              <button className="receipt-download-btn" onClick={() => handleDownloadReceipt()}>
-                <Download size={18} />
-                Download Receipt
-              </button>
+              {/* Footer Actions */}
+              <div className="receipt-premium-actions">
+                <button className="receipt-premium-cancel" onClick={() => setDownloadReceipt(null)}>
+                  Close
+                </button>
+                <button className="receipt-premium-download" onClick={() => handleDownloadReceipt()}>
+                  <Download size={16} />
+                  Download Receipt
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

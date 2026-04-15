@@ -104,7 +104,9 @@ const Login = ({ onLogin }) => {
 
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? (
-              <div className="spinner"></div>
+              <>
+              <div className="spinner"></div><span>Signing In...</span>
+              </>
             ) : (
               <>
                 <LogIn size={18} />
@@ -113,9 +115,9 @@ const Login = ({ onLogin }) => {
             )}
           </button>
 
-          <div className="demo-info">
+          {/* <div className="demo-info">
             <p>Demo: user / user123</p>
-          </div>
+          </div> */}
         </form>
       </div>
     </div>

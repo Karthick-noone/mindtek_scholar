@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, CheckCircle, AlertTriangle } from 'lucide-react';
 import './ChangePassword.css';
+import { useChangePassword } from "../../hooks/useChangePassword";
+// import { changePassword } from './../../services/authService';
+import { secureStorage } from '../../utils/secureStorage';
+import { useLogout } from "../../hooks/useLogout";
 
 const ChangePassword = () => {
     const [formData, setFormData] = useState({
@@ -15,6 +19,8 @@ const ChangePassword = () => {
     });
     const [message, setMessage] = useState(null);
     const [errors, setErrors] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
+
     const [passwordStrength, setPasswordStrength] = useState({
         score: 0,
         hasMinLength: false,
@@ -59,8 +65,33 @@ const ChangePassword = () => {
             [name]: value
         });
 
+        // Clear error for this field
+        if (errors[name]) {
+            setErrors({
+                ...errors,
+                [name]: ''
+            });
+        }
+
         if (name === 'newPassword') {
             checkPasswordStrength(value);
+        }
+
+        // Check password match when confirm password changes
+        if (name === 'confirmPassword' || (name === 'newPassword' && formData.confirmPassword)) {
+            const confirmValue = name === 'confirmPassword' ? value : formData.confirmPassword;
+            const newPassValue = name === 'newPassword' ? value : formData.newPassword;
+            if (confirmValue && newPassValue !== confirmValue) {
+                setErrors({
+                    ...errors,
+                    confirmPassword: 'Passwords do not match'
+                });
+            } else if (confirmValue && newPassValue === confirmValue) {
+                setErrors({
+                    ...errors,
+                    confirmPassword: ''
+                });
+            }
         }
     };
 
@@ -104,6 +135,8 @@ const ChangePassword = () => {
             newErrors.newPassword = 'New password is required';
         } else if (formData.newPassword.length < 8) {
             newErrors.newPassword = 'Password must be at least 8 characters';
+        } else if (passwordStrength.score < 3) {
+            newErrors.newPassword = 'Please choose a stronger password';
         }
 
         if (!formData.confirmPassword) {
@@ -115,22 +148,87 @@ const ChangePassword = () => {
         return newErrors;
     };
 
+    const { mutate: updatePassword } = useChangePassword();
+    const { mutate: logout } = useLogout();
+
     const handleSubmit = (e) => {
+
+        console.log("Button clicked")
         e.preventDefault();
+        setErrors({});
+
         const newErrors = validateForm();
 
         if (Object.keys(newErrors).length === 0) {
-            setMessage({ type: 'success', text: 'Password changed successfully!' });
-            setFormData({
-                currentPassword: '',
-                newPassword: '',
-                confirmPassword: ''
-            });
-            setTimeout(() => setMessage(null), 3000);
+            setIsLoading(true);
+
+            const user = secureStorage.getUser();
+
+            console.log("User", user)
+
+            updatePassword(
+                {
+                    id: user?.id,
+                    data: {
+                        old_pwd: formData.currentPassword,
+                        new_pwd: formData.newPassword,
+                        new_pwd_confirmation: formData.confirmPassword,
+                    },
+                },
+                {
+                    onSuccess: (res) => {
+                        setMessage({
+                            type: "success",
+                            text: res.data?.message || "Password changed successfully!",
+                        })
+                        setFormData({
+                            currentPassword: "",
+                            newPassword: "",
+                            confirmPassword: "",
+                        });
+
+                        setPasswordStrength({
+                            score: 0,
+                            hasMinLength: false,
+                            hasUpperCase: false,
+                            hasLowerCase: false,
+                            hasNumber: false,
+                            hasSpecialChar: false,
+                        });
+                        setTimeout(() => {
+                            logout();
+                        }, 1000);
+                    },
+
+                    onError: (err) => {
+                        setMessage({
+                            type: "error",
+                            text:
+                                err.response?.data?.message ||
+                                "Failed to change password. Try again.",
+                        });
+                    },
+
+                    onSettled: () => {
+                        setIsLoading(false);
+                    },
+                }
+            );
         } else {
             setErrors(newErrors);
         }
     };
+
+    const doPasswordsMatch = () => {
+        return formData.confirmPassword && formData.newPassword === formData.confirmPassword;
+    };
+
+    // const handleLogout = () => {
+    //     secureStorage.clear()
+    //     // setIsAuthenticated(false);
+    //     window.location.href = '/';
+    // };
+
 
     return (
         <div className="change-password-page">
@@ -156,6 +254,7 @@ const ChangePassword = () => {
                                     onChange={handleChange}
                                     placeholder="Enter current password"
                                     className="password-form-input"
+                                    autoFocus
                                 />
                                 <button
                                     type="button"
@@ -260,15 +359,39 @@ const ChangePassword = () => {
                                 </button>
                             </div>
                             {errors.confirmPassword && <span className="password-error-text">{errors.confirmPassword}</span>}
+                            {formData.confirmPassword && doPasswordsMatch() && (
+                                <div className="match-premium-success">
+                                    <CheckCircle size={14} />
+                                    <span>Passwords match!</span>
+                                </div>
+                            )}
                         </div>
 
-                        <button type="submit" className="password-submit-btn">
-                            Update Password
+                        <button
+                            type="submit"
+                            className="submit-premium-btn"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <div className="submit-premium-spinner"></div>
+                                    <span>Updating Password...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Lock size={18} />
+                                    <span>Update Password</span>
+                                </>
+                            )}
                         </button>
 
                         {message && (
-                            <div className={`password-message password-message-${message.type}`}>
-                                <CheckCircle size={18} />
+                            <div className={`message-premium ${message.type}`}>
+                                {message.type === 'success' ? (
+                                    <CheckCircle size={18} />
+                                ) : (
+                                    <AlertTriangle size={18} />
+                                )}
                                 <span>{message.text}</span>
                             </div>
                         )}

@@ -57,7 +57,7 @@
 
 
 .stat-info h3 {
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 700;
   margin: 0 0 4px 0;
   color: var(--text-color);
@@ -82,9 +82,29 @@
   margin-bottom: 32px;
   box-shadow: var(--shadow-lg);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  gap: 20px;
+}
+
+.progress-main-section {
+  flex: 3;
+}
+
+.progress-stats-section {
+  flex: 1;
 }
 
 .full-width-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.activities-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.payment-summary:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
 }
@@ -102,6 +122,22 @@
   font-size: 24px;
   font-weight: 700;
   margin: 0;
+  color: white;
+}
+
+.recent-updates-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.recent-updates-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  /* margin-bottom: 5px; */
   color: white;
 }
 
@@ -141,14 +177,7 @@
   font-weight: 700;
 }
 
-.progress-bar-main {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  height: 12px;
-  overflow: hidden;
-  margin-bottom: 12px;
-  position: relative;
-}
+
 
 .progress-fill-main {
   background: linear-gradient(90deg, #ffd89b, #c7e9fb);
@@ -343,6 +372,15 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+.payment-summary {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
 .card:hover {
   box-shadow: var(--shadow-md);
 }
@@ -351,6 +389,13 @@
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 20px 0;
+  color: var(--text-color);
+}
+
+.payment-summary h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
   color: var(--text-color);
 }
 
@@ -376,7 +421,23 @@
   border-radius: 50%;
 }
 
-.activity-status.completed {
+.activity-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.activity-status.approved {
+  background: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.activity-status.resolved {
+  background: var(--success-color);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.activity-status.Resolved {
   background: var(--success-color);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
@@ -386,7 +447,17 @@
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
 }
 
-.activity-status.in-progress {
+.activity-status.Pending {
+  background: var(--warning-color);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.activity-status.in_progress {
+  background: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.activity-status.In-Progress {
   background: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
@@ -409,32 +480,45 @@
   margin-right: 8px;
 }
 
-.activity-date {
+.activity-complaint {
   font-size: 12px;
+  font-weight: 600;
+  color: var(--danger-color);
+}
+
+.activity-date {
+  font-size: 11px;
   color: var(--text-muted);
+  /* align-items: right; */
+  justify-content: flex-end;
+  display: flex;
+  gap: 2px;
 }
 
 /* Payment Summary */
 .payment-details {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 5px;
 }
 
 .payment-item {
   display: flex;
   justify-content: space-between;
-  padding: 12px 0;
+  padding: 7px 0;
   border-bottom: 1px solid var(--border-color);
 }
 
 .payment-item span {
   color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  
 }
 
 .payment-item strong {
   color: var(--text-color);
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .paid-amount {
@@ -447,6 +531,10 @@
 
 .payment-progress {
   margin-top: 8px;
+}
+
+.payment-progress span{
+  font-size: 13px;
 }
 
 .payment-bar {
@@ -713,7 +801,7 @@
 }
 
 .progress-bar-main {
-  background: var(--border-color);
+  background: var(--card-bg);
   border-radius: 12px;
   height: 12px;
   overflow: hidden;
@@ -782,4 +870,102 @@
     flex-direction: column;
     align-items: flex-start;
   }
+}
+/* CSS for Style 4 (Recommended) */
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* .progress-list-item {
+  padding: 8px 0;
+} */
+
+.progress-list-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.progress-list-date {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.progress-list-percent {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.progress-list-bar {
+  background: var(--border-color);
+  border-radius: 10px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.progress-list-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.progress-list-note {
+  margin-top: 4px;
+}
+
+.progress-list-note span {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+
+/* Empty State Styles for Progress Stats */
+.empty-progress-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  text-align: center;
+  background: var(--hover-bg);
+  border-radius: 16px;
+  /* margin-top: 8px; */
+}
+
+.empty-icon {
+  width: 34px;
+  height: 34px;
+  background: var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* margin-bottom: 16px; */
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 4px 0;
+}
+
+.empty-description {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Make sure stats-header is hidden when empty */
+.progress-stats:has(.empty-progress-stats) .stats-header {
+  display: none;
 }

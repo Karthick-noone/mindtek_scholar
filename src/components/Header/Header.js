@@ -24,8 +24,9 @@ import './Header.css';
 import { Link } from 'react-router-dom';
 import { secureStorage } from '../../utils/secureStorage';
 import { useScholar } from '../../hooks/useScholar';
+import { useLogout } from "../../hooks/useLogout";
 
-const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) => {
+const Header = ({ onToggleSidebar, sidebarCollapsed,  setMobileOpen }) => {
   const { theme, toggleTheme } = useTheme();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -33,6 +34,7 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
   const [scrolled, setScrolled] = useState(false);
 
   const scholar = secureStorage.getScholar();
+    const { mutate: logout } = useLogout();
 
   const { data: scholarData } = useScholar();
   const scholarImage = scholarData?.scholar_profile
@@ -116,13 +118,13 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
 
         {/* Notifications */}
         <div className="notification-wrapper" ref={notificationRef}>
-          <button
+          {/* <button
             className="icon-btn notification-btn"
             onClick={() => setShowNotifications(!showNotifications)}
           >
             <Bell size={18} />
             {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
-          </button>
+          </button> */}
 
           {showNotifications && (
             <div className="notification-dropdown">
@@ -214,14 +216,14 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
                     {scholarImage ? (
                       <img src={scholarImage} alt="Profile" className='header-prof-img2' />
                     ) : (
-                      <div className="user-glass-avatar">
+                      <div className="user-glass-avatar2">
                         <span>{scholar?.user_name?.charAt(0) || 'S'}</span>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="dropdown-user-details">
-                  <p className="dropdown-name">{scholar?.user_name || 'Scholar'}</p>
+                  <span className="dropdown-name">{scholar?.user_name || 'Scholar'}</span>
                   <p className="dropdown-email">{scholar?.email || 'scholar@example.com'}</p>
                 </div>
               </div>
@@ -243,7 +245,7 @@ const Header = ({ onToggleSidebar, sidebarCollapsed, onLogout, setMobileOpen }) 
               </Link>
 
               <div className="dropdown-divider"></div>
-              <button onClick={onLogout} className="dropdown-item logout-item">
+              <button onClick={() => logout()} className="dropdown-item logout-item">
                 <LogOut size={16} />
                 <span>Logout</span>
               </button>

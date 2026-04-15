@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  User, 
-  Key, 
-  CreditCard, 
-  FileText, 
+import {
+  LayoutDashboard,
+  User,
+  Key,
+  CreditCard,
+  FileText,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -13,11 +13,21 @@ import {
 } from 'lucide-react';
 import './Sidebar.css';
 import logo from './../../assets/img/logo.png';
+import darkThemelogo from './../../assets/img/company-logo.png';
+import { useLogout } from "../../hooks/useLogout";
+import { secureStorage } from '../../utils/secureStorage';
+import { useTheme } from '../../contexts/ThemeContext';
 
-const Sidebar = ({ collapsed, onLogout, onToggle,mobileOpen, setMobileOpen }) => {
+const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   // const [mobileOpen, setMobileOpen] = useState(false);
+  const { mutate: logout } = useLogout();
+
+const { theme } = useTheme();
+
+  const companyDetails = secureStorage.getCompany();
+  const companyLogo = `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
 
   useEffect(() => {
     const handleResize = () => {
@@ -53,14 +63,15 @@ const Sidebar = ({ collapsed, onLogout, onToggle,mobileOpen, setMobileOpen }) =>
       {isMobile && mobileOpen && (
         <div className="sidebar-overlay" onClick={() => setMobileOpen(false)}></div>
       )}
-      
+
       <div className={sidebarClasses}>
         <div className="sidebar-header">
           <div className="logo-container">
             <div className="logo-icon">
               <GraduationCap size={28} />
             </div>
-            {(!collapsed || isMobile) && <img src={logo} alt="Logo" className="logo-image" />}
+            {(!collapsed || isMobile) && <img src={theme  === "dark" ? darkThemelogo : logo} alt="Logo" className="logo-image" />}
+            {/* {(!collapsed || isMobile) && <img src={companyLogo || logo} alt="Logo" className="logo-image" />} */}
             {/* {(!collapsed || isMobile) && <h2 className="logo-text">Sea Sense Scholar</h2>} */}
           </div>
 
@@ -76,7 +87,7 @@ const Sidebar = ({ collapsed, onLogout, onToggle,mobileOpen, setMobileOpen }) =>
             <NavLink
               key={item.path}
               to={item.path}
-              className={({ isActive }) => 
+              className={({ isActive }) =>
                 `nav-link ${isActive ? 'active' : ''}`
               }
               onClick={handleNavClick}
@@ -88,7 +99,7 @@ const Sidebar = ({ collapsed, onLogout, onToggle,mobileOpen, setMobileOpen }) =>
         </nav>
 
         <div className="sidebar-footer">
-          <button onClick={onLogout} className="logout-btn">
+          <button onClick={() => logout()} className="logout-btn">
             <LogOut size={22} />
             {(!collapsed || isMobile) && <span className="nav-label">Logout</span>}
           </button>

@@ -26,3 +26,8 @@ export const getComplaintCounts = () => {
 
   return apiClient.get(`/complaints/count/${scholar.id}`);
 };
+
+// Update rating
+export const updateComplaintRating = (id, data) => {
+  return apiClient.post(`/update-rating/${id}`, data);
+};

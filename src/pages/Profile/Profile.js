@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, FolderOpen, GraduationCap, Building, Users, FileText, Briefcase, BriefcaseBusiness } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, FolderOpen, GraduationCap, Building, Users, FileText, Briefcase, BriefcaseBusiness, Trash2, AlertCircle, XCircle, Notebook } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './Profile.css';
 import { useScholar } from '../../hooks/useScholar';
 import { secureStorage } from '../../utils/secureStorage';
 import { useUploadProfileImage } from "../../hooks/useProfile";
+import { useLastWorkStatus } from "../../hooks/useWorkDetails";
 
 const Profile = () => {
     const [loading, setLoading] = useState(true);
@@ -25,7 +26,7 @@ const Profile = () => {
         : null;
 
     const [formData, setFormData] = useState();
-    const [workProgress, setWorkProgress] = useState(65);
+    const [workProgress, setWorkProgress] = useState(0);
 
     //   useEffect(() => {
     //     setTimeout(() => {
@@ -33,38 +34,49 @@ const Profile = () => {
     //     }, 1500);
     //   }, []);
 
- const handleImageClick = () => {
-    fileInputRef.current.click();
-  };
+    const { data: lastStatus } = useLastWorkStatus();
 
-  const { mutate: uploadImage } = useUploadProfileImage();
+    const lastWorkStatus = lastStatus?.status;
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    useEffect(() => {
+        if (lastWorkStatus !== undefined) {
+            setWorkProgress(Number(lastWorkStatus) || 0);
+        }
+    }, [lastWorkStatus]);
 
-    if (file) {
-      const formData = new FormData();
-      formData.append("scholar_profile", file);
 
-      uploadImage(formData);
-    }
-  };
-const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const handleImageClick = () => {
+        fileInputRef.current.click();
+    };
 
-const handleDeleteImage = () => {
-  setShowDeleteConfirm(true);
-};
+    const { mutate: uploadImage } = useUploadProfileImage();
 
-const confirmDelete = () => {
-  const formData = new FormData();
-  formData.append("remove", 1);
-  uploadImage(formData);
-  setShowDeleteConfirm(false);
-};
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
 
- const cancelDelete = () => {
-    setShowDeleteConfirm(false);
-  };
+        if (file) {
+            const formData = new FormData();
+            formData.append("scholar_profile", file);
+
+            uploadImage(formData);
+        }
+    };
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    const handleDeleteImage = () => {
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = () => {
+        const formData = new FormData();
+        formData.append("remove", 1);
+        uploadImage(formData);
+        setShowDeleteConfirm(false);
+    };
+
+    const cancelDelete = () => {
+        setShowDeleteConfirm(false);
+    };
 
 
 
@@ -82,6 +94,11 @@ const confirmDelete = () => {
     //     );
     //   }
 
+    const capsLetter = (str) => {
+        if (!str) return;
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
     return (
         <div className="profile-page">
             <div className="profile-header">
@@ -91,12 +108,14 @@ const confirmDelete = () => {
 
 
             <div className="profile-container">
-                <div className="profile-sidebar">
+                <div className="profile-sidebar"
+                    onMouseEnter={() => setHoverImage(true)}
+                    onMouseLeave={() => setHoverImage(false)}
+                >
+
                     <div className="profile-avatar">
                         <div
                             className="avatar-premium-wrapper"
-                            onMouseEnter={() => setHoverImage(true)}
-                            onMouseLeave={() => setHoverImage(false)}
                             onClick={handleImageClick}
                         >
                             {scholarImage ? (
@@ -106,17 +125,16 @@ const confirmDelete = () => {
                                     <span>{scholar?.user_name.charAt(0)}</span>
                                 </div>
                             )}
-                            {hoverImage && (
-                                <div className="avatar-edit-overlay">
-                                    <Camera size={24} />
-                                    <span>Change Photo</span>
-                                </div>
-                            )}
+
+                            <div className="camera-icon">
+                                <Camera size={16} />
+                            </div>
+
                             <input
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleImageChange}
-                                accept="image/*"
+                                accept=".png, .jpg, .jpeg"
                                 style={{ display: 'none' }}
                             />
                         </div>
@@ -126,7 +144,13 @@ const confirmDelete = () => {
                             <span className="badge">{scholar?.user_id}</span>
                         </div>
                     </div>
-
+                    {scholarImage && hoverImage && (
+                        <div className="avatar-delete-btn"
+                            onClick={handleDeleteImage}
+                        >
+                            <Trash2 size={15} />
+                        </div>
+                    )}
 
                     <div className="profile-contact-info">
                         <h4>Contact Information</h4>
@@ -196,117 +220,7 @@ const confirmDelete = () => {
                     </div> */}
 
                     <div className="profile-form">
-                        <div className="form-section">
-                            {/* <h3>
-                                <GraduationCap size={20} />
-                                Personal Information
-                            </h3> */}
-                            {/* <div className="form-grid">
-                                <div className="form-field">
-                                    <label>Full Name</label>
-                                    {editing ? (
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            placeholder="Enter your full name"
-                                            className="form-input"
-                                        />
-                                    ) : (
-                                        <div className="field-value">
-                                            <User size={16} />
-                                            <span>{profile.name}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="form-field">
-                                    <label>Email Address</label>
-                                    {editing ? (
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            placeholder="Enter your email address"
-                                            className="form-input"
-                                        />
-                                    ) : (
-                                        <div className="field-value">
-                                            <Mail size={16} />
-                                            <span>{profile.email}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="form-field">
-                                    <label>Phone Number</label>
-                                    {editing ? (
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                            placeholder="Enter your phone number"
-                                            className="form-input"
-                                        />
-                                    ) : (
-                                        <div className="field-value">
-                                            <Phone size={16} />
-                                            <span>{profile.phone}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="form-field">
-                                    <label>Department</label>
-                                    {editing ? (
-                                        <select
-                                            name="department"
-                                            value={formData.department}
-                                            onChange={handleChange}
-                                            className="form-select"
-                                        >
-                                            <option value="Computer Science">Computer Science</option>
-                                            <option value="Data Science">Data Science</option>
-                                            <option value="Artificial Intelligence">Artificial Intelligence</option>
-                                            <option value="Information Technology">Information Technology</option>
-                                        </select>
-                                    ) : (
-                                        <div className="field-value">
-                                            <Building size={16} />
-                                            <span>{profile.department}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-
-
-
-                                <div className="form-field full-width">
-                                    <label>Address</label>
-                                    {editing ? (
-                                        <textarea
-                                            name="address"
-                                            value={formData.address}
-                                            onChange={handleChange}
-                                            rows="3"
-                                            placeholder="Enter your address"
-                                            className="form-textarea"
-                                        />
-                                    ) : (
-                                        <div className="field-value">
-                                            <MapPin size={16} />
-                                            <span>{profile.address}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-
-
-
-                            </div> */}
+                        
                             <div className="form-section">
 
                                 <h3>
@@ -376,7 +290,7 @@ const confirmDelete = () => {
                                             <span className='work-percentage'>{workProgress}%</span>
                                         </div>
 
-                                        <div className="progress-bar-main"
+                                        <div className="profile-progress-bar-main"
                                             style={{ marginTop: '15px' }}
                                         >
                                             <div
@@ -386,11 +300,69 @@ const confirmDelete = () => {
                                                 <div className="progress-glow"></div>
                                             </div>
                                         </div>
+                                        <div className="progress-premium-stats">
+                                            {lastStatus?.note && (<>
+                                            <div className="progress-stat">
+                                                <Notebook size={14} />
+                                                <span>Notes:</span>
+                                                {capsLetter(lastStatus?.note)}
+                                            </div>
+                                            <div className="progress-stat">
+                                                <Calendar size={14} />
+                                                {/* <span>Remaining</span> */}
+                                                {new Date(lastStatus?.date).toLocaleString("en-GB", {
+                                                    day: "2-digit",
+                                                    month: 'short',
+                                                    year: 'numeric'
+                                                })}
+                                            </div>
+                                            </>)}
+                                            {/* <div className="progress-stat">
+                  <Clock size={14} />
+                  <span>Remaining</span>
+                 {100 - workProgress}
+                </div> */}
+                                        </div>
                                     </div>
 
                                 </div>
                             </div>
-                        </div>
+
+                            {showDeleteConfirm && (
+                                <div className="modal-premium-overlay" onClick={cancelDelete}>
+                                    <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
+                                        <div className="confirmation-modal-header">
+                                            <AlertCircle size={24} color="#ef4444" />
+                                            <h3>Delete Profile Image</h3>
+                                            <button
+                                                className="modal-close-icon"
+                                                onClick={cancelDelete}
+                                                style={{
+                                                    marginLeft: 'auto',
+                                                    background: 'none',
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    color: 'var(--text-muted)'
+                                                }}
+                                            >
+                                                <XCircle size={20} />
+                                            </button>
+                                        </div>
+                                        <div className="confirmation-modal-body">
+                                            <p>Are you sure you want to delete your profile image?</p>
+                                            <p className="warning-text">This action cannot be undone.</p>
+                                        </div>
+                                        <div className="confirmation-modal-footer">
+                                            <button className="confirmation-btn cancel" onClick={cancelDelete}>
+                                                Cancel
+                                            </button>
+                                            <button className="confirmation-btn delete" onClick={confirmDelete}>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                     </div>
                 </div>
             </div>
