@@ -18,12 +18,15 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsRight,
-  EditIcon
+  EditIcon,
+  Trash2,
+  X
 } from 'lucide-react';
 import { BsStarFill } from 'react-icons/bs';
 import './ComplainRegister.css';
-import { useComplaints, useCreateComplaint, useComplaintCounts, useUpdateRating } from '../../hooks/useComplaints';
+import { useComplaints, useCreateComplaint, useComplaintCounts, useUpdateRating, useDeleteComplaint } from '../../hooks/useComplaints';
 import { secureStorage } from '../../utils/secureStorage';
+import trashOff  from './../../assets/img/recycle-bin.png';
 
 const ComplainRegister = () => {
   const [formData, setFormData] = useState({
@@ -37,13 +40,14 @@ const ComplainRegister = () => {
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [viewShowModal, setShowViewModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Pagination & Filter State
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-
+const [selectedComplaintId, setSelectedComplaintId] = useState(null);
   // Fetch complaints from backend with pagination
   const {
     data: apiResponse,
@@ -51,6 +55,7 @@ const ComplainRegister = () => {
     isFetching,
     refetch
   } = useComplaints(currentPage, rowsPerPage, filterStatus, searchTerm);
+
 
   // const {data: apiComplaints = []} = useAllComplaints();
 
@@ -64,6 +69,8 @@ const ComplainRegister = () => {
   const totalPages = pagination?.total_pages || 1;
 
   const { mutate: submitComplaint } = useCreateComplaint();
+  const { mutate: deleteComplaint } = useDeleteComplaint();
+
   const scholarDetails = secureStorage.getScholar();
   const scholar_id = scholarDetails?.id;
   const user_id = scholarDetails?.user_id;
@@ -76,6 +83,8 @@ const ComplainRegister = () => {
   const pendingComplaints = counts?.pending;
   const inProgressComplaints = counts?.in_progress;
   const resolvedComplaintsCount = counts?.resolved;
+
+
 
 
   const statsCards = [
@@ -126,8 +135,45 @@ const ComplainRegister = () => {
     const newErrors = {};
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (formData.description.length < 20) newErrors.description = 'Description must be at least 20 characters';
+    if (formData.description.length > 500) newErrors.description = 'Complaint must be at most 500 characters';
+
     return newErrors;
   };
+
+
+ const cancelDelete = () => {
+  setShowDeleteConfirm(false);
+  setSelectedComplaintId(null); 
+};
+
+const handleDelete = (id) => {
+  setSelectedComplaintId(id);   
+  setShowDeleteConfirm(true);
+};
+
+
+
+ const confirmDelete = () => {
+  if (!selectedComplaintId) return;
+
+  deleteComplaint(selectedComplaintId, {
+    onSuccess: () => {
+      setSubmittedMessage('Complaint deleted successfully!');
+      setSubmitted(true);
+
+      setShowDeleteConfirm(false);   //  now works properly
+      setSelectedComplaintId(null);  //  reset
+
+      setTimeout(() => setSubmitted(false), 3000);
+    },
+    onError: () => {
+      setSubmittedMessage('Failed to delete complaint.');
+      setSubmitted(true);
+
+      setTimeout(() => setSubmitted(false), 3000);
+    }
+  });
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -209,7 +255,7 @@ const ComplainRegister = () => {
   };
 
   const getStatusBadge = (complaint) => {
-    if (complaint.resolve_status === 'resolved') {
+    if (complaint.resolve_status === 'resolved' && complaint.reply_content !== null) {
       return <span className="status-badge status-resolved">Resolved</span>;
     } else if (complaint.resolve_status === null && complaint.reply_content !== null) {
       return <span className="status-badge status-in-progress">In Progress</span>;
@@ -246,13 +292,22 @@ const ComplainRegister = () => {
     }
   };
 
-  const getShortDescription = (description) => {
-    if (!description) return '';
-    if (description.length <= 30) return description;
-    let trimmed = description.substring(0, 30);
-    trimmed = trimmed.substring(0, trimmed.lastIndexOf(' '));
+const getShortDescription = (description) => {
+  if (!description) return '';
+
+  if (description.length <= 30) return description;
+
+  const trimmed = description.substring(0, 15);
+
+  //  If no space (single word), just cut directly
+  if (!trimmed.includes(' ')) {
     return trimmed + '...';
-  };
+  }
+
+  //  Otherwise cut at last full word
+  return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
+};
+
 
   // Handle filter change
   const handleFilterChange = (status) => {
@@ -374,14 +429,23 @@ const ComplainRegister = () => {
               Resolved
             </button>
           </div>
+           {searchTerm && (
+            <div className='search-term'>
+              <p>Searching: <span>"{searchTerm}"</span></p>
+            </div>
+          )}
           <div className="complaint-search-wrapper">
             <input
-              type="search"
+              type="text"
               placeholder="Search complaints..."
               value={searchTerm}
               onChange={handleSearch}
               className="complaint-search-input"
             />
+             {searchTerm && (
+
+              <X size={15} className="search-clear-icon" onClick={() => setSearchTerm('')} />
+            )}
           </div>
         </div>
 
@@ -393,19 +457,20 @@ const ComplainRegister = () => {
               <thead className="complaint-table-header">
                 <tr className="complaint-table-row">
                   <th className="complaint-table-head">Ticket ID</th>
-                  <th className="complaint-table-head">Description</th>
+                  <th className="complaint-table-head">Complaints</th>
                   <th className="complaint-table-head">View</th>
                   <th className="complaint-table-head">Date</th>
                   <th className="complaint-table-head">Reply</th>
                   <th className="complaint-table-head">Status</th>
                   <th className="complaint-table-head">Rating</th>
+                  <th className="complaint-table-head">Delete</th>
                 </tr>
               </thead>
               <tbody className="complaint-table-body">
 
                 {isLoading || isFetching ? (
                   <tr className="complaint-loading-row">
-                    <td colSpan="7" className="complaint-loading-cell">
+                    <td colSpan="8" className="complaint-loading-cell">
                       <div className="complaint-loading-state">
                         <div className="loading-spinner"></div>
                         <p>Loading complaints...</p>
@@ -479,11 +544,26 @@ const ComplainRegister = () => {
                           <span className="no-reply-text">No Rating</span>
                         )}
                       </td>
+                      <td className="complaint-table-cell" data-label="Status">
+                        {complaint.reply_content === null ? (
+                          <div className="complaint-delete-button"
+                          onClick={() => handleDelete(complaint.id)}
+                          >
+                          <Trash2 size={16}
+                        />
+                        </div>
+                      
+                      ) : (
+                        <div className="complaint-delete-off-button">
+                          <img src={trashOff} width={'20px'}/>
+                          </div>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr className="complaint-table-row">
-                    <td colSpan="7" className="complaint-no-data-cell">
+                    <td colSpan="8" className="complaint-no-data-cell">
                       <AlertCircle size={48} />
                       <p className="complaint-no-data-text">No complaints found</p>
                     </td>
@@ -495,7 +575,7 @@ const ComplainRegister = () => {
         </div>
 
         {/* Pagination Controls */}
-        {totalCount > 0 && (
+        {totalPages > 1 && (
           <div className="pagination-premium-controls">
             <div className="rows-per-page-premium">
               <label>Rows per page:</label>
@@ -643,7 +723,7 @@ const ComplainRegister = () => {
                     <div className="reply-content complaint-text">
                       {selectedComplaint.complaint}
                     </div>
-                     <div className="reply-date">
+                    <div className="reply-date">
                       Registered on: {new Date(selectedComplaint.complt_reg_dt).toLocaleDateString("en-GB", {
                         day: "2-digit",
                         month: "short",
@@ -721,6 +801,42 @@ const ComplainRegister = () => {
           </div>
         )}
 
+        {showDeleteConfirm && (
+          <div className="modal-premium-overlay" onClick={cancelDelete}>
+            <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="confirmation-modal-header">
+                <AlertCircle size={24} color="#ef4444" />
+                <h3>Delete This Complaint</h3>
+                <button
+                  className="modal-close-icon"
+                  onClick={cancelDelete}
+                  style={{
+                    marginLeft: 'auto',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-muted)'
+                  }}
+                >
+                  <XCircle size={20} />
+                </button>
+              </div>
+              <div className="confirmation-modal-body">
+                <p>Are you sure you want to delete this complaint?</p>
+                {/* <p className="warning-text">This action cannot be undone.</p> */}
+              </div>
+              <div className="confirmation-modal-footer">
+                <button className="confirmation-btn cancel" onClick={cancelDelete}>
+                  Cancel
+                </button>
+                <button className="confirmation-btn delete" onClick={confirmDelete}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* View Complaint Modal */}
         {viewShowModal && selectedComplaint && (
           <div className="complaint-modal-overlay" onClick={() => setShowViewModal(false)}>
@@ -734,9 +850,9 @@ const ComplainRegister = () => {
               <div className="complaint-modal-body">
                 <div className="reply-details">
                   <div className="reply-section">
-                    <label className="reply-label">Description:</label>
+                    {/* <label className="reply-label">Description:</label> */}
                     <div className="reply-content complaint-text">
-                      {selectedComplaint.complaint}
+                     <p> {selectedComplaint.complaint}</p>
                     </div>
                     <div className="reply-date">
                       Registered on: {new Date(selectedComplaint.complt_reg_dt).toLocaleDateString("en-GB", {

@@ -1,14 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createComplaint, getComplaintCounts, getComplaints, updateComplaintRating } from "../services/complaintService";
+import { createComplaint, getComplaintCounts, getComplaints, updateComplaintRating, deleteComplaint } from "../services/complaintService";
 import { secureStorage } from "../utils/secureStorage";
 
 // Fetch complaints with pagination, filters, search
-export const useComplaints = (page = 1, perPage = 10, resolve_status = 'all', search = '') => {
+// In your useComplaints hook
+export const useComplaints = (page = 1, perPage = 10, status = 'all', search = '') => {
   const scholar = secureStorage.getScholar();
 
   return useQuery({
-    queryKey: ["complaints", scholar?.id, page, perPage, resolve_status, search],
-    queryFn: () => getComplaints(scholar?.id, page, perPage, resolve_status, search).then(res => res.data),
+    queryKey: ["complaints", scholar?.id, page, perPage, status, search],
+    queryFn: () => getComplaints(scholar?.id, page, perPage, status, search).then(res => res.data),
     enabled: !!scholar?.id,
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes (ADD THIS)
@@ -44,8 +45,6 @@ export const useComplaintCounts = () => {
   });
 };
 
-
-
 export const useUpdateRating = () => {
   const queryClient = useQueryClient();
 
@@ -71,6 +70,23 @@ export const useUpdateRating = () => {
       
       // Also update complaint counts if needed
       queryClient.invalidateQueries(["complaintCounts"]);
+    },
+  });
+};
+
+
+export const useDeleteComplaint = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteComplaint,
+
+    onSuccess: () => {
+      //  Refetch all complaints (correct way)
+      queryClient.invalidateQueries({ queryKey: ["complaints"] });
+
+      //  Update counts
+      queryClient.invalidateQueries({ queryKey: ["complaintCounts"] });
     },
   });
 };

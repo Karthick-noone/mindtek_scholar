@@ -14,6 +14,7 @@ import Profile from './pages/Profile/Profile';
 import ChangePassword from './pages/ChangePassword/ChangePassword';
 import PaymentHistory from './pages/PaymentHistory/PaymentHistory';
 import ComplainRegister from './pages/ComplainRegister/ComplainRegister';
+import ForgotPassword from './pages/ForgetPassword/ForgetPassword';
 
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 
@@ -40,13 +41,15 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
-
   const toggleSidebar = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  const isLoginPage = location.pathname === '/login';
+  // Public routes that should NOT show sidebar/header
+  const publicRoutes = ['/login', '/forgot-password'];
+  const isPublicPage = publicRoutes.some(route =>
+    location.pathname === route || location.pathname.startsWith(route + '/')
+  );
 
   // Show No Internet component if offline
   if (!isOnline) {
@@ -55,8 +58,8 @@ function App() {
 
   return (
     <div className={`app ${theme}`}>
-      {/* Protected Layout */}
-      {!isLoginPage && isAuthenticated && (
+      {/* Protected Layout - Only show when NOT on public page AND authenticated */}
+      {!isPublicPage && isAuthenticated && (
         <div className="app-layout">
           <Sidebar
             collapsed={sidebarCollapsed}
@@ -82,8 +85,8 @@ function App() {
         </div>
       )}
 
-      {/* Public/Login */}
-      {(isLoginPage || !isAuthenticated) && (
+      {/* Public Routes - Show when on public page OR not authenticated */}
+      {(isPublicPage || !isAuthenticated) && (
         <AppRoutes isAuthenticated={isAuthenticated} />
       )}
     </div>
@@ -91,13 +94,13 @@ function App() {
 }
 
 function AppRoutes({ isAuthenticated }) {
-  
   return (
     <Routes>
-      {/* Public */}
+      {/* Public Routes - No sidebar/header */}
       <Route path="/login" element={<Login />} />
-
-      {/* Private */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+      {/* Private Routes - With sidebar/header */}
       <Route
         path="/dashboard"
         element={
@@ -118,8 +121,7 @@ function AppRoutes({ isAuthenticated }) {
         path="/change-password"
         element={
           <PrivateRoute>
-            <ChangePassword
-            />
+            <ChangePassword />
           </PrivateRoute>
         }
       />
@@ -140,7 +142,7 @@ function AppRoutes({ isAuthenticated }) {
         }
       />
 
-      {/* Default */}
+      {/* Default Redirect - Root path */}
       <Route
         path="/"
         element={
@@ -152,6 +154,7 @@ function AppRoutes({ isAuthenticated }) {
         }
       />
 
+      {/* Catch all - 404 redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

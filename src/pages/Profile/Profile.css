@@ -81,8 +81,8 @@
   bottom: -3px;
   right: 10px;
   background: var(--card-bg);
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -90,8 +90,16 @@
   /* color: white; */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   border: 1px solid var(--border-color);
+  transition: all 0.25s ease;
+
 }
 
+.camera-icon:hover {
+  transform: scale(1.12);
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+}
 
 .avatar-large {
   width: 120px;
@@ -349,7 +357,7 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 5  px;
+  gap: 5 px;
 }
 
 .form-field.full-width {
@@ -400,6 +408,7 @@
 .field-value {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   padding: 12px 0;
   color: var(--text-color);
@@ -417,9 +426,9 @@
   line-height: 1.5;
 }
 
-.bio-text {
+/* .bio-text {
   align-items: flex-start;
-}
+} */
 
 /* Responsive Design */
 @media (max-width: 1024px) {

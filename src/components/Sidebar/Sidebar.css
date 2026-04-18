@@ -108,7 +108,7 @@
 .collapse-btn {
   background: var(--hover-bg);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 8px ;
   width: 32px;
   height: 32px;
   display: flex;
@@ -160,7 +160,7 @@
   color: var(--sidebar-text);
   text-decoration: none;
   transition: all 0.2s ease;
-  border-radius: 12px;
+  /* border-radius:0px 12px 12px 0px; */
   position: relative;
   overflow: hidden;
 }

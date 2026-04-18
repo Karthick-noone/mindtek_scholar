@@ -203,7 +203,7 @@ const Header = ({ onToggleSidebar, sidebarCollapsed,  setMobileOpen }) => {
             </div>
             <div className="user-info">
               <span className="user-name">{scholar?.user_name || 'Scholar'}</span>
-              <span className="user-role">Scholar</span>
+              <span className="user-role">{scholar?.user_id || 'Scholar ID'}</span>
             </div>
             <ChevronDown size={16} className="chevron-icon" />
           </button>

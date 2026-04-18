@@ -31,3 +31,7 @@ export const getComplaintCounts = () => {
 export const updateComplaintRating = (id, data) => {
   return apiClient.post(`/update-rating/${id}`, data);
 };
+
+export const deleteComplaint = (id) => {
+  return apiClient.delete(`/complaint/delete/${id}`);
+};

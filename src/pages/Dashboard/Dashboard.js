@@ -150,57 +150,66 @@ const Dashboard = () => {
       isZero: pendingPayment === 0
     },
     { icon: ThumbsUp, label: 'Resolved Complaints', value: resolvedComplaints, change: '+5', color: '#34d399' },
-    { icon: AlertCircle, label: 'Pending Complaints', value: pendingComplaints, change: '-2', color: '#ef4444' },
+    {
+      icon: AlertCircle,
+      label: 'Pending Complaints',
+       value: pendingComplaints === 0
+        ? 'No pending complaints'
+        : `₹${pendingComplaints.toLocaleString()}`,
+      change: '-2',
+      color: '#ef4444',
+      isZero: pendingComplaints === 0
+
+    },
   ];
 
   const recentActivities = [
-  //  Payment Activity (only if exists)
-  ...(payment
-    ? [{
+    //  Payment Activity (only if exists)
+    ...(payment
+      ? [{
         id: 1,
         activity: `Payment Paid for ${payment?.purpose?.pay_purpose || ''}`,
         date: new Date(payment?.pay_dt_tm).toLocaleString("en-GB", {
           day: '2-digit',
           month: 'short',
           year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
+          // hour: '2-digit',
+          // minute: '2-digit',
+          // hour12: true
         }),
         status: payment?.pay_status,
         amount: payment?.pay_received || 0
       }]
-    : []),
+      : []),
 
-  //  Complaint Activity (ONLY if complaint exists)
-  ...(complaint?.complaint
-    ? [{
+    //  Complaint Activity (ONLY if complaint exists)
+    ...(complaint?.complaint
+      ? [{
         id: 2,
-        activity: `Complaint ${
-          complaint?.resolve_status === "resolved" && complaint?.reply_content
-            ? 'Resolved'
-            : complaint?.resolve_status === null && !complaint?.reply_content
+        activity: `Complaint ${complaint?.resolve_status === "resolved" && complaint?.reply_content
+          ? 'Resolved'
+          : complaint?.resolve_status === null && !complaint?.reply_content
             ? 'Pending'
             : 'In-Progress'
-        } - Last Submission`,
+          } - Last Submission`,
         date: new Date(complaint?.complt_reg_dt).toLocaleString("en-GB", {
           day: '2-digit',
           month: 'short',
           year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true
+          // hour: '2-digit',
+          // minute: '2-digit',
+          // hour12: true
         }),
         status:
           complaint?.resolve_status === "resolved" && complaint?.reply_content
             ? 'Resolved'
             : complaint?.resolve_status === null && complaint?.reply_content
-            ? 'In Progress'
-            : 'Pending',
+              ? 'In Progress'
+              : 'Pending',
         complaint: complaint?.complaint
       }]
-    : [])
-];
+      : [])
+  ];
   // if (loading) {
   //   return (
   //     <div className="dashboard">
@@ -227,6 +236,21 @@ const Dashboard = () => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
+const getShortDescription = (description) => {
+  if (!description) return '';
+
+  if (description.length <= 30) return description;
+
+  const trimmed = description.substring(0, 30);
+
+  //  If no space (single word), just cut directly
+  if (!trimmed.includes(' ')) {
+    return trimmed + '...';
+  }
+
+  //  Otherwise cut at last full word
+  return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
+};
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -237,14 +261,14 @@ const Dashboard = () => {
       <div className="stats-grid">
         {stats.map((stat, index) => (
           <div key={index} className="stat-card">
-             {!stat.isZero && (
-            <div className="stat-icon" style={{ background: `${stat.color}20`, color: stat.color }}>
-              <stat.icon size={24} />
-            </div>
-             )}
+            {!stat.isZero && (
+              <div className="stat-icon" style={{ background: `${stat.color}20`, color: stat.color }}>
+                <stat.icon size={24} />
+              </div>
+            )}
             <div className="stat-info">
-              <h3>{stat.value}</h3>
-              {!stat.isZero && <p>{stat.label}</p>}
+              <h3 style={{fontSize:stat.isZero ? "14px" :'',  textAlign: stat.isZero ? "center" : '' }}>{stat.value}</h3>
+              {!stat.isZero && <p >{stat.label}</p>}
               {/* <span className="stat-change">{stat.change} this month</span> */}
             </div>
           </div>
@@ -276,14 +300,14 @@ const Dashboard = () => {
             <div className="progress-stats-full">
               {lastStatus?.note && (
                 <>
-              <span>Notes: {capsLetter(lastStatus?.note)}</span>
-              <span> {new Date(lastStatus?.date).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: 'short',
-                year: 'numeric'
-              })}</span>
-              </>
-            )}
+                  <span>Notes: {capsLetter(lastStatus?.note)}</span>
+                  <span> {new Date(lastStatus?.date).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: 'short',
+                    year: 'numeric'
+                  })}</span>
+                </>
+              )}
               {/* <span>Remaining: {100 - workProgress}%</span> */}
             </div>
 
@@ -319,7 +343,7 @@ const Dashboard = () => {
                       </div>
                       {item.note && (
                         <div className="progress-list-note">
-                          <span>{item.note}</span>
+                          <span>{capsLetter(item.note)}</span>
                         </div>
                       )}
                     </div>
@@ -348,27 +372,27 @@ const Dashboard = () => {
         <div className="card activities-card">
           <h3>Recent Activities</h3>
           <div className="activities-list">
-         {recentActivities.map(activity => (
-    <div key={activity.id} className="activity-item">
-      <div className={`activity-status ${activity.status}`}></div>
+            {recentActivities.map(activity => (
+              <div key={activity.id} className="activity-item">
+                <div className={`activity-status ${activity.status}`}></div>
 
-      <div className="activity-info">
-        <p className="activity-title">{activity.activity}</p>
+                <div className="activity-info">
+                  <p className="activity-title">{activity.activity}</p>
 
-        <div className='activity-footer'>
-          {activity.amount && (
-            <span className="activity-amount">₹{activity.amount}</span>
-          )}
+                  <div className='activity-footer'>
+                    {activity.amount && (
+                      <span className="activity-amount">₹{activity.amount}</span>
+                    )}
 
-          {activity.complaint && (
-            <span className="activity-complaint">{activity.complaint}</span>
-          )}
+                    {activity.complaint && (
+                      <span className="activity-complaint" title={activity.complaint}>{getShortDescription(activity.complaint)}</span>
+                    )}
 
-          <span className="activity-date">{activity.date}</span>
-        </div>
-      </div>
-    </div>
-  ))}
+                    <span className="activity-date">{activity.date}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -376,17 +400,19 @@ const Dashboard = () => {
           <h3>Payment Summary</h3>
           <div className="payment-details">
             <div className="payment-item">
-              <span>Total Projects Value</span>
+              <span>Total Amount</span>
               <strong>₹{(totalPaid + pendingPayment).toLocaleString()}</strong>
             </div>
             <div className="payment-item">
               <span>Total Paid</span>
               <strong className="paid-amount">₹{totalPaid.toLocaleString()}</strong>
             </div>
-            <div className="payment-item">
-              <span>Pending Payment</span>
-              <strong className="pending-amount">₹{pendingPayment.toLocaleString()}</strong>
-            </div>
+            {pendingPayment > 0 && (
+              <div className="payment-item">
+                <span>Pending Payment</span>
+                <strong className="pending-amount">₹{pendingPayment.toLocaleString()}</strong>
+              </div>
+            )}
             <div className="payment-progress">
               <div className="payment-bar">
                 <div

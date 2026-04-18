@@ -261,7 +261,7 @@ const ChangePassword = () => {
                                     className="password-toggle-btn"
                                     onClick={() => togglePasswordVisibility('current')}
                                 >
-                                    {showPasswords.current ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPasswords.current ? <Eye size={18} /> : <EyeOff size={18} />}
                                 </button>
                             </div>
                             {errors.currentPassword && <span className="password-error-text">{errors.currentPassword}</span>}
@@ -283,7 +283,7 @@ const ChangePassword = () => {
                                     className="password-toggle-btn"
                                     onClick={() => togglePasswordVisibility('new')}
                                 >
-                                    {showPasswords.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPasswords.new ? <Eye size={18} /> : <EyeOff size={18} />}
                                 </button>
                             </div>
                             {errors.newPassword && <span className="password-error-text">{errors.newPassword}</span>}
@@ -355,7 +355,7 @@ const ChangePassword = () => {
                                     className="password-toggle-btn"
                                     onClick={() => togglePasswordVisibility('confirm')}
                                 >
-                                    {showPasswords.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {showPasswords.confirm ? <Eye size={18} /> : <EyeOff size={18} />}
                                 </button>
                             </div>
                             {errors.confirmPassword && <span className="password-error-text">{errors.confirmPassword}</span>}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Lock, GraduationCap, Eye, EyeOff, LogIn } from 'lucide-react';
 import './Login.css';
 import logo from './../../assets/img/logo.png';
@@ -23,6 +23,7 @@ const Login = ({ onLogin }) => {
       const res = await loginUser({
         user_id: scholarId,
         pwd: password,
+        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
       });
 
       const { token, user, scholar,  company_details, last_work_details } = res.data;
@@ -63,7 +64,7 @@ const Login = ({ onLogin }) => {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="input-group">
-            <label>Scholar ID</label>
+            <label>Scholar ID <span className='mandatory'>*</span></label>
             <div className="input-field">
               <User size={18} className="field-icon" />
               <input
@@ -79,7 +80,7 @@ const Login = ({ onLogin }) => {
           </div>
 
           <div className="input-group">
-            <label>Password</label>
+            <label>Password <span className='mandatory'>*</span></label>
             <div className="input-field">
               <Lock size={18} className="field-icon" />
               <input
@@ -95,7 +96,7 @@ const Login = ({ onLogin }) => {
                 className="password-eye"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
             </div>
           </div>
@@ -114,6 +115,8 @@ const Login = ({ onLogin }) => {
               </>
             )}
           </button>
+
+          <Link to={'/forgot-password'} className='forgot-password-link'><span>Forgot Password?</span> </Link>
 
           {/* <div className="demo-info">
             <p>Demo: user / user123</p>

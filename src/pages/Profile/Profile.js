@@ -1,20 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, FolderOpen, GraduationCap, Building, Users, FileText, Briefcase, BriefcaseBusiness, Trash2, AlertCircle, XCircle, Notebook } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, FolderOpen, GraduationCap, Building, Users, FileText, Briefcase, BriefcaseBusiness, Trash2, AlertCircle, XCircle, Notebook, Globe, BookOpen, UserCog } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './Profile.css';
 import { useScholar } from '../../hooks/useScholar';
 import { secureStorage } from '../../utils/secureStorage';
 import { useUploadProfileImage } from "../../hooks/useProfile";
 import { useLastWorkStatus } from "../../hooks/useWorkDetails";
+import ImagePreviewModal from './ImagePreviewModal';
 
 const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
     const [hoverImage, setHoverImage] = useState(false);
+    const [showImagePreview, setShowImagePreview] = useState(false);
+    const [, setScholarImage] = useState(null); // Your image state
 
     const fileInputRef = useRef(null);
 
+    const handleImageView = () => {
+        if (scholarImage) {
+            setShowImagePreview(true);
+        } else {
+            // Open file picker if no image
+            fileInputRef.current.click();
+        }
+    };
 
     const scholar = secureStorage.getScholar();
     const { data: scholarData } = useScholar();
@@ -116,17 +127,21 @@ const Profile = () => {
                     <div className="profile-avatar">
                         <div
                             className="avatar-premium-wrapper"
-                            onClick={handleImageClick}
                         >
                             {scholarImage ? (
-                                <img src={scholarImage} alt="Profile" className="avatar-premium-image" />
+                                <img src={scholarImage} alt="Profile" className="avatar-premium-image"
+                                    onClick={handleImageView}
+                                />
                             ) : (
                                 <div className="avatar-premium-placeholder">
                                     <span>{scholar?.user_name.charAt(0)}</span>
                                 </div>
                             )}
 
-                            <div className="camera-icon">
+                            <div className="camera-icon"
+                                onClick={handleImageClick}
+
+                            >
                                 <Camera size={16} />
                             </div>
 
@@ -139,7 +154,7 @@ const Profile = () => {
                             />
                         </div>
                         <h2>{scholar?.user_name}</h2>
-                        <p className="profile-role">PhD Scholar</p>
+                        <p className="profile-role">Scholar</p>
                         <div className="profile-badge">
                             <span className="badge">{scholar?.user_id}</span>
                         </div>
@@ -168,7 +183,7 @@ const Profile = () => {
                                 day: "2-digit",
                                 month: "short",
                                 year: "numeric"
-                            })}</span>
+                            })} (Reg date)</span>
                         </div>
                     </div>
 
@@ -220,88 +235,88 @@ const Profile = () => {
                     </div> */}
 
                     <div className="profile-form">
-                        
-                            <div className="form-section">
 
-                                <h3>
-                                    <BriefcaseBusiness size={20} />
-                                    Work Information
-                                </h3>
-                                <div className="form-grid">
+                        <div className="form-section">
 
-                                    <div className="form-field">
-                                        <label>Domain</label>
-                                        <div className="field-value">
-                                            <Calendar size={16} />
-                                            <span>{scholarData?.domain.domain}</span>
-                                        </div>
+                            <h3>
+                                <BriefcaseBusiness size={20} />
+                                Work Information
+                            </h3>
+                            <div className="form-grid">
+
+                                <div className="form-field">
+                                    <label>Domain</label>
+                                    <div className="field-value">
+                                        <Globe size={16} />
+                                        <span>{scholarData?.domain.domain}</span>
                                     </div>
-                                    <div className="form-field">
-                                        <label>Journal Index</label>
-                                        <div className="field-value">
-                                            <Calendar size={16} />
-                                            <span>{scholarData?.journal_index.journal_index}</span>
-                                        </div>
+                                </div>
+                                <div className="form-field">
+                                    <label>Journal Index</label>
+                                    <div className="field-value">
+                                        <BookOpen size={16} />
+                                        <span>{scholarData?.journal_index.journal_index}</span>
+                                    </div>
+                                </div>
+
+                                <div className="form-field">
+                                    <label>Technical Expert</label>
+                                    <div className="field-value">
+                                        <UserCog size={16} />
+                                        <span>{scholarData?.tech_expert.staff_name}</span>
+                                    </div>
+                                </div>
+                                <div className="form-field">
+                                    <label>Technical Expert Contact</label>
+                                    <div className="field-value">
+                                        <Phone size={16} />
+                                        <span>+91 {scholarData?.tech_expert.staff_contact}</span>
+                                    </div>
+                                </div>
+
+                                <div className="form-field">
+                                    <label>BDA Name</label>
+                                    <div className="field-value">
+                                        <Users size={16} />
+                                        <span>{scholarData?.bda.bda_name}</span>
+                                    </div>
+                                </div>
+
+                                <div className="form-field">
+                                    <label>BDA Contact</label>
+                                    <div className="field-value">
+                                        <Phone size={16} />
+                                        <span>+91 {scholarData?.bda.bda_contact}</span>
+                                    </div>
+                                </div>
+
+                                <div className="form-field full-width">
+                                    <label>Work Description</label>
+
+                                    <div className="field-value bio-text">
+                                        <Notebook size={16} />
+                                        <span>{scholar?.work_description}</span>
                                     </div>
 
-                                    <div className="form-field">
-                                        <label>Technical Expert</label>
-                                        <div className="field-value">
-                                            <Calendar size={16} />
-                                            <span>{scholarData?.tech_expert.staff_name}</span>
-                                        </div>
-                                    </div>
-                                    <div className="form-field">
-                                        <label>Technical Expert Contact</label>
-                                        <div className="field-value">
-                                            <Calendar size={16} />
-                                            <span>+91 {scholarData?.tech_expert.staff_contact}</span>
-                                        </div>
+                                </div>
+                                <div className="form-field full-width">
+                                    <div className='profile-project-section-header'>
+                                        <label>Project Completion</label>
+                                        <span className='work-percentage'>{workProgress}%</span>
                                     </div>
 
-                                    <div className="form-field">
-                                        <label>BDA Name</label>
-                                        <div className="field-value">
-                                            <Users size={16} />
-                                            <span>{scholarData?.bda.bda_name}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="form-field">
-                                        <label>BDA Contact</label>
-                                        <div className="field-value">
-                                            <Users size={16} />
-                                            <span>+91 {scholarData?.bda.bda_contact}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="form-field full-width">
-                                        <label>Work Description</label>
-
-                                        <div className="field-value bio-text">
-                                            <FileText size={16} />
-                                            <span>{scholar?.work_description}</span>
-                                        </div>
-
-                                    </div>
-                                    <div className="form-field full-width">
-                                        <div className='profile-project-section-header'>
-                                            <label>Project Completion</label>
-                                            <span className='work-percentage'>{workProgress}%</span>
-                                        </div>
-
-                                        <div className="profile-progress-bar-main"
-                                            style={{ marginTop: '15px' }}
+                                    <div className="profile-progress-bar-main"
+                                        style={{ marginTop: '15px' }}
+                                    >
+                                        <div
+                                            className="progress-fill-main "
+                                            style={{ width: `${workProgress}%` }}
                                         >
-                                            <div
-                                                className="progress-fill-main "
-                                                style={{ width: `${workProgress}%` }}
-                                            >
-                                                <div className="progress-glow"></div>
-                                            </div>
+                                            <div className="progress-glow"></div>
                                         </div>
-                                        <div className="progress-premium-stats">
-                                            {lastStatus?.note && (<>
+                                    </div>
+                                    <div className="progress-premium-stats">
+                                        {lastStatus?.note && (<>
                                             <div className="progress-stat">
                                                 <Notebook size={14} />
                                                 <span>Notes:</span>
@@ -316,53 +331,61 @@ const Profile = () => {
                                                     year: 'numeric'
                                                 })}
                                             </div>
-                                            </>)}
-                                            {/* <div className="progress-stat">
+                                        </>)}
+                                        {/* <div className="progress-stat">
                   <Clock size={14} />
                   <span>Remaining</span>
                  {100 - workProgress}
                 </div> */}
-                                        </div>
                                     </div>
+                                </div>
 
+                            </div>
+                        </div>
+
+                        {showDeleteConfirm && (
+                            <div className="modal-premium-overlay" onClick={cancelDelete}>
+                                <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
+                                    <div className="confirmation-modal-header">
+                                        <AlertCircle size={24} color="#ef4444" />
+                                        <h3>Delete Profile Image</h3>
+                                        <button
+                                            className="modal-close-icon"
+                                            onClick={cancelDelete}
+                                            style={{
+                                                marginLeft: 'auto',
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                color: 'var(--text-muted)'
+                                            }}
+                                        >
+                                            <XCircle size={20} />
+                                        </button>
+                                    </div>
+                                    <div className="confirmation-modal-body">
+                                        <p>Are you sure you want to delete your profile image?</p>
+                                        {/* <p className="warning-text">This action cannot be undone.</p> */}
+                                    </div>
+                                    <div className="confirmation-modal-footer">
+                                        <button className="confirmation-btn cancel" onClick={cancelDelete}>
+                                            Cancel
+                                        </button>
+                                        <button className="confirmation-btn delete" onClick={confirmDelete}>
+                                            Delete
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                        )}
 
-                            {showDeleteConfirm && (
-                                <div className="modal-premium-overlay" onClick={cancelDelete}>
-                                    <div className="confirmation-modal" onClick={(e) => e.stopPropagation()}>
-                                        <div className="confirmation-modal-header">
-                                            <AlertCircle size={24} color="#ef4444" />
-                                            <h3>Delete Profile Image</h3>
-                                            <button
-                                                className="modal-close-icon"
-                                                onClick={cancelDelete}
-                                                style={{
-                                                    marginLeft: 'auto',
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    cursor: 'pointer',
-                                                    color: 'var(--text-muted)'
-                                                }}
-                                            >
-                                                <XCircle size={20} />
-                                            </button>
-                                        </div>
-                                        <div className="confirmation-modal-body">
-                                            <p>Are you sure you want to delete your profile image?</p>
-                                            <p className="warning-text">This action cannot be undone.</p>
-                                        </div>
-                                        <div className="confirmation-modal-footer">
-                                            <button className="confirmation-btn cancel" onClick={cancelDelete}>
-                                                Cancel
-                                            </button>
-                                            <button className="confirmation-btn delete" onClick={confirmDelete}>
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+                        {showImagePreview && scholarImage && (
+                            <ImagePreviewModal
+                                imageUrl={scholarImage}
+                                onClose={() => setShowImagePreview(false)}
+                                onDelete={handleDeleteImage}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
