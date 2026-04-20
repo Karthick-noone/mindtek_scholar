@@ -255,9 +255,9 @@ const handleDelete = (id) => {
   };
 
   const getStatusBadge = (complaint) => {
-    if (complaint.resolve_status === 'resolved' && complaint.reply_content !== null) {
+    if (complaint.status === "Resolved" ) {
       return <span className="status-badge status-resolved">Resolved</span>;
-    } else if (complaint.resolve_status === null && complaint.reply_content !== null) {
+    } else if (complaint.status ==="In Progress") {
       return <span className="status-badge status-in-progress">In Progress</span>;
     } else {
       return <span className="status-badge status-pending">Pending</span>;
@@ -521,7 +521,7 @@ const getShortDescription = (description) => {
                         {getStatusBadge(complaint)}
                       </td>
                       <td className="complaint-table-cell" data-label="Rating">
-                        {(complaint.resolve_status === "resolved" && complaint.reply_content !== null) ? (
+                        {(complaint.status === "Resolved" ) ? (
 
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 

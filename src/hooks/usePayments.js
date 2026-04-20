@@ -17,6 +17,7 @@ export const usePayments = () => {
     queryKey: ["payments"],
     queryFn: fetchScholar,
     staleTime: 1000 * 60 * 10,
+    refetchOnMount: 'always',
     enabled: !!secureStorage.getScholar()?.id, 
   });
 };

@@ -2,17 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Mail, User, RefreshCw, Clock, ArrowLeft, CheckCircle, AlertCircle, Shield } from 'lucide-react';
 import './ForgetPassword.css';
 import { useSendOtp } from '../../hooks/useForgotPassword';
+import { secureStorage } from '../../utils/secureStorage';
 
 const OtpVerification = ({
   email,
   scholarId,
   onVerified,
   onBack,
+  userId,
   verifyError,
   onClearError
 }) => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [timeLeft, setTimeLeft] = useState(300);  // 5 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(300);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [localError, setLocalError] = useState('');
@@ -31,9 +33,9 @@ const OtpVerification = ({
     if (timeLeft <= 0) {
       setIsResendDisabled(false);
       setIsOtpExpired(true);
-      // ✅ Clear OTP fields when expired
+      //  Clear OTP fields when expired
       setOtp(['', '', '', '', '', '']);
-      // ✅ Clear any existing errors
+      //  Clear any existing errors
       setLocalError('');
       if (onClearError) onClearError();
       return;
@@ -65,25 +67,28 @@ const OtpVerification = ({
     }
   };
 
-  const handleVerify = async () => {
-    const enteredOtp = otp.join('');
+const handleVerify = async () => {
+  const enteredOtp = otp.join('');
 
-    if (enteredOtp.length !== 6) {
-      setLocalError('Please enter the complete 6-digit OTP');
-      setIsVerifying(false);
-      return;
-    }
+  if (enteredOtp.length !== 6) {
+    setLocalError('Please enter the complete 6-digit OTP');
+    setIsVerifying(false);
+    return;
+  }
 
-    setIsVerifying(true);
+  setIsVerifying(true);
 
-    try {
-      await onVerified(enteredOtp);
-    } catch (error) {
-      console.error("Verification error:", error);
-      setIsVerifying(false);
-      setLocalError(error?.message || 'Verification failed. Please try again.');
-    }
-  };
+  try {
+    await onVerified({
+      otp: enteredOtp,
+      user_id: userId, // ✅ sending correctly
+    });
+  } catch (error) {
+    console.error("Verification error:", error);
+    setIsVerifying(false);
+    setLocalError(error?.message || 'Verification failed. Please try again.');
+  }
+};
 
   const handleResendOnExpiry = () => {
     if (onClearError) onClearError();
@@ -93,7 +98,6 @@ const OtpVerification = ({
         user_id: scholarId,
         email: email,
         com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
-
       },
       {
         onSuccess: (response) => {
@@ -132,7 +136,7 @@ const OtpVerification = ({
           setTimeLeft(300);
           setLocalError('');
           setOtp(['', '', '', '', '', '']);
-          // ✅ Focus on first input after resend
+          //  Focus on first input after resend
           setTimeout(() => {
             if (inputRefs.current[0]) inputRefs.current[0].focus();
           }, 100);

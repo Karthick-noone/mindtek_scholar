@@ -1,6 +1,6 @@
 // src/hooks/useForgotPassword.js
 import { useMutation } from "@tanstack/react-query";
-import { sendOtp, resetPassword } from "../services/forgotPasswordService";
+import { sendOtp, resetPassword,verifyOtpApi } from "../services/forgotPasswordService";
 import { decryptOtp, verifyOtpCode } from "../utils/otpDecryption";
 
 // Hook for sending OTP
@@ -45,4 +45,17 @@ export const useDecryptOtp = () => {
   };
   
   return { getDecryptedOtp };
+};
+
+// Hook for verifying OTP via API
+export const useVerifyOtp = () => {
+  return useMutation({
+    mutationFn: (data) => verifyOtpApi(data),
+    onSuccess: (response) => {
+      console.log("OTP verified successfully:", response);
+    },
+    onError: (error) => {
+      console.error("OTP verification failed:", error);
+    },
+  });
 };

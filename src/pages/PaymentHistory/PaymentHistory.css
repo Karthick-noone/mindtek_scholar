@@ -191,7 +191,7 @@
 }
 
 .modal-details {
-  margin-bottom: 14px;
+  /* margin-bottom: 14px; */
   padding: 20px;
 }
 
@@ -201,7 +201,29 @@
   padding: 10px 0;
   border-bottom: 1px solid var(--border-color);
 }
+.payment-completed-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.payment-completed-message {
 
+  font-size: 12px;
+  font-weight: 600;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-top: 10px;
+  letter-spacing: 0.3px;
+  /* width: 100px; */
+}
+
+/* Dark mode */
+.dark .payment-completed-message {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.15);
+}
 .detail-label {
   font-weight: 500;
   color: var(--text-muted);
@@ -533,6 +555,11 @@
   font-size: 14px;
   color: var(--text-muted);
   font-weight: 500;
+}
+
+.detail-value .payment-completed {
+display: flex;
+flex-direction: column;
 }
 
 .detail-value.amount {

@@ -10,3 +10,9 @@ export const sendOtp = (data) => {
 export const resetPassword = (data) => {
   return apiClient.post("/forgot/reset-password", data);
 };
+
+
+// Verify OTP via backend
+export const verifyOtpApi = (data) => {
+  return apiClient.post("/forgot/verify-otp", data);
+};

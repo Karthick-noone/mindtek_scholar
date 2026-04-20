@@ -880,3 +880,131 @@
   color: var(--text-muted);
   /* justify-content: center; */
 }
+
+/* Custom Toast Notification */
+.custom-toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  min-width: 320px;
+  max-width: 420px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 10000;
+  animation: slideInRight 0.3s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.custom-toast-notification.fade-out {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.custom-toast-notification .toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  position: relative;
+}
+
+.custom-toast-notification.success .toast-content {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.custom-toast-notification.error .toast-content {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.custom-toast-notification.info .toast-content {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.custom-toast-notification .toast-icon {
+  flex-shrink: 0;
+  color: white;
+}
+
+.custom-toast-notification .toast-message-text {
+  flex: 1;
+  color: white;
+}
+
+.custom-toast-notification .toast-message-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.custom-toast-notification .toast-message-text span {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.custom-toast-notification .toast-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.custom-toast-notification .toast-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.custom-toast-notification .toast-progress-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  animation: progressShrink 4s linear forwards;
+  transform-origin: left;
+}
+
+@keyframes progressShrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .custom-toast-notification {
+    left: 16px;
+    right: 16px;
+    min-width: auto;
+    max-width: none;
+  }
+}

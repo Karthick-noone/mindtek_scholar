@@ -4,7 +4,8 @@ import OtpVerification from './OtpVerification';
 import ResetPassword from './ResetPassword';
 import './ForgetPassword.css';
 import { Link } from 'react-router-dom';
-import { useResetPassword, useSendOtp, useVerifyOtpLocally } from '../../hooks/useForgotPassword';
+import { useResetPassword, useSendOtp, useVerifyOtp, useVerifyOtpLocally } from '../../hooks/useForgotPassword';
+import { secureStorage } from '../../utils/secureStorage';
 
 const ForgetPassword = () => {
   const [step, setStep] = useState(1);
@@ -21,9 +22,13 @@ const ForgetPassword = () => {
 
   // Hooks
   const { mutate: sendOtpMutation, isPending: isSendingOtp, error: sendOtpError } = useSendOtp();
-  const { verifyOtp } = useVerifyOtpLocally();
+  // const { verifyOtp } = useVerifyOtpLocally();
   const { mutate: resetPasswordMutation, isPending: isResettingPassword, error: resetError } = useResetPassword();
   const [userData, setUserData] = useState(null);
+  const { mutateAsync: verifyOtp } = useVerifyOtp();
+  const scholar = secureStorage.getScholar();
+
+  const userId = scholar?.user_id
 
   const validateForm = () => {
     const newErrors = {};
@@ -58,21 +63,20 @@ const ForgetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
-    
+
     if (Object.keys(newErrors).length === 0) {
       sendOtpMutation(
         {
           user_id: formData.scholarId,
           email: formData.email,
           com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
-
         },
         {
           onSuccess: (response) => {
             const encryptedData = response.data?.data?.encrypted_otp;
             const userId = response.data?.data?.user_id;
             const userName = response.data?.data?.name;
-            
+
             setEncryptedOtp(encryptedData);
             setUserData({
               userId: userId,
@@ -80,20 +84,20 @@ const ForgetPassword = () => {
               scholarId: formData.scholarId,
               email: formData.email
             });
-            
+
             setVerificationData({
               scholarId: formData.scholarId,
               email: formData.email,
               otpSent: true
             });
-            
+
             // Show success alert before redirecting
             showSuccessAlertMessage('OTP sent successfully to your registered email!');
-            
+
             // Redirect to OTP verification page after alert
             // setTimeout(() => {
-              setStep(2);
-            // }, 1500);
+            setStep(2);
+            // }, 1000);
           },
           onError: (error) => {
             const errorMessage = error.response?.data?.message || 'Failed to send OTP. Please try again.';
@@ -106,30 +110,37 @@ const ForgetPassword = () => {
       setErrors(newErrors);
     }
   };
- 
- const handleOtpVerified = async (enteredOtp) => {
-  if (!encryptedOtp) {
-    const error = new Error('No OTP found. Please request a new one.');
+
+const handleOtpVerified = async ({ otp, user_id }) => {
+  if (!otp) {
+    const error = new Error("Please enter OTP");
     setErrors({ otp: error.message });
     throw error;
   }
-  
+
   try {
-    const isValid = await verifyOtp(encryptedOtp, enteredOtp);
-    
-    if (isValid) {
-      showSuccessAlertMessage('OTP verified successfully!');
+    const response = await verifyOtp({
+      user_id,
+      otp,
+    });
+
+    if (response?.data?.status_code === 200 || response?.data?.status === "success") {
+      showSuccessAlertMessage("OTP verified successfully!");
+
       // setTimeout(() => {
         setStep(3);
       // }, 1500);
     } else {
-      // ✅ Important: Throw error for invalid OTP
-      const error = new Error('Invalid OTP. Please try again.');
-      setErrors({ otp: error.message });
-      throw error;
+      throw new Error(response?.data?.message || "Invalid OTP");
     }
+
   } catch (error) {
-    setErrors({ otp: error?.message || 'Error verifying OTP. Please try again.' });
+    setErrors({
+      otp:
+        error?.response?.data?.message ||
+        error.message ||
+        "OTP verification failed",
+    });
     throw error;
   }
 };
@@ -144,7 +155,7 @@ const ForgetPassword = () => {
   const handleResetComplete = () => {
     // Show success alert before redirecting
     // showSuccessAlertMessage('Password reset successfully! Redirecting to login...');
-    
+
     // Redirect to login after alert
     setTimeout(() => {
       window.location.href = '/';
@@ -152,15 +163,15 @@ const ForgetPassword = () => {
   };
 
   const clearOtpError = () => {
-  setErrors(prev => ({ ...prev, otp: '' }));
-};
+    setErrors(prev => ({ ...prev, otp: '' }));
+  };
 
   const apiError = sendOtpError?.response?.data?.message || errors.form;
 
   return (
     <div className="forget-enhanced">
       <div className="forget-enhanced-container">
-        
+
         {/* Success Alert Toast */}
         {showSuccessAlert && (
           <div className="success-alert-toast">
@@ -168,7 +179,7 @@ const ForgetPassword = () => {
             <span>{successMessage}</span>
           </div>
         )}
-        
+
         {/* Step 1 - Request Form */}
         {step === 1 && (
           <div className="enhanced-card">
@@ -180,7 +191,7 @@ const ForgetPassword = () => {
                   <span>Secure Recovery</span>
                 </div>
                 <h3>Verify your identity</h3>
-                
+
                 <div className="info-steps">
                   <div className="info-step-item">
                     <div className="step-number">1</div>
@@ -294,11 +305,12 @@ const ForgetPassword = () => {
             <OtpVerification
               email={verificationData.email}
               scholarId={verificationData.scholarId}
+              userId={userData?.userId}
               onVerified={handleOtpVerified}
               onBack={handleBackToRequest}
               isVerifying={false}
               verifyError={errors.otp}
-                    onClearError={clearOtpError}  // ✅ Add this prop
+              onClearError={clearOtpError}  //  Add this prop
 
             />
           </div>

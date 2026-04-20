@@ -16,7 +16,8 @@ const base64ToUint8Array = (base64) => {
 export const decryptOtp = async (encryptedBase64, secret = SECRET_KEY) => {
   try {
     const enc = new TextEncoder();
-    
+    console.log("Encrypted:", encryptedBase64);
+
     // Create SHA-256 hash of the secret key
     const secretKeyHash = await crypto.subtle.digest(
       "SHA-256",
@@ -25,13 +26,15 @@ export const decryptOtp = async (encryptedBase64, secret = SECRET_KEY) => {
     
     // Convert base64 to Uint8Array
     const rawData = base64ToUint8Array(encryptedBase64);
-    
+    console.log("Raw length:", rawData.length);
+
     // Extract IV (first 16 bytes)
     const iv = rawData.slice(0, 16);
     
     // Extract encrypted data (remaining bytes)
     const encryptedData = rawData.slice(16);
-    
+    console.log("IV length:", iv.length);
+console.log("Encrypted data length:", encryptedData.length);
     // Import the key for decryption
     const key = await crypto.subtle.importKey(
       "raw",
@@ -53,6 +56,8 @@ export const decryptOtp = async (encryptedBase64, secret = SECRET_KEY) => {
     
     // Decode the decrypted buffer to string
     const decryptedOtp = new TextDecoder().decode(decryptedBuffer);
+
+    console.log("Decrypted OTP:", decryptedOtp);
     return decryptedOtp;
   } catch (error) {
     console.error("Decryption failed:", error);

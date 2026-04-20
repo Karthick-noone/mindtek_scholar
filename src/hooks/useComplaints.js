@@ -12,10 +12,10 @@ export const useComplaints = (page = 1, perPage = 10, status = 'all', search = '
     queryFn: () => getComplaints(scholar?.id, page, perPage, status, search).then(res => res.data),
     enabled: !!scholar?.id,
     keepPreviousData: true,
-    staleTime: 5 * 60 * 1000, // Data stays fresh for 5 minutes (ADD THIS)
-    refetchOnMount: false, // Don't refetch when component mounts (ADD THIS)
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus (ADD THIS)
-    refetchOnReconnect: false, // Don't refetch on network reconnect (ADD THIS)
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 };
 

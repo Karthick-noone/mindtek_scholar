@@ -545,9 +545,12 @@ const PaymentHistory = () => {
 
         {selectedPayment && (
           <div className="modal-overlay" onClick={() => setSelectedPayment(null)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div
+              className={`modal-content ${selectedPayment?.pay_status === 'completed' ? 'payment-completed-watermark' : ''}`}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="modal-header">
-                <h3>Payment Details</h3>
+                <h3>Payment Details </h3>
                 <button className="complaint-modal-close-btn" onClick={() => setSelectedPayment(null)}>
                   <XCircle size={24} />
                 </button>
@@ -579,9 +582,12 @@ const PaymentHistory = () => {
                 </div>
                 <div className="payment-detail-row">
                   <span className="detail-label">Total Paid Amount:</span>
-                  <span className='detail-value'>₹{selectedPayment.tot_paid}</span>
+                  <div className='detail-value-wrapper'>
+                    <span className='detail-value'>₹{selectedPayment.tot_paid}</span>
+
+                  </div>
                 </div>
-                {payment?.bal_amt > 0 && (
+                {selectedPayment?.bal_amt > 0 && (
                   <div className="payment-detail-row balance-amount-row">
                     <span className="detail-label">Balance Amount:</span>
                     <span className='detail-value'>₹{selectedPayment.bal_amt}</span>
@@ -597,6 +603,9 @@ const PaymentHistory = () => {
                     {capsLetter(selectedPayment.pay_status)}
                   </span>
                 </div>
+                {selectedPayment?.total_amount === selectedPayment?.tot_paid && (
+                  <div className="payment-completed-container"><span className="payment-completed-message">✓ Payment Completed</span></div>
+                )}
               </div>
               {/* <button className="close-modal" onClick={() => setSelectedPayment(null)}>
               Close
@@ -704,12 +713,12 @@ const PaymentHistory = () => {
                           <th>Total Paid</th>
                           <td>₹{downloadReceipt.tot_paid}</td>
                         </tr>
-                        {downloadReceipt?.bal_amt > 0 && (
+                        {/* {downloadReceipt?.bal_amt > 0 && ( */}
                           <tr className='balance-row'>
                             <th>Balance Amount</th>
                             <td className='balance-row-value'>₹{downloadReceipt.bal_amt}</td>
                           </tr>
-                        )}
+                        {/* )} */}
 
                         <tr className="full-width-row">
                           <th>Last Payment Amount in Words</th>

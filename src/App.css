@@ -35,3 +35,117 @@
     padding: 70px 16px 16px 16px;
   }
 }
+
+
+/* Deactivated Account Modal */
+.deactivated-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.deactivated-modal-content {
+  background: var(--card-bg);
+  border-radius: 24px;
+  width: 90%;
+  max-width: 420px;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.deactivated-modal-header {
+  text-align: center;
+  padding: 32px 24px 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.deactivated-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ef4444;
+}
+
+.deactivated-modal-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.deactivated-modal-body {
+  padding: 24px;
+  text-align: center;
+}
+
+.deactivated-modal-body p {
+  font-size: 15px;
+  color: var(--text-color);
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.deactivated-subtext {
+  font-size: 13px;
+  color: var(--text-muted) !important;
+}
+
+.deactivated-modal-footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.deactivated-ok-btn {
+  padding: 12px 32px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: white;
+  border: none;
+  border-radius: 40px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.deactivated-ok-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .deactivated-icon {
+  background: rgba(239, 68, 68, 0.15);
+}

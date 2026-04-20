@@ -21,12 +21,23 @@ apiClient.interceptors.request.use(
 );
 
 //  Response Interceptor (Global Error Handling)
+//  Response Interceptor (Global Error Handling)
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const isLoginAPI = error.config?.url?.includes("/login");
 
-    if (error.response?.status === 401 && !isLoginAPI) {
+    const status = error.response?.status;
+    const message = error.response?.data?.message;
+
+    //  Existing 401 logic (unchanged)
+    if (status === 401 && !isLoginAPI) {
+      secureStorage.clear();
+      window.location.href = "/";
+    }
+
+    //  NEW: Handle deactivated / not found scholar
+    if (status === 404 && message?.toLowerCase().includes("scholar not found")) {
       secureStorage.clear();
       window.location.href = "/";
     }
