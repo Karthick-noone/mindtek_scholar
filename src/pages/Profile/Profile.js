@@ -63,30 +63,30 @@ const Profile = () => {
     const { mutate: uploadImage } = useUploadProfileImage();
 
     // Toast function without X icon, auto-closes after 3 seconds
-const showToast = (message, type = 'error') => {
-  // Remove any existing toast
-  const existingToast = document.querySelector('.custom-toast-notification');
-  if (existingToast) {
-    existingToast.remove();
-  }
+    const showToast = (message, type = 'error') => {
+        // Remove any existing toast
+        const existingToast = document.querySelector('.custom-toast-notification');
+        if (existingToast) {
+            existingToast.remove();
+        }
 
-  // Create toast element
-  const toast = document.createElement('div');
-  toast.className = `custom-toast-notification ${type}`;
-  
-  // Set icon based on type
-  let iconSvg = '';
-  if (type === 'success') {
-    iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-  } else if (type === 'error') {
-    iconSvg = `
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `custom-toast-notification ${type}`;
+
+        // Set icon based on type
+        let iconSvg = '';
+        if (type === 'success') {
+            iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+        } else if (type === 'error') {
+            iconSvg = `
       <circle cx="12" cy="12" r="10" stroke="white" fill="none" stroke-width="2"/>
       <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
       <line x1="12" y1="16" x2="12.01" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     `;
-  }
-  
-  toast.innerHTML = `
+        }
+
+        toast.innerHTML = `
     <div class="toast-content">
       <svg class="toast-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         ${iconSvg}
@@ -99,20 +99,20 @@ const showToast = (message, type = 'error') => {
     <div class="toast-progress-bar"></div>
   `;
 
-  document.body.appendChild(toast);
+        document.body.appendChild(toast);
 
-  // Auto remove after 4 seconds
-  setTimeout(() => {
-    if (toast && toast.parentNode) {
-      toast.classList.add('fade-out');
-      setTimeout(() => {
-        if (toast && toast.parentNode) {
-          toast.remove();
-        }
-      }, 300);
-    }
-  }, 4000);
-};
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (toast && toast.parentNode) {
+                toast.classList.add('fade-out');
+                setTimeout(() => {
+                    if (toast && toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 4000);
+    };
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -122,7 +122,7 @@ const showToast = (message, type = 'error') => {
         const maxSize = 2 * 1024 * 1024;
         if (file.size > maxSize) {
             const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-            showToast(`File size exceeds 2MB! (${fileSizeInMB}MB)`, 'error');
+            showToast(`File must be within 2 MB (selected: ${fileSizeInMB} MB)`, 'error');
             e.target.value = "";
             return;
         }
@@ -222,7 +222,7 @@ const showToast = (message, type = 'error') => {
                                 />
                             ) : (
                                 <div className="avatar-premium-placeholder">
-                                    <span>{scholar?.user_name.charAt(0)}</span>
+                                    <span>{scholarData?.user_name.charAt(0) || 'S'}</span>
                                 </div>
                             )}
 
@@ -241,10 +241,10 @@ const showToast = (message, type = 'error') => {
                                 style={{ display: 'none' }}
                             />
                         </div>
-                        <h2>{scholar?.user_name}</h2>
+                        <h2>{scholarData?.user_name || "Scholar"}</h2>
                         <p className="profile-role">Scholar</p>
                         <div className="profile-badge">
-                            <span className="badge">{scholar?.user_id}</span>
+                            <span className="badge">{scholarData?.user_id || "Scholar Id"}</span>
                         </div>
                     </div>
                     {scholarImage && hoverImage && (
@@ -256,14 +256,14 @@ const showToast = (message, type = 'error') => {
                     )}
 
                     <div className="profile-contact-info">
-                        <h4>Contact Information</h4>
+                        <h4>Personal Information</h4>
                         <div className="contact-item">
                             <Mail size={16} />
-                            <span>{scholar?.email}</span>
+                            <span>{scholarData?.email}</span>
                         </div>
                         <div className="contact-item">
                             <Phone size={16} />
-                            <span>{scholar?.contact}</span>
+                            <span>{scholarData?.contact}</span>
                         </div>
                         <div className="contact-item">
                             <Calendar size={16} />
@@ -271,8 +271,22 @@ const showToast = (message, type = 'error') => {
                                 day: "2-digit",
                                 month: "short",
                                 year: "numeric"
-                            })} (Reg date)</span>
+                            })} (Registration date)</span>
                         </div>
+                        {scholarData?.secondary_emails?.length > 0 && (
+                            <>
+                                <h4 style={{ marginTop: "15px" }}>Secondary Emails</h4>
+
+                                <div className="contact-premium-list">
+                                    {scholarData.secondary_emails.map((email, index) => (
+                                        <div className="contact-item" key={index}>
+                                            <Mail size={16} />
+                                            <span>{email}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* <div className="profile-stats">
@@ -383,7 +397,7 @@ const showToast = (message, type = 'error') => {
 
                                     <div className="field-value bio-text">
                                         <Notebook size={16} />
-                                        <span>{scholar?.work_description}</span>
+                                        <span>{scholarData?.work_description}</span>
                                     </div>
 
                                 </div>
@@ -410,7 +424,9 @@ const showToast = (message, type = 'error') => {
                                                 <span>Notes:</span>
                                                 {capsLetter(lastStatus?.note)}
                                             </div>
-                                            <div className="progress-stat">
+                                          
+                                        </>)}
+                                          <div className="progress-stat progress-date">
                                                 <Calendar size={14} />
                                                 {/* <span>Remaining</span> */}
                                                 {new Date(lastStatus?.date).toLocaleString("en-GB", {
@@ -419,7 +435,6 @@ const showToast = (message, type = 'error') => {
                                                     year: 'numeric'
                                                 })}
                                             </div>
-                                        </>)}
                                         {/* <div className="progress-stat">
                   <Clock size={14} />
                   <span>Remaining</span>

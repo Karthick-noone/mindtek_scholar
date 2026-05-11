@@ -14,7 +14,7 @@ const Login = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -26,7 +26,7 @@ const Login = ({ onLogin }) => {
         com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
       });
 
-      const { token, user, scholar,  company_details, last_work_details } = res.data;
+      const { token, user, scholar, company_details, last_work_details } = res.data;
 
       secureStorage.setToken(token);
       secureStorage.setUser(user);
@@ -34,7 +34,7 @@ const Login = ({ onLogin }) => {
       secureStorage.setCompany(company_details);
       secureStorage.setWork(last_work_details);
 
-      
+
       navigate("/dashboard");
 
     } catch (err) {
@@ -48,16 +48,16 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-container">
-          
+ 
       <div className="login-card">
         <div className="login-header">
-          <div className="logo-container">
-          <div className="logo-circle">
-            <GraduationCap size={30} /> 
-          </div>
-          <img src={logo} alt="Logo" className="login-logo-image" />
-          </div>
 
+     <div className="logo-container">
+        <div className="logo-circle">
+          <GraduationCap size={40} />
+        </div>
+        <img src={logo} alt="Logo" className="login-logo-image" />
+      </div>
           <h1>Welcome Back</h1>
           <p>Sign in to continue to your dashboard</p>
         </div>
@@ -106,7 +106,7 @@ const Login = ({ onLogin }) => {
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? (
               <>
-              <div className="spinner"></div><span>Signing In...</span>
+                <div className="spinner"></div><span>Signing In...</span>
               </>
             ) : (
               <>

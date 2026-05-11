@@ -89,11 +89,12 @@
   justify-content: center;
   /* color: white; */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-color);
   transition: all 0.25s ease;
 
 }
-
+.progress-date {
+  min-width: 100px; /* increase as needed */
+}
 .camera-icon:hover {
   transform: scale(1.12);
   background: var(--primary-color);

@@ -39,6 +39,7 @@
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid var(--border-color);
+  min-height: 55px;
 }
 
 .stat-card:hover {
@@ -437,30 +438,19 @@
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
 }
 
-.activity-status.Resolved {
-  background: var(--success-color);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-}
 
 .activity-status.pending {
   background: var(--warning-color);
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
 }
 
-.activity-status.Pending {
-  background: var(--warning-color);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
-}
 
-.activity-status.in_progress {
+.activity-status.in-progress {
   background: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
 }
 
-.activity-status.In-Progress {
-  background: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-}
+
 
 .activity-info {
   flex: 1;
@@ -480,12 +470,23 @@
   margin-right: 8px;
 }
 
-.activity-complaint {
+.activity-complaint-pending {
   font-size: 12px;
   font-weight: 600;
-  color: var(--danger-color);
+  color: #f59e0b;
 }
 
+.activity-complaint-in-progress {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.activity-complaint-resolved {
+  font-size: 12px;
+  font-weight: 600;
+  color: #10b981;
+}
 .activity-date {
   font-size: 11px;
   color: var(--text-muted);

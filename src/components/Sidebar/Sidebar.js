@@ -19,6 +19,7 @@ import darkThemelogo from './../../assets/img/company-logo.png';
 import { useLogout } from "../../hooks/useLogout";
 import { secureStorage } from '../../utils/secureStorage';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useScholar } from '../../hooks/useScholar';
 
 const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
   const location = useLocation();
@@ -26,10 +27,14 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
   // const [mobileOpen, setMobileOpen] = useState(false);
   const { mutate: logout } = useLogout();
 
-const { theme } = useTheme();
+  const { theme } = useTheme();
 
-  const companyDetails = secureStorage.getCompany();
-  const companyLogo = `${process.env.REACT_APP_BASE_URL}/${companyDetails?.com_logo}` || `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
+  // const companyDetails = secureStorage.getCompany();
+  const { data: scholarData } = useScholar();
+
+  // console.log("Comny dtls", scholarData)
+
+  const companyLogo = `http://scholarapi.seasense.in/${scholarData?.company?.com_logo} ` || logo;
 
   useEffect(() => {
     const handleResize = () => {
@@ -72,8 +77,10 @@ const { theme } = useTheme();
             <div className="logo-icon">
               <GraduationCap size={28} />
             </div>
-            {(!collapsed || isMobile) && <img src={theme  === "dark" ? darkThemelogo : logo} alt="Logo" className="logo-image" />}
-            {/* {(!collapsed || isMobile) && <img src={companyLogo || logo} alt="Logo" className="logo-image" />} */}
+            {/* {(!collapsed || isMobile) && <img src={theme  === "dark" ? darkThemelogo : logo} alt="Logo" className="logo-image" />} */}
+            {(!collapsed || isMobile) && <img src={companyLogo} alt="Logo"
+              className={`logo-image ${theme === "dark" ? "logo-white" : ""}`}
+            />}
             {/* {(!collapsed || isMobile) && <h2 className="logo-text">Sea Sense Scholar</h2>} */}
           </div>
 

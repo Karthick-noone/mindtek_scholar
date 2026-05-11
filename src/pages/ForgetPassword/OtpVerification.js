@@ -81,7 +81,7 @@ const handleVerify = async () => {
   try {
     await onVerified({
       otp: enteredOtp,
-      user_id: userId, // ✅ sending correctly
+      user_id: userId, //  sending correctly
     });
   } catch (error) {
     console.error("Verification error:", error);
@@ -172,7 +172,7 @@ const handleVerify = async () => {
             <span>Security Check</span>
           </div>
           <h3>Verify OTP</h3>
-          <p>We use this verification to ensure account security. The OTP is valid for 2 minutes.</p>
+          <p>We use this verification to ensure account security. The OTP is valid for 5 minutes.</p>
 
           <div className="info-tip-list">
             <div className="tip-item">

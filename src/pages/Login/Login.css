@@ -1,22 +1,18 @@
 /* Import Inter font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap');
-
 .login-container {
   min-height: 100vh;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
 
   background: url('/public/images/bg1.jpg') no-repeat center center;
   background-size: cover;
 
-  position: relative;
   padding: 20px;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
 }
-
 /* Glass effect background */
 .mandatory {
   color: #dc2626;
@@ -80,12 +76,13 @@
   transform: translateY(-2px);
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
 } */
-
 .forgot-password-link {
   text-decoration: none;
   color: #2563eb;
+  /* color: white; */
   font-size: 13px;
   text-align: right;
+  /* text-shadow: 0 0 6px rgba(37, 99, 235, 0.6); */
 }
 
 /* Header - Reduced spacing */
@@ -95,8 +92,8 @@
 }
 
 .logo-circle {
-  width: 45px;
-  height: 45px;
+  width: 55px;
+  height: 55px;
   background: linear-gradient(135deg, #1116f4 0%, #0b78ff 100%);
   border-radius: 18px;
   display: flex;
@@ -108,16 +105,19 @@
 }
 
 .login-logo-image {
-  width: 160px;
+  width: 180px;
   object-fit: cover;
 }
 
 .logo-container {
+  /* position: absolute; */
   display: flex;
   /* flex-direction: column; */
   justify-content: center;
   align-items: center;
   gap: 10px;
+  top: 100px;
+  left: 100px;
 }
 
 .login-header h1 {
@@ -171,7 +171,7 @@
 
 .input-field input {
   width: 100%;
-  padding: 12px 14px 12px 42px;
+  padding: 12px 40px 12px 42px;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
   font-size: 14px;

@@ -111,39 +111,37 @@ const ForgetPassword = () => {
     }
   };
 
-const handleOtpVerified = async ({ otp, user_id }) => {
-  if (!otp) {
-    const error = new Error("Please enter OTP");
-    setErrors({ otp: error.message });
-    throw error;
-  }
-
-  try {
-    const response = await verifyOtp({
-      user_id,
-      otp,
-    });
-
-    if (response?.data?.status_code === 200 || response?.data?.status === "success") {
-      showSuccessAlertMessage("OTP verified successfully!");
-
-      // setTimeout(() => {
-        setStep(3);
-      // }, 1500);
-    } else {
-      throw new Error(response?.data?.message || "Invalid OTP");
+  const handleOtpVerified = async ({ otp, user_id }) => {
+    if (!otp) {
+      const error = new Error("Please enter OTP");
+      setErrors({ otp: error.message });
+      throw error;
     }
 
-  } catch (error) {
-    setErrors({
-      otp:
-        error?.response?.data?.message ||
-        error.message ||
-        "OTP verification failed",
-    });
-    throw error;
-  }
-};
+    try {
+      const response = await verifyOtp({
+        user_id,
+        otp,
+      });
+
+      if (response?.data?.status_code === 200 || response?.data?.status === "success") {
+        showSuccessAlertMessage("OTP verified successfully!");
+
+        // setTimeout(() => {
+        setStep(3);
+        // }, 1500);
+      } else {
+        throw new Error(response?.data?.message || "Invalid OTP");
+      }
+
+    } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message || "OTP verification failed";
+      setErrors({
+        otp: errorMessage,
+      });
+      throw new Error(errorMessage);
+    }
+  };
 
   const handleBackToRequest = () => {
     setStep(1);
@@ -281,11 +279,11 @@ const handleOtpVerified = async ({ otp, user_id }) => {
                   {isSendingOtp ? (
                     <>
                       <div className="btn-spinner"></div>
-                      <span>Sending Code...</span>
+                      <span>Sending OTP...</span>
                     </>
                   ) : (
                     <>
-                      <span>Send Verification Code</span>
+                      <span>Send Verification OTP</span>
                       <Send size={18} />
                     </>
                   )}

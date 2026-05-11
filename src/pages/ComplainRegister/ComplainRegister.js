@@ -12,7 +12,7 @@ import {
   MessageSquareMore,
   ThumbsUp,
   ThumbsDown,
-  Award,
+  Crown,
   Handshake,
   ChevronsLeft,
   ChevronLeft,
@@ -20,13 +20,16 @@ import {
   ChevronsRight,
   EditIcon,
   Trash2,
-  X
+  X,
+  Award,
+  Meh 
 } from 'lucide-react';
 import { BsStarFill } from 'react-icons/bs';
 import './ComplainRegister.css';
 import { useComplaints, useCreateComplaint, useComplaintCounts, useUpdateRating, useDeleteComplaint } from '../../hooks/useComplaints';
 import { secureStorage } from '../../utils/secureStorage';
-import trashOff  from './../../assets/img/recycle-bin.png';
+import trashOff from './../../assets/img/recycle-bin.png';
+import { useLocation } from 'react-router-dom';
 
 const ComplainRegister = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +50,7 @@ const ComplainRegister = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-const [selectedComplaintId, setSelectedComplaintId] = useState(null);
+  const [selectedComplaintId, setSelectedComplaintId] = useState(null);
   // Fetch complaints from backend with pagination
   const {
     data: apiResponse,
@@ -56,7 +59,12 @@ const [selectedComplaintId, setSelectedComplaintId] = useState(null);
     refetch
   } = useComplaints(currentPage, rowsPerPage, filterStatus, searchTerm);
 
-
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.status) {
+      handleFilterChange(location.state.status);
+    }
+  }, [location.state]);
   // const {data: apiComplaints = []} = useAllComplaints();
 
   // const allComplaints = apiComplaints?.data || [];
@@ -133,47 +141,46 @@ const [selectedComplaintId, setSelectedComplaintId] = useState(null);
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.description.trim()) newErrors.description = 'Description is required';
-    if (formData.description.length < 20) newErrors.description = 'Description must be at least 20 characters';
+    if (!formData.description.trim()) newErrors.description = 'Complaint is required';
+    if (formData.description.length < 20) newErrors.description = 'Complaint must be at least 20 characters';
     if (formData.description.length > 500) newErrors.description = 'Complaint must be at most 500 characters';
-
     return newErrors;
   };
 
 
- const cancelDelete = () => {
-  setShowDeleteConfirm(false);
-  setSelectedComplaintId(null); 
-};
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setSelectedComplaintId(null);
+  };
 
-const handleDelete = (id) => {
-  setSelectedComplaintId(id);   
-  setShowDeleteConfirm(true);
-};
+  const handleDelete = (id) => {
+    setSelectedComplaintId(id);
+    setShowDeleteConfirm(true);
+  };
 
 
 
- const confirmDelete = () => {
-  if (!selectedComplaintId) return;
+  const confirmDelete = () => {
+    if (!selectedComplaintId) return;
 
-  deleteComplaint(selectedComplaintId, {
-    onSuccess: () => {
-      setSubmittedMessage('Complaint deleted successfully!');
-      setSubmitted(true);
+    deleteComplaint(selectedComplaintId, {
+      onSuccess: () => {
+        setSubmittedMessage('Complaint deleted successfully!');
+        setSubmitted(true);
 
-      setShowDeleteConfirm(false);   //  now works properly
-      setSelectedComplaintId(null);  //  reset
+        setShowDeleteConfirm(false);   //  now works properly
+        setSelectedComplaintId(null);  //  reset
 
-      setTimeout(() => setSubmitted(false), 3000);
-    },
-    onError: () => {
-      setSubmittedMessage('Failed to delete complaint.');
-      setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 3000);
+      },
+      onError: () => {
+        setSubmittedMessage('Failed to delete complaint.');
+        setSubmitted(true);
 
-      setTimeout(() => setSubmitted(false), 3000);
-    }
-  });
-};
+        setTimeout(() => setSubmitted(false), 3000);
+      }
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -221,10 +228,11 @@ const handleDelete = (id) => {
 
   const handleRating = (complaintId, ratingValue) => {
     const ratingMap = {
-      excellent: 1,
-      veryGood: 2,
+      excellent: 5,
+      great: 4,
       good: 3,
-      bad: 4
+      average: 2,
+      bad: 1
     };
 
     updateRating(
@@ -266,10 +274,11 @@ const handleDelete = (id) => {
 
   const mapRatingToDisplay = (rating) => {
     switch (String(rating)) {
-      case "1": return "excellent";
-      case "2": return "veryGood";
+      case "1": return "bad";
+      case "2": return "average";
       case "3": return "good";
-      case "4": return "bad";
+      case "4": return "great";
+      case "5": return "excellent";
       default: return null;
     }
   };
@@ -280,11 +289,13 @@ const handleDelete = (id) => {
 
     switch (displayRating) {
       case 'excellent':
-        return <span className="rating-badge rating-excellent"><Award size={14} /> Excellent</span>;
-      case 'veryGood':
-        return <span className="rating-badge rating-very-good"><Handshake size={14} /> Very Good</span>;
+        return <span className="rating-badge rating-excellent"><Crown size={14} /> Excellent</span>;
+      case 'great':
+        return <span className="rating-badge rating-great"><Award size={14} /> Great</span>;
       case 'good':
         return <span className="rating-badge rating-good"><ThumbsUp size={14} /> Good</span>;
+      case 'average':
+        return <span className="rating-badge rating-average"><Meh  size={14} /> Average</span>;
       case 'bad':
         return <span className="rating-badge rating-bad"><ThumbsDown size={14} /> Bad</span>;
       default:
@@ -292,22 +303,21 @@ const handleDelete = (id) => {
     }
   };
 
-const getShortDescription = (description) => {
-  if (!description) return '';
+  const getShortDescription = (description) => {
+    if (!description) return '';
 
-  if (description.length <= 30) return description;
+    if (description.length <= 30) return description;
 
-  const trimmed = description.substring(0, 15);
+    const trimmed = description.substring(0, 15);
 
-  //  If no space (single word), just cut directly
-  if (!trimmed.includes(' ')) {
-    return trimmed + '...';
-  }
+    //  If no space (single word), just cut directly
+    if (!trimmed.includes(' ')) {
+      return trimmed + '...';
+    }
 
-  //  Otherwise cut at last full word
-  return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
-};
-
+    //  Otherwise cut at last full word
+    return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
+  };
 
   // Handle filter change
   const handleFilterChange = (status) => {
@@ -375,6 +385,8 @@ const getShortDescription = (description) => {
   return (
     <div className="complaint-management-dashboard">
       <div className="complaint-limit">
+        <div className='sticky-top-header'></div>
+
         <div className="complaint-dashboard-header">
           <div className="complaint-header-content">
             <h1 className="complaint-dashboard-title">Complaint Management</h1>
@@ -429,7 +441,7 @@ const getShortDescription = (description) => {
               Resolved
             </button>
           </div>
-           {searchTerm && (
+          {searchTerm && (
             <div className='search-term'>
               <p>Searching: <span>"{searchTerm}"</span></p>
             </div>
@@ -442,7 +454,7 @@ const getShortDescription = (description) => {
               onChange={handleSearch}
               className="complaint-search-input"
             />
-             {searchTerm && (
+            {searchTerm && (
 
               <X size={15} className="search-clear-icon" onClick={() => setSearchTerm('')} />
             )}
@@ -521,7 +533,7 @@ const getShortDescription = (description) => {
                         {getStatusBadge(complaint)}
                       </td>
                       <td className="complaint-table-cell" data-label="Rating">
-                        {(complaint.status === "Resolved" ) ? (
+                        {(complaint.status === "Resolved") ? (
 
                           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
 
@@ -541,21 +553,22 @@ const getShortDescription = (description) => {
                           </div>
 
                         ) : (
-                          <span className="no-reply-text">No Rating</span>
+                          <span className="no-reply-text">No rating</span>
                         )}
                       </td>
                       <td className="complaint-table-cell" data-label="Status">
                         {complaint.reply_content === null ? (
                           <div className="complaint-delete-button"
-                          onClick={() => handleDelete(complaint.id)}
+                            onClick={() => handleDelete(complaint.id)}
+
                           >
-                          <Trash2 size={16}
-                        />
-                        </div>
-                      
-                      ) : (
-                        <div className="complaint-delete-off-button">
-                          <img src={trashOff} width={'20px'}/>
+                            <Trash2 size={16}
+                            />
+                          </div>
+
+                        ) : (
+                          <div className="complaint-delete-off-button">
+                            <img src={trashOff} width={'20px'} />
                           </div>
                         )}
                       </td>
@@ -721,7 +734,7 @@ const getShortDescription = (description) => {
                   <div className="reply-section">
                     <label className="reply-label">Your Complaint:</label>
                     <div className="reply-content complaint-text">
-                      {selectedComplaint.complaint}
+                      <p>{selectedComplaint.complaint}</p>
                     </div>
                     <div className="reply-date">
                       Registered on: {new Date(selectedComplaint.complt_reg_dt).toLocaleDateString("en-GB", {
@@ -734,8 +747,8 @@ const getShortDescription = (description) => {
 
                   <div className="reply-section">
                     <label className="reply-label">Response from Support:</label>
-                    <div className="reply-content response-text">
-                      {selectedComplaint.reply_content || "No response yet"}
+                    <div className="reply-content complaint-text">
+                     <p> {selectedComplaint.reply_content || "No response yet"}</p>
                     </div>
                     {selectedComplaint.reply_dt && (
                       <div className="reply-date">
@@ -758,7 +771,7 @@ const getShortDescription = (description) => {
           <div className="complaint-modal-overlay" onClick={() => setShowRatingModal(false)}>
             <div className="complaint-modal-container reply-modal" onClick={(e) => e.stopPropagation()}>
               <div className="complaint-modal-header">
-                <h2 className="complaint-modal-title">Rate This Response</h2>
+                <h2 className="complaint-modal-title">Rate Our Response</h2>
                 <button className="complaint-modal-close-btn" onClick={() => setShowRatingModal(false)}>
                   <XCircle size={24} />
                 </button>
@@ -770,15 +783,15 @@ const getShortDescription = (description) => {
                       className="rating-option excellent"
                       onClick={() => handleRating(selectedComplaint.id, 'excellent')}
                     >
-                      <Award size={20} />
+                      <Crown size={20} />
                       Excellent
                     </button>
                     <button
-                      className="rating-option very-good"
-                      onClick={() => handleRating(selectedComplaint.id, 'veryGood')}
+                      className="rating-option great"
+                      onClick={() => handleRating(selectedComplaint.id, 'great')}
                     >
-                      <Handshake size={20} />
-                      Very Good
+                      <Award size={20} />
+                      Great
                     </button>
                     <button
                       className="rating-option good"
@@ -786,6 +799,13 @@ const getShortDescription = (description) => {
                     >
                       <ThumbsUp size={20} />
                       Good
+                    </button>
+                    <button
+                      className="rating-option average"
+                      onClick={() => handleRating(selectedComplaint.id, 'average')}
+                    >
+                      <Meh size={20} />
+                      Average
                     </button>
                     <button
                       className="rating-option bad"
@@ -852,7 +872,7 @@ const getShortDescription = (description) => {
                   <div className="reply-section">
                     {/* <label className="reply-label">Description:</label> */}
                     <div className="reply-content complaint-text">
-                     <p> {selectedComplaint.complaint}</p>
+                      <p>{selectedComplaint.complaint}</p>
                     </div>
                     <div className="reply-date">
                       Registered on: {new Date(selectedComplaint.complt_reg_dt).toLocaleDateString("en-GB", {

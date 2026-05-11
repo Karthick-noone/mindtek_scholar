@@ -26,7 +26,7 @@ import { secureStorage } from '../../utils/secureStorage';
 import { useScholar } from '../../hooks/useScholar';
 import { useLogout } from "../../hooks/useLogout";
 
-const Header = ({ onToggleSidebar, sidebarCollapsed,  setMobileOpen }) => {
+const Header = ({ onToggleSidebar, sidebarCollapsed, setMobileOpen }) => {
   const { theme, toggleTheme } = useTheme();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -34,7 +34,7 @@ const Header = ({ onToggleSidebar, sidebarCollapsed,  setMobileOpen }) => {
   const [scrolled, setScrolled] = useState(false);
 
   const scholar = secureStorage.getScholar();
-    const { mutate: logout } = useLogout();
+  const { mutate: logout } = useLogout();
 
   const { data: scholarData } = useScholar();
   const scholarImage = scholarData?.scholar_profile
@@ -196,14 +196,14 @@ const Header = ({ onToggleSidebar, sidebarCollapsed,  setMobileOpen }) => {
                   <img src={scholarImage} alt="Profile" className='header-prof-img1' />
                 ) : (
                   <div className="user-glass-avatar">
-                    <span>{scholar?.user_name?.charAt(0) || 'S'}</span>
+                    <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
                   </div>
                 )}
               </div>
             </div>
             <div className="user-info">
-              <span className="user-name">{scholar?.user_name || 'Scholar'}</span>
-              <span className="user-role">{scholar?.user_id || 'Scholar ID'}</span>
+              <span className="user-name">{scholarData?.user_name || 'Scholar'}</span>
+              <span className="user-role">{scholarData?.user_id || 'Scholar ID'}</span>
             </div>
             <ChevronDown size={16} className="chevron-icon" />
           </button>
@@ -217,14 +217,14 @@ const Header = ({ onToggleSidebar, sidebarCollapsed,  setMobileOpen }) => {
                       <img src={scholarImage} alt="Profile" className='header-prof-img2' />
                     ) : (
                       <div className="user-glass-avatar2">
-                        <span>{scholar?.user_name?.charAt(0) || 'S'}</span>
+                        <span>{scholarData?.user_name?.charAt(0) || 'S'}</span>
                       </div>
                     )}
                   </div>
                 </div>
                 <div className="dropdown-user-details">
-                  <span className="dropdown-name">{scholar?.user_name || 'Scholar'}</span>
-                  <p className="dropdown-email">{scholar?.email || 'scholar@example.com'}</p>
+                  <span className="dropdown-name">{scholarData?.user_name || 'Scholar'}</span>
+                  <p className="dropdown-email">{scholarData?.email || 'scholar@example.com'}</p>
                 </div>
               </div>
               {/* <div className="dropdown-divider"></div> */}

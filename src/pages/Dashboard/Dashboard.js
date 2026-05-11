@@ -20,6 +20,8 @@ import { useComplaintCounts, useComplaints } from '../../hooks/useComplaints'
 import { getPaymentData } from '../../services/paymentService';
 import { usePayments } from '../../hooks/usePayments';
 import { useWorkDetails, useLastWorkStatus } from "../../hooks/useWorkDetails";
+import { useScholar } from '../../hooks/useScholar';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -30,6 +32,7 @@ const Dashboard = () => {
 
 
   const scholar = secureStorage.getScholar();
+  const navigate = useNavigate();
 
   // console.log("SCholor details", scholar)
   const company = secureStorage.getCompany();
@@ -43,6 +46,8 @@ const Dashboard = () => {
   const complaint = apiResponse?.data?.[0];
 
   const { data: lastStatus } = useLastWorkStatus();
+
+  const { data: companyData } = useScholar();
 
   const lastWorkStatus = lastStatus?.status;
 
@@ -136,29 +141,52 @@ const Dashboard = () => {
   };
 
   const stats = [
-    { icon: CheckCircle, label: 'Total Paid', value: `₹${totalPaid.toLocaleString()}`, change: '+₹15,000', color: '#10b981' },
+    {
+      icon: CheckCircle,
+      label: 'Total Paid',
+      value: `₹${totalPaid.toLocaleString()}`,
+      change: '+₹15,000',
+      color: '#10b981',
+      path: "/payment-history"
+
+    },
+
     {
       icon: IndianRupee,
       label: 'Pending Payment',
       value: pendingPayment === 0
         ? 'No pending payment'
-        : `₹${pendingPayment.toLocaleString()}`,
+        : `₹${pendingPayment}`,
       change: '+12.5%',
       trend: 'up',
       color: '#f59e0b',
       bgColor: 'rgba(245, 158, 11, 0.1)',
-      isZero: pendingPayment === 0
+      isZero: pendingPayment === 0,
+      path: "/payment-history"
+
     },
-    { icon: ThumbsUp, label: 'Resolved Complaints', value: resolvedComplaints, change: '+5', color: '#34d399' },
+    {
+      icon: ThumbsUp,
+      label: 'Resolved Complaints',
+      value: resolvedComplaints,
+      change: '+5',
+      color: '#34d399',
+      path: "/complain-register",
+      status: 'resolved'
+
+    },
     {
       icon: AlertCircle,
       label: 'Pending Complaints',
-       value: pendingComplaints === 0
+      value: pendingComplaints === 0
         ? 'No pending complaints'
         : `₹${pendingComplaints.toLocaleString()}`,
       change: '-2',
       color: '#ef4444',
-      isZero: pendingComplaints === 0
+      isZero: pendingComplaints === 0,
+      path: "/complain-register",
+      status: 'pending'
+
 
     },
   ];
@@ -178,7 +206,9 @@ const Dashboard = () => {
           // hour12: true
         }),
         status: payment?.pay_status,
-        amount: payment?.pay_received || 0
+        amount: payment?.pay_received || 0,
+
+
       }]
       : []),
 
@@ -236,43 +266,86 @@ const Dashboard = () => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-const getShortDescription = (description) => {
-  if (!description) return '';
+  const getShortDescription = (description) => {
+    if (!description) return '';
 
-  if (description.length <= 30) return description;
+    if (description.length <= 30) return description;
 
-  const trimmed = description.substring(0, 30);
+    const trimmed = description.substring(0, 55);
 
-  //  If no space (single word), just cut directly
-  if (!trimmed.includes(' ')) {
-    return trimmed + '...';
-  }
+    //  If no space (single word), just cut directly
+    if (!trimmed.includes(' ')) {
+      return trimmed + '...';
+    }
 
-  //  Otherwise cut at last full word
-  return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
-};
+    //  Otherwise cut at last full word
+    return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
+  };
+
+   const statusClass = complaint?.status
+  ?.toLowerCase()
+  .replace(/\s+/g, '-'); // "In Progress" → "in-progress"
+
+
+  const getStatusClass = (status) =>
+  status?.toLowerCase().replace(/\s+/g, '-');
+
+  
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Welcome, Scholar!</h1>
-        <p>MindTek Research and IT Solutions Pvt. Ltd.</p>
+        <h1>Welcome, {companyData?.user_name || "Scholar"}!</h1>
+        <p>{companyData?.company.company_name || "MindTek Research and IT Solutions Pvt. Ltd."}</p>
       </div>
 
       <div className="stats-grid">
-        {stats.map((stat, index) => (
-          <div key={index} className="stat-card">
-            {!stat.isZero && (
-              <div className="stat-icon" style={{ background: `${stat.color}20`, color: stat.color }}>
-                <stat.icon size={24} />
-              </div>
-            )}
-            <div className="stat-info">
-              <h3 style={{fontSize:stat.isZero ? "14px" :'',  textAlign: stat.isZero ? "center" : '' }}>{stat.value}</h3>
-              {!stat.isZero && <p >{stat.label}</p>}
-              {/* <span className="stat-change">{stat.change} this month</span> */}
+        {stats.map((stat, index) => {
+          const CardContent = (
+            <div
+              className={`stat-card ${stat.isZero ? "disabled-card" : ""}`}
+              onClick={() => {
+                if (!stat.isZero && stat.path) {
+                  navigate(stat.path, { state: { status: stat.status } });
+                }
+              }}
+            >
+              {!stat.isZero && (
+                <div
+                  className="stat-icon"
+                  style={{ background: `${stat.color}20`, color: stat.color }}
+                >
+                  <stat.icon size={24} />
+                </div>
+              )}
+
+             <div className="stat-info">
+              <h3
+                style={{
+                  fontSize: stat.isZero ? "14px" : "",
+                  textAlign: stat.isZero ? "center" : ""
+                }}
+              >
+                {stat.value}
+              </h3>
+
+              {!stat.isZero && <p>{stat.label}</p>}
             </div>
-          </div>
-        ))}
+            </div>
+          );
+
+          return stat.isZero ? (
+            <div key={index}>{CardContent}</div>   
+          ) : (
+            <Link
+              key={index}
+              to={stat.path}
+              state={{ status: stat.status }}
+              style={{ textDecoration: "none" }}
+            >
+              {CardContent}
+            </Link>
+          );
+        })}
       </div>
 
       <div className="full-width-card work-progress-full">
@@ -301,13 +374,14 @@ const getShortDescription = (description) => {
               {lastStatus?.note && (
                 <>
                   <span>Notes: {capsLetter(lastStatus?.note)}</span>
-                  <span> {new Date(lastStatus?.date).toLocaleString("en-GB", {
+                
+                </>
+              )}
+                <span> {new Date(lastStatus?.date).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: 'short',
                     year: 'numeric'
                   })}</span>
-                </>
-              )}
               {/* <span>Remaining: {100 - workProgress}%</span> */}
             </div>
 
@@ -328,7 +402,7 @@ const getShortDescription = (description) => {
                     <div key={index} className="progress-list-item">
                       <div className="progress-list-header">
                         <span className="progress-list-date">
-                          {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                          {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: "numeric" })}
                         </span>
                         <span className="progress-list-percent">{item.status}%</span>
                       </div>
@@ -374,19 +448,21 @@ const getShortDescription = (description) => {
           <div className="activities-list">
             {recentActivities.map(activity => (
               <div key={activity.id} className="activity-item">
-                <div className={`activity-status ${activity.status}`}></div>
+                <div className={`activity-status ${getStatusClass(activity.status)}`}></div>
 
                 <div className="activity-info">
-                  <p className="activity-title">{activity.activity}</p>
+                  <p className="activity-title" >{activity.activity}</p>
 
                   <div className='activity-footer'>
                     {activity.amount && (
                       <span className="activity-amount">₹{activity.amount}</span>
                     )}
 
-                    {activity.complaint && (
-                      <span className="activity-complaint" title={activity.complaint}>{getShortDescription(activity.complaint)}</span>
-                    )}
+                     {activity.complaint && (
+                        <span className={`activity-complaint-${statusClass}`} title={activity.complaint}>
+                          {getShortDescription(activity.complaint)}
+                        </span>
+                      )}
 
                     <span className="activity-date">{activity.date}</span>
                   </div>

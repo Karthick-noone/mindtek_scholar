@@ -7,6 +7,7 @@ import * as jspdf from 'jspdf';
 import { usePayments } from '../../hooks/usePayments';
 import { secureStorage } from '../../utils/secureStorage';
 import logo from './../../assets/img/logo.png'
+import { useScholar } from '../../hooks/useScholar';
 
 const PaymentHistory = () => {
   const [loading, setLoading] = useState(true);
@@ -24,8 +25,10 @@ const PaymentHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const companyDetails = secureStorage.getCompany()
-  const scholarDetails = secureStorage.getScholar()
+  // const companyDetails = secureStorage.getCompany()
+  // const scholarDetails = secureStorage.getScholar()
+    const {data: scholarDetails} = useScholar()
+  const {data: companyDetails} = useScholar()
   // const companyLogo = `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
   // console.log("scholarDetails", scholarDetails)
   // if (loading) {
@@ -53,6 +56,399 @@ const PaymentHistory = () => {
     if (num === 0) return 'Zero';
     return convertToWords(Math.floor(num));
   };
+
+  const approvedPayments = paymentData.filter(p => p.pay_status === 'approved');
+
+  // Add this function before the return statement
+  const handlePrintAll = () => {
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+
+    // Get company and scholar details
+    const companyName = companyDetails?.company.company_name || 'Company Name';
+    const companyAddress = companyDetails?.company.address || '';
+    const companyEmail = companyDetails?.company.email_id || '';
+    const companyContact = companyDetails?.company.com_contact || '';
+    const scholarName = scholarDetails?.user_name || '';
+    const scholarId = scholarDetails?.user_id || '';
+    const scholarEmail = scholarDetails?.email || '';
+    const scholarContact = scholarDetails?.contact || '';
+    const workDescription = scholarDetails?.work_description || '';
+
+    // Filter only approved payments
+    // const approvedPayments = paymentData.filter(p => p.pay_status === 'approved');
+
+    // Calculate totals
+    const totalAmount = paymentData[0]?.total_amount || 0;
+    const totalPaid = paymentData[0]?.tot_paid || 0;
+    const balanceAmount = paymentData[0]?.bal_amt || 0;
+
+    // Create the print HTML
+    const printContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Payment History Report</title>
+      <meta charset="UTF-8">
+      <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+        
+        body {
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          padding: 20px 10px;
+          background: white;
+          color: #1f2937;
+        }
+        
+        .print-container {
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        
+        /* Header Section */
+        .print-header {
+          text-align: center;
+          margin-bottom: 10px;
+          padding-bottom: 5px;
+          border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .company-logo {
+          max-width: 200px;
+          margin-bottom: 5px;
+        }
+        
+        .company-name {
+          font-size: 20px;
+          font-weight: 700;
+          color: #1f2937;
+          margin-bottom: 3px;
+        }
+        
+        .company-details {
+          font-size: 13px;
+          color: #6b7280;
+          line-height: 1.5;
+        }
+        
+        .company-details-date {
+          display: flex;
+          align-items: flex-start;
+          font-size: 13px;
+          color: #6b7280;
+          line-height: 1.5;
+          margin-top:10px;
+        }
+        
+        .report-title {
+          font-size: 20px;
+          font-weight: 600;
+          margin: 20px 0 10px;
+          color: #374151;
+        }
+        
+        /* Scholar Info Section */
+        .scholar-section {
+          background: #f9fafb;
+          padding: 20px;
+          border-radius: 12px;
+          margin-bottom: 10px;
+        }
+        
+        .scholar-section h4 {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 15px;
+          color: #374151;
+          border-left: 3px solid #10b981;
+          padding-left: 12px;
+        }
+        
+        .scholar-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 5px;
+        }
+        
+        .scholar-item {
+          display: flex;
+          align-items: baseline;
+          gap: 5px;
+        }
+        
+        .scholar-label {
+          font-size: 13px;
+          font-weight: 500;
+          color: #6b7280;
+          min-width: 120px;
+        }
+        
+        .scholar-value {
+          font-size: 14px;
+          font-weight: 500;
+          color: #1f2937;
+        }
+        
+        /* Stats Section */
+        .stats-section {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          margin-bottom: 30px;
+        }
+        
+        .stat-card {
+          background: #f9fafb;
+          padding: 16px;
+          border-radius: 12px;
+          text-align: center;
+        }
+        
+        .stat-label {
+          font-size: 12px;
+          font-weight: 500;
+          color: #6b7280;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 8px;
+        }
+        
+        .stat-amount {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1f2937;
+        }
+        
+        .stat-amount.green {
+          color: #10b981;
+        }
+        
+        .stat-amount.orange {
+          color: #f59e0b;
+        }
+        
+        .stat-amount.purple {
+          color: #8b5cf6;
+        }
+        
+        /* Payment Table */
+        .payments-table-section {
+          margin-top: 10px;
+        }
+        
+        .payments-table-section h4 {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 15px;
+          color: #374151;
+        }
+        
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 30px;
+        }
+        
+        th {
+          background: #f3f4f6;
+          padding: 12px 12px;
+          text-align: left;
+          font-size: 13px;
+          font-weight: 600;
+          color: #374151;
+          border-bottom: 2px solid #e5e7eb;
+        }
+        
+        td {
+          padding: 12px 12px;
+          font-size: 13px;
+          color: #4b5563;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        
+        tr:last-child td {
+          border-bottom: none;
+        }
+        
+        .amount {
+          font-weight: 600;
+          color: #059669;
+        }
+        
+        .status-badge {
+          display: inline-block;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 11px;
+          font-weight: 600;
+        }
+        
+        .status-badge.approved {
+          background: #d1fae5;
+          color: #059669;
+        }
+        
+        /* Footer */
+        .print-footer {
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #e5e7eb;
+          text-align: center;
+          font-size: 11px;
+          color: #9ca3af;
+        }
+        
+        .signature {
+          margin-top: 50px;
+          text-align: right;
+        }
+        
+        .signature-line {
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px dashed #d1d5db;
+          width: 250px;
+          margin-left: auto;
+        }
+        
+        .signature-text {
+          font-size: 12px;
+          color: #6b7280;
+        }
+        
+        @media print {
+          body {
+            padding: 20px;
+          }
+          .no-print {
+            display: none;
+          }
+          .stat-card, .scholar-section {
+            break-inside: avoid;
+          }
+          tr {
+            break-inside: avoid;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="print-container">
+        <!-- Header -->
+        <div class="print-header">
+          <img src="${logo}" class="company-logo" alt="Logo" style="max-width: 150px;" />
+          <div class="company-name">${companyName}</div>
+          <div class="company-details">${companyAddress}</div>
+          <div class="company-details">Email: ${companyEmail} | Contact: ${companyContact}</div>
+          <!-- <div class="report-title">Payment History Report</div>-->
+          <div class="company-details-date"> ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+        </div>
+        
+        <!-- Scholar Details -->
+        <div class="scholar-section">
+          <h4>Scholar Information</h4>
+          <div class="scholar-grid">
+            <div class="scholar-item">
+              <span class="scholar-label">Scholar Name:</span>
+              <span class="scholar-value">${scholarName}</span>
+            </div>
+            <div class="scholar-item">
+              <span class="scholar-label">Scholar ID:</span>
+              <span class="scholar-value">${scholarId}</span>
+            </div>
+            <div class="scholar-item">
+              <span class="scholar-label">Email:</span>
+              <span class="scholar-value">${scholarEmail}</span>
+            </div>
+            <div class="scholar-item">
+              <span class="scholar-label">Contact:</span>
+              <span class="scholar-value">${scholarContact}</span>
+            </div>
+            <div class="scholar-item" style="grid-column: span 2;">
+              <span class="scholar-label">Work Description:</span>
+              <span class="scholar-value">${workDescription}</span>
+            </div>
+          </div>
+        </div>
+        
+    
+        
+        <!-- Payment History Table -->
+        <div class="payments-table-section">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <h4>Payment Transaction Details</h4>
+          <span style="font-size: 14px; font-weight: 600;">Total Amount: ₹${totalAmount.toLocaleString()}</span>
+        </div>
+          <table>
+            <thead>
+              <tr>
+                <th>S. No.</th>
+                <th>Date</th>
+                <th>Payment Purpose</th>
+                <th>Paid (₹)</th>
+                <th>Balance (₹)</th>
+                <th>Bank</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${approvedPayments.map((payment, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    })}</td>
+                  <td>${payment.purpose.pay_purpose}</td>
+                  <td class="amount">₹${payment.pay_received.toLocaleString()}</td>
+                  <td >₹${payment.bal_amt.toLocaleString()}</td>
+                  <td>${payment.bank.bank_nm}</td>
+
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Summary Row -->
+        <table style="width: auto; margin-left: auto; background: #f9fafb;">
+          <tr>
+            <th style="background: #e5e7eb; border-bottom: none;">Total Payments</th>
+            <td style="font-weight: 700; color: #059669;">₹${totalPaid}</td>
+          </tr>
+        </table>
+        
+
+        <!--
+        <div class="signature">
+          <div class="signature-line"></div>
+          <div class="signature-text">Authorized Signature</div>
+          <div class="signature-text" style="font-size: 11px;">${companyName}</div>
+        </div>
+        -->
+      </div>
+      
+      <script>
+        window.onload = function() {
+          window.print();
+          setTimeout(function() {
+            window.close();
+          }, 1000);
+        }
+      </script>
+    </body>
+    </html>
+  `;
+
+    // Write to the new window and print
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
 
 
   const handleDownloadReceipt = async () => {
@@ -185,7 +581,7 @@ const PaymentHistory = () => {
       }
 
       // Save the PDF
-      pdf.save(`Payment_receipt_${companyDetails?.company_name || 'receipt'}_${Date.now()}.pdf`);
+      pdf.save(`Payment_receipt_${companyDetails?.company.company_name || 'receipt'}_${Date.now()}.pdf`);
 
       // Show success message
       showToastMessage('Receipt downloaded successfully!', 'success');
@@ -404,8 +800,28 @@ const PaymentHistory = () => {
               <option value={100}>100</option>
             </select>
           </div>
+          <div className='row-section'>
+ {/*
+             <button
+            className="print-all-btn"
+            onClick={handlePrintAll}
+            disabled={approvedPayments.length === 0}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9V3h12v6" />
+              <path d="M6 21H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2" />
+              <path d="M6 15h12v6H6z" />
+              <path d="M18 9v6" />
+              <path d="M6 9v6" />
+              <path d="M8 6h8" />
+            </svg>
+            Print All
+          </button>
+
+          */}
           <div className="pagination-info-premium">
             Showing {indexOfFirstRow + 1} to {Math.min(indexOfLastRow, paymentData.length)} of {paymentData.length} entries
+          </div>
           </div>
         </div>
 
@@ -415,11 +831,11 @@ const PaymentHistory = () => {
               <tr>
                 <th>Date</th>
                 <th>Payment Purpose</th>
-                <th>Amount</th>
+                <th>Paid Amount</th>
                 <th>Bank</th>
                 <th>Status</th>
                 <th>View</th>
-                <th>Print</th>
+                <th>Receipt</th>
               </tr>
             </thead>
             <tbody>
@@ -466,7 +882,7 @@ const PaymentHistory = () => {
                           className="payment-action-btn view-btn"
                           onClick={() => setDownloadReceipt(payment)}
                         >
-                          <Download size={16} />
+                          <FileText size={16} />
                         </button>
                       </div>
                     </td>
@@ -639,10 +1055,10 @@ const PaymentHistory = () => {
                   </div>
 
                   <div className="receipt-premium-company">
-                    <h3>{companyDetails.company_name}</h3>
-                    <p>{companyDetails.address}</p>
+                    <h3>{companyDetails?.company.company_name}</h3>
+                    <p>{companyDetails?.company.address}</p>
                     {/* <p>{companyDetails.location}, India</p> */}
-                    <p>Email: {companyDetails.email_id} | Contact: {companyDetails.com_contact}</p>
+                    <p>Email: {companyDetails?.company.email_id} | Contact: {companyDetails?.company.com_contact}</p>
                   </div>
 
                   {/* Date Row */}
@@ -760,21 +1176,18 @@ const PaymentHistory = () => {
                   <div className="receipt-premium-divider"></div>
 
                   {/* Footer */}
-                  <div className="receipt-premium-footer">
+                  {/* <div className="receipt-premium-footer">
                     <div className="receipt-premium-signature">
                       <p>Authorized Signature</p>
-                      {/* <div className="signature-line"></div> */}
                       <span>{companyDetails.company_name}</span>
                     </div>
-                    {/* <div className="receipt-premium-thanks">
-              <p>Thank you for your payment!</p>
-            </div> */}
-                  </div>
+
+                  </div> */}
                 </div>
               </div>
 
               {/* Footer Actions */}
-              <div className="receipt-premium-actions">
+              {/* <div className="receipt-premium-actions">
                 <button className="receipt-premium-cancel" onClick={() => setDownloadReceipt(null)}>
                   Close
                 </button>
@@ -782,7 +1195,7 @@ const PaymentHistory = () => {
                   <Download size={16} />
                   Download Receipt
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         )}

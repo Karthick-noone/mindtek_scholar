@@ -21,11 +21,10 @@ apiClient.interceptors.request.use(
 );
 
 //  Response Interceptor (Global Error Handling)
-//  Response Interceptor (Global Error Handling)
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    const isLoginAPI = error.config?.url?.includes("/login");
+    const isLoginAPI = error.config?.url?.includes("/");
 
     const status = error.response?.status;
     const message = error.response?.data?.message;
@@ -36,11 +35,11 @@ apiClient.interceptors.response.use(
       window.location.href = "/";
     }
 
-    //  NEW: Handle deactivated / not found scholar
-    if (status === 404 && message?.toLowerCase().includes("scholar not found")) {
-      secureStorage.clear();
-      window.location.href = "/";
-    }
+    // //  NEW: Handle deactivated / not found scholar
+    // if (status === 404 && message?.toLowerCase().includes("scholar not found")) {
+    //   secureStorage.clear();
+    //   window.location.href = "/";
+    // }
 
     return Promise.reject(error);
   }
