@@ -152,14 +152,39 @@
 
 .complaint-search-input {
   width: 100%;
-  padding: 8px 16px;
+  padding: 8px 30px 8px 10px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--input-bg);
   color: var(--text-color);
   font-size: 14px;
 }
+.complaint-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-loader {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
 
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.complaint-submit-btn:disabled,
+.complaint-cancel-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 .complaint-search-input:focus {
   outline: none;
   border-color: var(--primary-color);

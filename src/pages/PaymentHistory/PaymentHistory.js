@@ -8,6 +8,7 @@ import { usePayments } from '../../hooks/usePayments';
 import { secureStorage } from '../../utils/secureStorage';
 import logo from './../../assets/img/logo.png'
 import { useScholar } from '../../hooks/useScholar';
+import Loader from '../../components/Loader/Loader';
 
 const PaymentHistory = () => {
   const [loading, setLoading] = useState(true);
@@ -21,20 +22,32 @@ const PaymentHistory = () => {
   } = usePayments();
   // console.log("Payment data:", paymentData)
   const payment = paymentData[0];
+// const payment = paymentData[paymentData?.length - 1];
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [isDataReady, setIsDataReady] = useState(false);
 
   // const companyDetails = secureStorage.getCompany()
   // const scholarDetails = secureStorage.getScholar()
-    const {data: scholarDetails} = useScholar()
-  const {data: companyDetails} = useScholar()
+    const {data: scholarDetails, isLoading: scholarLoading} = useScholar()
+  const {data: companyDetails, isLoading: companyLoading} = useScholar()
   // const companyLogo = `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
   // console.log("scholarDetails", scholarDetails)
   // if (loading) {
   //   return <Shimmer type="table" count={1} />;
   // }
-
+    // Track loading states
+    useEffect(() => {
+      // Check if both hooks have finished loading
+      if (!scholarLoading && !companyLoading) {
+        // Small delay for smooth transition
+        setTimeout(() => {
+          setLoading(false);
+          setIsDataReady(true);
+        }, 100);
+      }
+    }, [scholarLoading, companyLoading]);
 
   // Add this helper function to convert amount to words
   const numberToWords = (num) => {
@@ -733,6 +746,18 @@ const PaymentHistory = () => {
   const capsLetter = (name) => {
     if (!name) return;
     return name.charAt(0).toUpperCase() + name.slice(1);
+  }
+
+      if (loading || isFetching) {
+    return (
+      <div className="dashboard-loader-wrapper">
+        <Loader 
+          type="scholar" 
+          size="large" 
+          text="Loading payments data...."
+        />
+      </div>
+    );
   }
 
   return (

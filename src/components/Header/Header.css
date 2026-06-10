@@ -44,7 +44,7 @@
   justify-content: center;
   color: white;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 22px;
 }
 
 .header-prof-img1 {
@@ -726,14 +726,14 @@
 } */
 
 .user-btn:hover .user-avatar {
-  background: white;
+  /* background: white; */
   color: var(--primary-color);
 }
 
 .user-avatar {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  /* background: linear-gradient(135deg, var(--primary-color), var(--primary-dark)); */
   border-radius: 50%;
   display: flex;
   align-items: center;

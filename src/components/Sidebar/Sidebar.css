@@ -31,7 +31,7 @@
   display: none;
 }
 
-.sidebar.collapsed .logo-container {
+.sidebar.collapsed .sidebar-logo-container {
   justify-content: center;
 }
 
@@ -75,7 +75,7 @@
   position: relative;
 }
 
-.logo-container {
+.sidebar-logo-container {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -83,9 +83,9 @@
 
 }
 
-.logo-icon {
-  width: 40px;
-  height: 40px;
+.sidebar-logo-icon {
+  width: 39px;
+  height: 39px;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   border-radius: 12px;
   display: flex;

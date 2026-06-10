@@ -213,7 +213,7 @@
 
 /* Contact Info */
 .profile-contact-info {
-  margin-top: 20px;
+  margin-top: 20px ;
   border-top: 1px solid var(--border-color);
 
 }
@@ -237,7 +237,9 @@
 .profile-contact-info h4 {
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 6px;
+  margin-top: 20px ;
+
   color: var(--text-color);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -332,7 +334,7 @@
 
 /* Form Styles */
 .profile-form {
-  padding: 5px 32px 15px;
+  padding: 20px 32px 15px;
 }
 
 .form-section h3 {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// Dashboard.js - Fixed with proper animation timing
+import React, { useState, useEffect, useRef } from 'react';
 import {
   BookOpen,
   Award,
@@ -11,126 +12,203 @@ import {
   AlertCircle,
   ThumbsUp,
   Clock as ClockIcon,
-  IndianRupee
+  IndianRupee,
+  BarChart3,
+  PieChart,
+  Activity,
+  ArrowUpRight,
+  ArrowDownRight,
+  MoreVertical,
+  Download,
+  RefreshCw
 } from 'lucide-react';
-import Shimmer from '../../components/Shimmer/Shimmer';
 import './Dashboard.css';
 import { secureStorage } from '../../utils/secureStorage';
-import { useComplaintCounts, useComplaints } from '../../hooks/useComplaints'
 import { getPaymentData } from '../../services/paymentService';
+import { useComplaintCounts, useComplaints } from '../../hooks/useComplaints';
 import { usePayments } from '../../hooks/usePayments';
 import { useWorkDetails, useLastWorkStatus } from "../../hooks/useWorkDetails";
 import { useScholar } from '../../hooks/useScholar';
 import { Link, useNavigate } from 'react-router-dom';
+import Loader from './../../components/Loader/Loader';
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
-  const [workProgress, setWorkProgress] = useState(0);
-
   const [pendingPayment, setPendingPayment] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
+  const [workProgress, setWorkProgress] = useState(0);
+  const [isDataReady, setIsDataReady] = useState(false);
+
+  // Store actual values for animation targets
+  const [targetPendingPayment, setTargetPendingPayment] = useState(0);
+  const [targetTotalPaid, setTargetTotalPaid] = useState(0);
+  const [targetResolvedComplaints, setTargetResolvedComplaints] = useState(0);
+  const [targetPendingComplaints, setTargetPendingComplaints] = useState(0);
+  const [targetWorkProgress, setTargetWorkProgress] = useState(0);
+  const navigate = useNavigate();
 
 
   const scholar = secureStorage.getScholar();
-  const navigate = useNavigate();
-
-  // console.log("SCholor details", scholar)
-  const company = secureStorage.getCompany();
-  const { data: counts } = useComplaintCounts();
-
   const { data: paymentData = [] } = usePayments();
   const payment = paymentData[0];
 
   const { data: apiResponse } = useComplaints(1, 10, 'all', '');
-
   const complaint = apiResponse?.data?.[0];
 
-  const { data: lastStatus } = useLastWorkStatus();
-
-  const { data: companyData } = useScholar();
-
-  const lastWorkStatus = lastStatus?.status;
+  const company = secureStorage.getCompany();
+  const { data: counts } = useComplaintCounts();
 
   const { data: work } = useWorkDetails();
   const workDetails = work?.[0];
-
   const workStatusList = workDetails?.work_dtls_sts || [];
 
-  useEffect(() => {
-    if (lastWorkStatus !== undefined) {
-      animateProgress(Number(lastWorkStatus) || 0);
-    }
-  }, [lastWorkStatus]);
-
+  const { data: lastStatus } = useLastWorkStatus();
+  const lastWorkStatus = lastStatus?.status;
+  const lastWorkStatusDate = lastStatus?.date;
+  const lastWorkStatusNote = lastStatus?.note;
 
   const [resolvedComplaints, setResolvedComplaints] = useState(0);
   const [pendingComplaints, setPendingComplaints] = useState(0);
 
+  const { data: companyData } = useScholar();
+
+  // Track data loading states
+  const [dataStates, setDataStates] = useState({
+    paymentsLoaded: false,
+    complaintsLoaded: false,
+    workLoaded: false,
+    countsLoaded: false,
+    scholarLoaded: false
+  });
+
+  // Set target values when data arrives
   useEffect(() => {
     if (counts) {
-      // console.log("Counts", counts);
-
-      animateCount(setResolvedComplaints, counts.resolved || 0);
-      animateCount(setPendingComplaints, counts.pending || 0);
+      setTargetResolvedComplaints(counts.resolved || 0);
+      setTargetPendingComplaints(counts.pending || 0);
+      setDataStates(prev => ({ ...prev, countsLoaded: true }));
     }
   }, [counts]);
 
-  // const [resolvedComplaints, setResolvedComplaints] = useState(counts?.resolved);
-  // const [pendingComplaints, setPendingComplaints] = useState(counts?.pending);
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const scholar = secureStorage.getScholar();
-        if (!scholar?.id) return;
+        const scholarData = secureStorage.getScholar();
+        if (!scholarData?.id) {
+          setLoading(false);
+          return;
+        }
 
-        const res = await getPaymentData(scholar.id);
+        const res = await getPaymentData(scholarData.id);
         const response = res.data;
+        const paymentDataFromApi = response.data?.[0];
 
-        const payment = response.data?.[0];
+        setTargetPendingPayment(Number(paymentDataFromApi?.bal_amt) || 0);
+        setTargetTotalPaid(Number(paymentDataFromApi?.tot_paid) || 0);
 
-        setLoading(false);
-
-        animateCount(setPendingPayment, Number(payment?.bal_amt) || 0);
-        animateCount(setTotalPaid, Number(payment?.tot_paid) || 0);
-
-        // const total = Number(payment?.total_amount) || 0;
-        // const paid = Number(payment?.tot_paid) || 0;
-
-        // const progress = total ? Math.round((paid / total) * 100) : 0;
-        // animateProgress(progress);
-
+        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
       } catch (err) {
         console.error("Dashboard API Error:", err);
-        setLoading(false);
+        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
       }
     };
 
     fetchDashboard();
   }, []);
 
+  // Set target work progress when data arrives
+  useEffect(() => {
+    if (lastWorkStatus !== undefined) {
+      setTargetWorkProgress(Number(lastWorkStatus) || 0);
+      setDataStates(prev => ({ ...prev, workLoaded: true }));
+    }
+  }, [lastWorkStatus]);
+
+  // Track other data loading states
+  useEffect(() => {
+    if (apiResponse !== undefined) {
+      setDataStates(prev => ({ ...prev, complaintsLoaded: true }));
+    }
+  }, [apiResponse]);
+
+  useEffect(() => {
+    if (work !== undefined) {
+      setDataStates(prev => ({ ...prev, workLoaded: true }));
+    }
+  }, [work]);
+
+  useEffect(() => {
+    if (companyData !== undefined) {
+      setDataStates(prev => ({ ...prev, scholarLoaded: true }));
+    }
+  }, [companyData]);
+
+  // Check when all data is loaded and start animations
+  useEffect(() => {
+    const allDataLoaded =
+      dataStates.paymentsLoaded &&
+      dataStates.complaintsLoaded &&
+      dataStates.workLoaded &&
+      dataStates.countsLoaded &&
+      dataStates.scholarLoaded;
+
+    if (allDataLoaded && !isDataReady) {
+      // First hide the loader
+      setLoading(false);
+      setIsDataReady(true);
+
+      // Small delay to ensure DOM is ready, then start animations
+      setTimeout(() => {
+        // Animate counts
+        animateCount(setResolvedComplaints, targetResolvedComplaints, 1200);
+        animateCount(setPendingComplaints, targetPendingComplaints, 1200);
+        animateCount(setTotalPaid, targetTotalPaid, 1200);
+        animateCount(setPendingPayment, targetPendingPayment, 1200);
+
+        // Animate progress bar
+        animateProgress(targetWorkProgress);
+      }, 100);
+    }
+  }, [dataStates, isDataReady, targetResolvedComplaints, targetPendingComplaints, targetTotalPaid, targetPendingPayment, targetWorkProgress]);
+
+  const progressRef = useRef(null);
+  const countRefs = useRef({
+    resolved: null,
+    pending: null,
+    totalPaid: null,
+    pendingPayment: null
+  });
+
   const animateProgress = (end) => {
+    if (progressRef.current) {
+      clearInterval(progressRef.current);
+    }
+
     let progress = 0;
+    const stepTime = 16; // ~60fps
+    const duration = 1000; // 1 second for progress bar
+    const increment = end / (duration / stepTime);
 
-    const timer = setInterval(() => {
-      progress += 1;
-
+    progressRef.current = setInterval(() => {
+      progress += increment;
       if (progress >= end) {
         setWorkProgress(end);
-        clearInterval(timer);
+        clearInterval(progressRef.current);
+        progressRef.current = null;
       } else {
-        setWorkProgress(progress);
+        setWorkProgress(Math.floor(progress));
       }
-    }, 10);
+    }, stepTime);
   };
 
-  const animateCount = (setValue, end, duration = 1000) => {
+  const animateCount = (setValue, end, duration = 1200) => {
     let start = 0;
     const stepTime = 16;
     const increment = end / (duration / stepTime);
 
     const timer = setInterval(() => {
       start += increment;
-
       if (start >= end) {
         setValue(end);
         clearInterval(timer);
@@ -138,7 +216,10 @@ const Dashboard = () => {
         setValue(Math.floor(start));
       }
     }, stepTime);
+
+    return timer;
   };
+
 
   const stats = [
     {
@@ -240,27 +321,18 @@ const Dashboard = () => {
       }]
       : [])
   ];
-  // if (loading) {
-  //   return (
-  //     <div className="dashboard">
-  //       <div className="dashboard-header">
-  //         <Shimmer width="300px" height="32px" marginBottom="16px" />
-  //         <Shimmer width="400px" height="20px" marginBottom="32px" />
-  //       </div>
-  //       <div className="stats-grid">
-  //         {[1, 2, 3, 4].map(i => (
-  //           <Shimmer key={i} height="120px" borderRadius="12px" />
-  //         ))}
-  //       </div>
-  //       <Shimmer height="300px" borderRadius="12px" marginBottom="24px" />
-  //       <div className="dashboard-grid">
-  //         <Shimmer height="400px" borderRadius="12px" />
-  //         <Shimmer height="400px" borderRadius="12px" />
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
+  if (loading) {
+    return (
+      <div className="dashboard-loader-wrapper">
+        <Loader
+          type="scholar"
+          size="large"
+          text="Loading dashboard data...."
+        />
+      </div>
+    );
+  }
   const capsLetter = (str) => {
     if (!str) return;
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -282,15 +354,15 @@ const Dashboard = () => {
     return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
   };
 
-   const statusClass = complaint?.status
-  ?.toLowerCase()
-  .replace(/\s+/g, '-'); // "In Progress" → "in-progress"
+  const statusClass = complaint?.status
+    ?.toLowerCase()
+    .replace(/\s+/g, '-'); // "In Progress" → "in-progress"
 
 
   const getStatusClass = (status) =>
-  status?.toLowerCase().replace(/\s+/g, '-');
+    status?.toLowerCase().replace(/\s+/g, '-');
 
-  
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -318,23 +390,23 @@ const Dashboard = () => {
                 </div>
               )}
 
-             <div className="stat-info">
-              <h3
-                style={{
-                  fontSize: stat.isZero ? "14px" : "",
-                  textAlign: stat.isZero ? "center" : ""
-                }}
-              >
-                {stat.value}
-              </h3>
+              <div className="stat-info">
+                <h3
+                  style={{
+                    fontSize: stat.isZero ? "14px" : "",
+                    textAlign: stat.isZero ? "center" : ""
+                  }}
+                >
+                  {stat.value}
+                </h3>
 
-              {!stat.isZero && <p>{stat.label}</p>}
-            </div>
+                {!stat.isZero && <p>{stat.label}</p>}
+              </div>
             </div>
           );
 
           return stat.isZero ? (
-            <div key={index}>{CardContent}</div>   
+            <div key={index}>{CardContent}</div>
           ) : (
             <Link
               key={index}
@@ -356,16 +428,23 @@ const Dashboard = () => {
               {/* <span className="badge"><TrendingUp size={18} /></span> */}
             </div>
           </div>
+            {workProgress > 0 ? (
 
           <div className="main-progress-container">
             <div className="progress-label">
               <span>Overall Progress</span>
-              <span className="progress-percentage">{workProgress}%</span>
+              <span className="progress-percentage" style={{ color: workProgress === 100 ? " #22c55e" : '' }}>{workProgress}%</span>
             </div>
             <div className="progress-bar-main">
               <div
                 className="progress-fill-main"
-                style={{ width: `${workProgress}%` }}
+                style={{
+                  width: `${workProgress}%`,
+                  background:
+                    workProgress === 100
+                      ? "linear-gradient(90deg, #22c55e, #16a34a)"
+                      : ""
+                }}
               >
                 <div className="progress-glow"></div>
               </div>
@@ -374,72 +453,86 @@ const Dashboard = () => {
               {lastStatus?.note && (
                 <>
                   <span>Notes: {capsLetter(lastStatus?.note)}</span>
-                
+
                 </>
               )}
-                <span> {new Date(lastStatus?.date).toLocaleString("en-GB", {
+              {lastStatus?.date && !isNaN(new Date(lastStatus.date).getTime()) && (
+                <span>
+                  {new Date(lastStatus.date).toLocaleString("en-GB", {
                     day: "2-digit",
-                    month: 'short',
-                    year: 'numeric'
-                  })}</span>
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              )}
               {/* <span>Remaining: {100 - workProgress}%</span> */}
             </div>
 
 
           </div>
-        </div>
-
-        <div className="progress-stats-section">
-          <div className="work-progress-header">
-            <h3 className='work-progress-title'><span>Recent Updates</span> </h3>
-
-          </div>
-          <div className="progress-stats">
-            <div className="progress-list">
-              {workStatusList && workStatusList.length > 0 ? (
-                <>
-                  {workStatusList.slice(0, -1).map((item, index) => (
-                    <div key={index} className="progress-list-item">
-                      <div className="progress-list-header">
-                        <span className="progress-list-date">
-                          {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: "numeric" })}
-                        </span>
-                        <span className="progress-list-percent">{item.status}%</span>
-                      </div>
-                      <div className="progress-list-bar">
-                        <div
-                          className="progress-list-fill"
-                          style={{
-                            width: `${item.status}%`,
-                            background: `linear-gradient(90deg, var(--primary-color), ${item.status >= 70 ? '#10b981' : item.status >= 40 ? '#f59e0b' : '#ef4444'})`
-                          }}
-                        ></div>
-                      </div>
-                      {item.note && (
-                        <div className="progress-list-note">
-                          <span>{capsLetter(item.note)}</span>
-                        </div>
-                      )}
+            ) : (
+               <div className="empty-progress-stats">
+                      <div className="empty-icon"><TrendingUp size={32} /></div>
+                      <p className="empty-title">Work progress data not available</p>
+                      <p className="empty-description">Work status updates will appear here once available</p>
                     </div>
-                  ))}
-                </>
-              ) : (
-                /* Empty State - No Data Available */
-                <div className="empty-progress-stats">
-                  <div className="empty-icon">
-                    <TrendingUp size={32} />
-                  </div>
-                  <p className="empty-title">Work progress data not available</p>
-                  <p className="empty-description">Work status updates will appear here once available</p>
-                </div>
-              )}
+            )}
+        </div>
+        {workStatusList && workStatusList.length > 1 && (
+
+          <div className="progress-stats-section">
+            <div className="work-progress-header">
+              <h3 className='work-progress-title'><span>Recent Updates</span> </h3>
 
             </div>
-            <div className="progress-bar-mini">
-              <div className="progress-fill-mini" style={{ width: `${workProgress}%` }}></div>
+            <div className="progress-stats">
+              <div className="progress-list">
+                {workStatusList && workStatusList.length > 1 ? (
+                  <>
+                    {workStatusList.slice(-4, -1).map((item, index) => (
+                      <div key={index} className="progress-list-item">
+                        <div className="progress-list-header">
+                          <span className="progress-list-date">
+                            {new Date(item.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: "numeric" })}
+                          </span>
+                          <span className="progress-list-percent">{item.status}%</span>
+                        </div>
+                        <div className="progress-list-bar">
+                          <div
+                            className="progress-list-fill"
+                            style={{
+                              width: `${item.status}%`,
+                              background: `linear-gradient(90deg, var(--primary-color), ${item.status >= 70 ? '#10b981' : item.status >= 40 ? '#f59e0b' : '#ef4444'})`
+                            }}
+                          ></div>
+                        </div>
+                        {item.note && (
+                          <div className="progress-list-note">
+                            <span>{capsLetter(item.note)}</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  /* Empty State - No Data Available */
+                  <div className="empty-progress-stats">
+                    <div className="empty-icon">
+                      <TrendingUp size={32} />
+                    </div>
+                    <p className="empty-title">Work progress data not available</p>
+                    <p className="empty-description">Work status updates will appear here once available</p>
+                  </div>
+                )}
+
+              </div>
+              <div className="progress-bar-mini">
+                <div className="progress-fill-mini" style={{ width: `${workProgress}%` }}></div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
+
       </div>
 
       <div className="dashboard-grid">
@@ -458,11 +551,11 @@ const Dashboard = () => {
                       <span className="activity-amount">₹{activity.amount}</span>
                     )}
 
-                     {activity.complaint && (
-                        <span className={`activity-complaint-${statusClass}`} title={activity.complaint}>
-                          {getShortDescription(activity.complaint)}
-                        </span>
-                      )}
+                    {activity.complaint && (
+                      <span className={`activity-complaint-${statusClass}`} title={activity.complaint}>
+                        {getShortDescription(activity.complaint)}
+                      </span>
+                    )}
 
                     <span className="activity-date">{activity.date}</span>
                   </div>

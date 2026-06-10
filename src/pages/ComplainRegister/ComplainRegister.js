@@ -22,7 +22,7 @@ import {
   Trash2,
   X,
   Award,
-  Meh 
+  Meh
 } from 'lucide-react';
 import { BsStarFill } from 'react-icons/bs';
 import './ComplainRegister.css';
@@ -30,6 +30,7 @@ import { useComplaints, useCreateComplaint, useComplaintCounts, useUpdateRating,
 import { secureStorage } from '../../utils/secureStorage';
 import trashOff from './../../assets/img/recycle-bin.png';
 import { useLocation } from 'react-router-dom';
+import Loader from '../../components/Loader/Loader';
 
 const ComplainRegister = () => {
   const [formData, setFormData] = useState({
@@ -44,13 +45,16 @@ const ComplainRegister = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [viewShowModal, setShowViewModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   // Pagination & Filter State
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedComplaintId, setSelectedComplaintId] = useState(null);
+  const [isRating, setIsRating] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(null);
   // Fetch complaints from backend with pagination
   const {
     data: apiResponse,
@@ -58,6 +62,8 @@ const ComplainRegister = () => {
     isFetching,
     refetch
   } = useComplaints(currentPage, rowsPerPage, filterStatus, searchTerm);
+  const [loading, setLoading] = useState(true);
+  const [isDataReady, setIsDataReady] = useState(false);
 
   const location = useLocation();
   useEffect(() => {
@@ -84,7 +90,7 @@ const ComplainRegister = () => {
   const user_id = scholarDetails?.user_id;
   const date = new Date().toISOString().split('T')[0];
 
-  const { data: counts } = useComplaintCounts();
+  const { data: counts, isLoading: countsLoading } = useComplaintCounts();
 
   // Stats calculations (from API data)
   const totalComplaints = counts?.total_complaints;
@@ -93,7 +99,17 @@ const ComplainRegister = () => {
   const resolvedComplaintsCount = counts?.resolved;
 
 
-
+  // Track loading states
+  useEffect(() => {
+    // Check if both complaints data and counts data have loaded
+    if (!isLoading && !countsLoading && apiResponse !== undefined) {
+      // Small delay for smooth transition
+      setTimeout(() => {
+        setLoading(false);
+        setIsDataReady(true);
+      }, 100);
+    }
+  }, [isLoading, countsLoading, apiResponse]);
 
   const statsCards = [
     {
@@ -162,9 +178,11 @@ const ComplainRegister = () => {
 
   const confirmDelete = () => {
     if (!selectedComplaintId) return;
-
+    setIsDeleting(true)
     deleteComplaint(selectedComplaintId, {
       onSuccess: () => {
+        setIsDeleting(false)
+
         setSubmittedMessage('Complaint deleted successfully!');
         setSubmitted(true);
 
@@ -176,6 +194,7 @@ const ComplainRegister = () => {
       onError: () => {
         setSubmittedMessage('Failed to delete complaint.');
         setSubmitted(true);
+        setIsDeleting(false)
 
         setTimeout(() => setSubmitted(false), 3000);
       }
@@ -184,35 +203,50 @@ const ComplainRegister = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const newErrors = validateForm();
 
-    if (Object.keys(newErrors).length === 0) {
-      submitComplaint(
-        {
-          complaint: formData.description,
-          reg_id: scholar_id,
-          user_id,
-          complt_reg_dt: date
-        },
-        {
-          onSuccess: () => {
-            setSubmittedMessage('Complaint submitted successfully!');
-            setSubmitted(true);
-            setShowModal(false);
-            setFormData({ description: '' });
-            refetch(); // Refresh the list
-            setTimeout(() => setSubmitted(false), 3000);
-          },
-          onError: () => {
-            setSubmittedMessage('Failed to submit complaint. Please try again.');
-            setSubmitted(true);
-            setTimeout(() => setSubmitted(false), 3000);
-          }
-        }
-      );
-    } else {
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      setIsSubmitting(false);
+      return;
     }
+
+    setErrors({});
+
+    setIsSubmitting(true);
+
+    submitComplaint(
+      {
+        complaint: formData.description,
+        reg_id: scholar_id,
+        user_id,
+        complt_reg_dt: date
+      },
+      {
+        onSuccess: () => {
+          setSubmittedMessage('Complaint submitted successfully!');
+          setSubmitted(true);
+          setShowModal(false);
+          setFormData({ description: '' });
+
+          refetch();
+
+          setTimeout(() => setSubmitted(false), 3000);
+
+          setIsSubmitting(false);
+        },
+
+        onError: () => {
+          setSubmittedMessage('Failed to submit complaint. Please try again.');
+          setSubmitted(true);
+
+          setTimeout(() => setSubmitted(false), 3000);
+
+          setIsSubmitting(false);
+        }
+      }
+    );
   };
 
   const handleViewReply = (complaint) => {
@@ -234,7 +268,8 @@ const ComplainRegister = () => {
       average: 2,
       bad: 1
     };
-
+    setIsRating(true);
+    setSelectedRating(ratingValue);
     updateRating(
       {
         id: complaintId,
@@ -244,6 +279,9 @@ const ComplainRegister = () => {
       },
       {
         onSuccess: () => {
+          setIsRating(false);
+          setSelectedRating(null);
+
           setSubmittedMessage(
             `Thank you for rating this response as ${ratingValue.toUpperCase()}!`
           );
@@ -256,6 +294,9 @@ const ComplainRegister = () => {
         },
 
         onError: (err) => {
+          setIsRating(false);
+          setSelectedRating(null);
+
           console.error("Rating update failed:", err);
         },
       }
@@ -263,9 +304,9 @@ const ComplainRegister = () => {
   };
 
   const getStatusBadge = (complaint) => {
-    if (complaint.status === "Resolved" ) {
+    if (complaint.status === "Resolved") {
       return <span className="status-badge status-resolved">Resolved</span>;
-    } else if (complaint.status ==="In Progress") {
+    } else if (complaint.status === "In Progress") {
       return <span className="status-badge status-in-progress">In Progress</span>;
     } else {
       return <span className="status-badge status-pending">Pending</span>;
@@ -295,7 +336,7 @@ const ComplainRegister = () => {
       case 'good':
         return <span className="rating-badge rating-good"><ThumbsUp size={14} /> Good</span>;
       case 'average':
-        return <span className="rating-badge rating-average"><Meh  size={14} /> Average</span>;
+        return <span className="rating-badge rating-average"><Meh size={14} /> Average</span>;
       case 'bad':
         return <span className="rating-badge rating-bad"><ThumbsDown size={14} /> Bad</span>;
       default:
@@ -381,6 +422,20 @@ const ComplainRegister = () => {
   // Calculate showing entries info
   const startEntry = (currentPage - 1) * rowsPerPage + 1;
   const endEntry = Math.min(currentPage * rowsPerPage, totalCount);
+
+  // Show enhanced loader while data is being fetched
+  if (loading) {
+    return (
+      <div className="dashboard-loader-wrapper">
+        <Loader
+          type="scholar"
+          size="large"
+          text="Loading complaints data...."
+        />
+      </div>
+    );
+  }
+
 
   return (
     <div className="complaint-management-dashboard">
@@ -588,77 +643,77 @@ const ComplainRegister = () => {
         </div>
 
         {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="pagination-premium-controls">
-            <div className="rows-per-page-premium">
-              <label>Rows per page:</label>
-              <select
-                value={rowsPerPage}
-                onChange={handleRowsPerPageChange}
-                className="rows-select-premium"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-            </div>
-
-            <div className="pagination-buttons-premium">
-              <button
-                onClick={() => goToPage(1)}
-                disabled={currentPage === 1}
-                className="pagination-btn-premium"
-                title="First Page"
-              >
-                <ChevronsLeft size={16} />
-              </button>
-              <button
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="pagination-btn-premium"
-                title="Previous"
-              >
-                <ChevronLeft size={16} />
-              </button>
-
-              <div className="pagination-numbers-premium">
-                {getPageNumbers().map((page, index) => (
-                  <button
-                    key={index}
-                    onClick={() => typeof page === 'number' && goToPage(page)}
-                    className={`pagination-number-premium ${currentPage === page ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
-                    disabled={page === '...'}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="pagination-btn-premium"
-                title="Next"
-              >
-                <ChevronRight size={16} />
-              </button>
-              <button
-                onClick={() => goToPage(totalPages)}
-                disabled={currentPage === totalPages}
-                className="pagination-btn-premium"
-                title="Last Page"
-              >
-                <ChevronsRight size={16} />
-              </button>
-            </div>
-
-            <div className="pagination-info-premium">
-              Showing {startEntry} to {endEntry} of {totalCount} entries
-            </div>
+        {/* {totalPages > 1 && ( */}
+        <div className="pagination-premium-controls">
+          <div className="rows-per-page-premium">
+            <label>Rows per page:</label>
+            <select
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+              className="rows-select-premium"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
           </div>
-        )}
+
+          <div className="pagination-buttons-premium">
+            <button
+              onClick={() => goToPage(1)}
+              disabled={currentPage === 1}
+              className="pagination-btn-premium"
+              title="First Page"
+            >
+              <ChevronsLeft size={16} />
+            </button>
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="pagination-btn-premium"
+              title="Previous"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            <div className="pagination-numbers-premium">
+              {getPageNumbers().map((page, index) => (
+                <button
+                  key={index}
+                  onClick={() => typeof page === 'number' && goToPage(page)}
+                  className={`pagination-number-premium ${currentPage === page ? 'active' : ''} ${page === '...' ? 'dots' : ''}`}
+                  disabled={page === '...'}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="pagination-btn-premium"
+              title="Next"
+            >
+              <ChevronRight size={16} />
+            </button>
+            <button
+              onClick={() => goToPage(totalPages)}
+              disabled={currentPage === totalPages}
+              className="pagination-btn-premium"
+              title="Last Page"
+            >
+              <ChevronsRight size={16} />
+            </button>
+          </div>
+
+          <div className="pagination-info-premium">
+            Showing {startEntry} to {endEntry} of {totalCount} entries
+          </div>
+        </div>
+        {/* )} */}
 
 
         {/* Success Toast */}
@@ -705,12 +760,25 @@ const ComplainRegister = () => {
                   </div>
 
                   <div className="complaint-modal-buttons">
-                    <button type="button" className="complaint-cancel-btn" onClick={() => setShowModal(false)}>
+                    <button type="button" className="complaint-cancel-btn" disabled={isSubmitting} onClick={() => setShowModal(false)}>
                       Cancel
                     </button>
-                    <button type="submit" className="complaint-submit-btn">
-                      <Send size={18} />
-                      Submit Complaint
+                    <button
+                      type="submit"
+                      className="complaint-submit-btn"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <span className="btn-loader"></span>
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          <Send size={18} />
+                          Submit Complaint
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>
@@ -748,7 +816,7 @@ const ComplainRegister = () => {
                   <div className="reply-section">
                     <label className="reply-label">Response from Support:</label>
                     <div className="reply-content complaint-text">
-                     <p> {selectedComplaint.reply_content || "No response yet"}</p>
+                      <p> {selectedComplaint.reply_content || "No response yet"}</p>
                     </div>
                     {selectedComplaint.reply_dt && (
                       <div className="reply-date">
@@ -781,37 +849,66 @@ const ComplainRegister = () => {
                   <div className="rating-options">
                     <button
                       className="rating-option excellent"
-                      onClick={() => handleRating(selectedComplaint.id, 'excellent')}
+                      onClick={() => handleRating(selectedComplaint.id, "excellent")}
+                      disabled={isRating}
                     >
-                      <Crown size={20} />
+                      {isRating && selectedRating === "excellent" ? (
+                        <span className="btn-loader"></span>
+                      ) : (
+                        <Crown size={20} />
+                      )}
                       Excellent
                     </button>
+
                     <button
                       className="rating-option great"
-                      onClick={() => handleRating(selectedComplaint.id, 'great')}
+                      onClick={() => handleRating(selectedComplaint.id, "great")}
+                      disabled={isRating}
                     >
-                      <Award size={20} />
+                      {isRating && selectedRating === "great" ? (
+                        <span className="btn-loader"></span>
+                      ) : (
+                        <Award size={20} />
+                      )}
                       Great
                     </button>
+
                     <button
                       className="rating-option good"
-                      onClick={() => handleRating(selectedComplaint.id, 'good')}
+                      onClick={() => handleRating(selectedComplaint.id, "good")}
+                      disabled={isRating}
                     >
-                      <ThumbsUp size={20} />
+                      {isRating && selectedRating === "good" ? (
+                        <span className="btn-loader"></span>
+                      ) : (
+                        <ThumbsUp size={20} />
+                      )}
                       Good
                     </button>
+
                     <button
                       className="rating-option average"
-                      onClick={() => handleRating(selectedComplaint.id, 'average')}
+                      onClick={() => handleRating(selectedComplaint.id, "average")}
+                      disabled={isRating}
                     >
-                      <Meh size={20} />
+                      {isRating && selectedRating === "average" ? (
+                        <span className="btn-loader"></span>
+                      ) : (
+                        <Meh size={20} />
+                      )}
                       Average
                     </button>
+
                     <button
                       className="rating-option bad"
-                      onClick={() => handleRating(selectedComplaint.id, 'bad')}
+                      onClick={() => handleRating(selectedComplaint.id, "bad")}
+                      disabled={isRating}
                     >
-                      <ThumbsDown size={20} />
+                      {isRating && selectedRating === "bad" ? (
+                        <span className="btn-loader"></span>
+                      ) : (
+                        <ThumbsDown size={20} />
+                      )}
                       Bad
                     </button>
                   </div>
@@ -846,11 +943,29 @@ const ComplainRegister = () => {
                 {/* <p className="warning-text">This action cannot be undone.</p> */}
               </div>
               <div className="confirmation-modal-footer">
-                <button className="confirmation-btn cancel" onClick={cancelDelete}>
+                <button className="confirmation-btn cancel" onClick={cancelDelete} disabled={isDeleting}>
                   Cancel
                 </button>
-                <button className="confirmation-btn delete" onClick={confirmDelete}>
-                  Delete
+                <button
+                  className="confirmation-btn delete"
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px"
+                      }}
+                    >
+                      <span className="btn-loader"></span>
+                      <span>Deleting...</span>
+                    </span>
+                  ) : (
+                    "Delete"
+                  )}
                 </button>
               </div>
             </div>

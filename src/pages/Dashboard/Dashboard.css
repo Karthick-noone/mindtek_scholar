@@ -39,7 +39,7 @@
   box-shadow: var(--shadow-sm);
   transition: transform 0.2s, box-shadow 0.2s;
   border: 1px solid var(--border-color);
-  min-height: 55px;
+  min-height: 93px;
 }
 
 .stat-card:hover {

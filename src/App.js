@@ -1,4 +1,4 @@
-// App.js
+// App.js - Fixed Version (No Loading Screen)
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
@@ -20,18 +20,20 @@ import ForgotPassword from './pages/ForgetPassword/ForgetPassword';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import { useScholar } from './hooks/useScholar';
 import { useAccountStatus } from './hooks/useAccountStatus';
-import { InfoIcon } from 'lucide-react';
+import { secureStorage } from './utils/secureStorage';
+import { InfoIcon, RefreshCw } from 'lucide-react';
 
 function App() {
   const { theme } = useTheme();
   const location = useLocation();
   const { isOnline } = useInternetStatus();
-  const { isActive, message, showPopup, checkStatus, handleLogout } = useAccountStatus();
+  const { isActive, message, showPopup, checkStatus, handleLogout, isServerError, handleRefresh } = useAccountStatus();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isAuthenticated = !!localStorage.getItem('authToken');
+  const isAuthenticated = !!secureStorage.getToken();
 
   // Check status when app loads and on navigation
   useEffect(() => {
@@ -55,7 +57,7 @@ function App() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
-  const publicRoutes = ['/', '/forgot-password'];
+  const publicRoutes = ['/login', '/forgot-password'];
   const isPublicPage = publicRoutes.some(route =>
     location.pathname === route || location.pathname.startsWith(route + '/')
   );
@@ -71,8 +73,29 @@ function App() {
 
   return (
     <div className={`app ${theme}`}>
-      {/* Deactivated Popup */}
-       {showPopup && (
+      {/* Status Popup */}
+      {showPopup && isServerError && (
+        <div className="deactivated-modal-overlay">
+          <div className="deactivated-modal-content">
+            <div className="deactivated-modal-header">
+              <div className="deactivated-icon">
+                <InfoIcon size={55} />
+              </div>
+              <h3>Server Issue</h3>
+            </div>
+            <div className="deactivated-modal-body">
+              <p>{message || "Server is currently unavailable. Please refresh the page."}</p>
+            </div>
+            <div className="deactivated-modal-footer">
+              <button className="deactivated-ok-btn" onClick={handleRefresh}>
+                <RefreshCw size={20}/> <span>Refresh</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPopup && !isServerError && (
         <div className="deactivated-modal-overlay">
           <div className="deactivated-modal-content">
             <div className="deactivated-modal-header">
@@ -94,19 +117,19 @@ function App() {
       )}
 
       {/* Main App Content */}
-      {!showPopup && !isPublicPage && isAuthenticated   && isActive && (
+      {!showPopup && !isPublicPage && isAuthenticated && isActive && (
         <div className="app-layout">
           <Sidebar
             collapsed={sidebarCollapsed}
             onToggle={toggleSidebar}
-            mobileOpen={false}
-            setMobileOpen={() => {}}
+            mobileOpen={mobileOpen}
+            setMobileOpen={setMobileOpen}
           />
           <div className={`main-content ${sidebarCollapsed && !isMobile ? 'expanded' : ''}`}>
             <Header
               onToggleSidebar={toggleSidebar}
               sidebarCollapsed={sidebarCollapsed}
-              setMobileOpen={() => {}}
+              setMobileOpen={setMobileOpen}
             />
             <div className="page-container">
               <AppRoutes isAuthenticated={isAuthenticated} />
@@ -126,9 +149,14 @@ function App() {
 function AppRoutes({ isAuthenticated }) {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
+      />
+      <Route
+        path="/forgot-password"
+        element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
+      />
       <Route path="/dashboard" element={
         <PrivateRoute><Dashboard /></PrivateRoute>
       } />
@@ -144,11 +172,16 @@ function AppRoutes({ isAuthenticated }) {
       <Route path="/complain-register" element={
         <PrivateRoute><ComplainRegister /></PrivateRoute>
       } />
-      
-      <Route path="/" element={
-        isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/" replace />
-      } />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+        }
+      />
+      <Route
+        path="*"
+        element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />}
+      />
     </Routes>
   );
 }

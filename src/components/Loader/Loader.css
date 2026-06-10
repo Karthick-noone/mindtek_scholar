@@ -1,26 +1,268 @@
-.loader-container {
+/* Loader.css - Clean Rounded Style */
+
+:root {
+  /* Light mode variables */
+  --loader-bg-light: rgba(255, 255, 255, 0.95);
+  --loader-text-light: #1f2937;
+  --loader-spinner-light: #6366f1;
+  --loader-icon-light: #4f46e5;
+}
+
+/* Dark mode variables */
+.dark {
+  --loader-bg-dark: rgba(17, 24, 39, 0.95);
+  --loader-text-dark: #f3f4f6;
+  --loader-spinner-dark: #818cf8;
+  --loader-icon-dark: #6366f1;
+}
+
+/* ==================== CLEAN ROUNDED LOADER ==================== */
+
+.loader-scholar {
+  position: relative;
   display: flex;
-  align-items: center;
   justify-content: center;
-  min-height: 400px;
+  align-items: center;
 }
 
-.loader {
-  text-align: center;
+.scholar-spinner-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
-.loader-spinner {
+/* Standard rounded spinner ring */
+.scholar-rounded-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(99, 102, 241, 0.1);
+  border-top-color: var(--loader-spinner-light);
+  border-right-color: var(--loader-spinner-light);
+  box-sizing: border-box;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Dark mode ring */
+.dark .scholar-rounded-ring {
+  border: 3px solid rgba(129, 140, 248, 0.15);
+  border-top-color: var(--loader-spinner-dark);
+  border-right-color: var(--loader-spinner-dark);
+}
+
+/* Scholar Icon Center - Simple pulse animation */
+.scholar-icon-center {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  border-radius: 50%;
+  animation: icon-pulse 1.5s ease-in-out infinite;
+}
+
+/* Light mode icon */
+.loader-scholar .scholar-icon-center {
+  color: var(--loader-icon-light);
+}
+
+/* Dark mode icon */
+.dark .loader-scholar .scholar-icon-center {
+  color: var(--loader-icon-dark);
+}
+
+.scholar-icon-svg {
+  width: 60%;
+  height: 60%;
+  margin: auto;
+}
+
+/* Size Variants */
+.loader-scholar.loader-small {
+  width: 40px;
+  height: 40px;
+}
+
+.loader-scholar.loader-small .scholar-icon-center {
+  width: 28px;
+  height: 28px;
+}
+
+.loader-scholar.loader-small .scholar-icon-svg {
+  width: 18px;
+  height: 18px;
+}
+
+.loader-scholar.loader-medium {
+  width: 70px;
+  height: 70px;
+}
+
+.loader-scholar.loader-medium .scholar-icon-center {
   width: 48px;
   height: 48px;
-  border: 3px solid var(--border-color);
-  border-top-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 16px;
 }
 
+.loader-scholar.loader-medium .scholar-icon-svg {
+  width: 32px;
+  height: 32px;
+}
+
+.loader-scholar.loader-large {
+  width: 100px;
+  height: 100px;
+}
+
+.loader-scholar.loader-large .scholar-icon-center {
+  width: 70px;
+  height: 70px;
+}
+
+.loader-scholar.loader-large .scholar-icon-svg {
+  width: 48px;
+  height: 48px;
+}
+
+/* ==================== ANIMATIONS ==================== */
+
+/* Standard spin animation */
 @keyframes spin {
-  to {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
     transform: rotate(360deg);
   }
 }
+
+/* Simple icon pulse animation */
+@keyframes icon-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* Loading Text Styling */
+.loader-container .loader-text {
+  margin-top: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  /* text-transform: lowercase; */
+  letter-spacing: 1px;
+  animation: text-pulse 1.5s ease-in-out infinite;
+  color: var(--loader-text-light);
+}
+
+.dark .loader-container .loader-text {
+  color: var(--loader-text-dark);
+}
+
+@keyframes text-pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ==================== FULLSCREEN & OVERLAY ==================== */
+
+.loader-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  background: var(--loader-bg-light);
+}
+
+.dark .loader-fullscreen {
+  background: var(--loader-bg-dark);
+}
+
+.loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+}
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* Dashboard-specific inline loader wrapper */
+.dashboard-loader-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 500px;
+  width: 100%;
+  background: transparent;
+}
+
+
+/* Dashed Circle Loader - Add to Loader.css */
+
+/* Dashed rotating circle */
+.scholar-dashed-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--loader-spinner-light) 60deg,
+    transparent 120deg
+  );
+  mask: radial-gradient(circle, transparent 55%, black 56%);
+  -webkit-mask: radial-gradient(circle, transparent 55%, black 56%);
+  animation: spin 1s linear infinite;
+}
+
+.dark .scholar-dashed-ring {
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    var(--loader-spinner-dark) 60deg,
+    transparent 120deg
+  );
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+

@@ -7,14 +7,18 @@ import { secureStorage } from '../../utils/secureStorage';
 import { useUploadProfileImage } from "../../hooks/useProfile";
 import { useLastWorkStatus } from "../../hooks/useWorkDetails";
 import ImagePreviewModal from './ImagePreviewModal';
+import Loader from '../../components/Loader/Loader';
 
 const Profile = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
     const [hoverImage, setHoverImage] = useState(false);
     const [showImagePreview, setShowImagePreview] = useState(false);
     const [, setScholarImage] = useState(null); // Your image state
+    const [isDataReady, setIsDataReady] = useState(false);
 
     const fileInputRef = useRef(null);
 
@@ -28,7 +32,7 @@ const Profile = () => {
     };
 
     const scholar = secureStorage.getScholar();
-    const { data: scholarData } = useScholar();
+    const { data: scholarData, isLoading: scholarLoading } = useScholar();
     // console.log("SCholar data", scholar)
     // console.log("SCholar datafhdfhdfd", scholarData)
 
@@ -45,9 +49,20 @@ const Profile = () => {
     //     }, 1500);
     //   }, []);
 
-    const { data: lastStatus } = useLastWorkStatus();
+    const { data: lastStatus, isLoading: lastStatusLoading } = useLastWorkStatus();
 
     const lastWorkStatus = lastStatus?.status;
+    // Track loading states
+    useEffect(() => {
+        // Check if both hooks have finished loading
+        if (!scholarLoading && !lastStatusLoading) {
+            // Small delay for smooth transition
+            setTimeout(() => {
+                setLoading(false);
+                setIsDataReady(true);
+            }, 100);
+        }
+    }, [scholarLoading, lastStatusLoading]);
 
     useEffect(() => {
         if (lastWorkStatus !== undefined) {
@@ -138,15 +153,19 @@ const Profile = () => {
         // Proceed with upload (no loading toast)
         const formData = new FormData();
         formData.append("scholar_profile", file);
-
+        setIsUploading(true);
         uploadImage(formData, {
             onSuccess: () => {
                 e.target.value = "";
                 showToast('Profile image uploaded successfully!', 'success');
+                setIsUploading(false);
+
             },
             onError: (error) => {
                 showToast('Failed to upload image. Please try again.', 'error');
                 e.target.value = "";
+                setIsUploading(false);
+
             }
         });
     };
@@ -160,21 +179,25 @@ const Profile = () => {
     const confirmDelete = () => {
         const formData = new FormData();
         formData.append("remove", 1);
-
+        setIsDeleting(true)
         uploadImage(formData, {
             onSuccess: () => {
                 showToast('Profile image deleted successfully!', 'success');
                 setShowDeleteConfirm(false);
+                setIsDeleting(false)
             },
             onError: (error) => {
                 showToast('Failed to delete image. Please try again.', 'error');
                 setShowDeleteConfirm(false);
+                setIsDeleting(false)
             }
         });
     };
 
     const cancelDelete = () => {
         setShowDeleteConfirm(false);
+        setIsDeleting(false)
+
     };
 
 
@@ -196,6 +219,18 @@ const Profile = () => {
     const capsLetter = (str) => {
         if (!str) return;
         return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    if (loading) {
+        return (
+            <div className="dashboard-loader-wrapper">
+                <Loader
+                    type="scholar"
+                    size="large"
+                    text="Loading profile data...."
+                />
+            </div>
+        );
     }
 
     return (
@@ -228,9 +263,13 @@ const Profile = () => {
 
                             <div className="camera-icon"
                                 onClick={handleImageClick}
-
+                                disabled={isUploading}
                             >
-                                <Camera size={16} />
+                                {isUploading ? (
+                                    <span className='btn-loader'></span>
+                                ) : (
+                                    <Camera size={15} />
+                                )}
                             </div>
 
                             <input
@@ -239,6 +278,7 @@ const Profile = () => {
                                 onChange={handleImageChange}
                                 accept=".png, .jpg, .jpeg"
                                 style={{ display: 'none' }}
+                                disabled={isUploading}
                             />
                         </div>
                         <h2>{scholarData?.user_name || "Scholar"}</h2>
@@ -340,17 +380,18 @@ const Profile = () => {
 
                         <div className="form-section">
 
-                            <h3>
+                            <h3 style={{ marginBottom: '10px' }}>
                                 <BriefcaseBusiness size={20} />
                                 Work Information
                             </h3>
                             <div className="form-grid">
 
+
                                 <div className="form-field">
                                     <label>Domain</label>
                                     <div className="field-value">
                                         <Globe size={16} />
-                                        <span>{scholarData?.domain.domain}</span>
+                                        <span>{scholarData?.domain_nm || "N/A"}</span>
                                     </div>
                                 </div>
                                 <div className="form-field">
@@ -365,14 +406,14 @@ const Profile = () => {
                                     <label>Technical Expert</label>
                                     <div className="field-value">
                                         <UserCog size={16} />
-                                        <span>{scholarData?.tech_expert.staff_name}</span>
+                                        <span>{scholarData?.tech_expert?.staff_name || "N/A"}</span>
                                     </div>
                                 </div>
                                 <div className="form-field">
                                     <label>Technical Expert Contact</label>
                                     <div className="field-value">
                                         <Phone size={16} />
-                                        <span>+91 {scholarData?.tech_expert.staff_contact}</span>
+                                        <span> {scholarData?.tech_expert?.staff_contact || "N/A"}</span>
                                     </div>
                                 </div>
 
@@ -380,7 +421,7 @@ const Profile = () => {
                                     <label>BDA Name</label>
                                     <div className="field-value">
                                         <Users size={16} />
-                                        <span>{scholarData?.bda.bda_name}</span>
+                                        <span>{scholarData?.bda?.bda_name || "N/A"}</span>
                                     </div>
                                 </div>
 
@@ -388,7 +429,7 @@ const Profile = () => {
                                     <label>BDA Contact</label>
                                     <div className="field-value">
                                         <Phone size={16} />
-                                        <span>+91 {scholarData?.bda.bda_contact}</span>
+                                        <span> {scholarData?.bda?.bda_contact}</span>
                                     </div>
                                 </div>
 
@@ -401,48 +442,57 @@ const Profile = () => {
                                     </div>
 
                                 </div>
-                                <div className="form-field full-width">
-                                    <div className='profile-project-section-header'>
-                                        <label>Project Completion</label>
-                                        <span className='work-percentage'>{workProgress}%</span>
-                                    </div>
+                                {workProgress > 0 && (
 
-                                    <div className="profile-progress-bar-main"
-                                        style={{ marginTop: '15px' }}
-                                    >
-                                        <div
-                                            className="progress-fill-main "
-                                            style={{ width: `${workProgress}%` }}
-                                        >
-                                            <div className="progress-glow"></div>
+                                    <div className="form-field full-width">
+                                        <div className='profile-project-section-header'>
+                                            <label>Project Completion</label>
+                                            <span className='work-percentage'>{workProgress}%</span>
                                         </div>
-                                    </div>
-                                    <div className="progress-premium-stats">
-                                        {lastStatus?.note && (<>
-                                            <div className="progress-stat">
-                                                <Notebook size={14} />
-                                                <span>Notes:</span>
-                                                {capsLetter(lastStatus?.note)}
+
+                                        <div className="profile-progress-bar-main"
+                                            style={{ marginTop: '15px' }}
+                                        >
+                                            <div
+                                                className="progress-fill-main "
+                                                style={{ width: `${workProgress}%` }}
+                                            >
+                                                <div className="progress-glow"></div>
                                             </div>
-                                          
-                                        </>)}
-                                          <div className="progress-stat progress-date">
-                                                <Calendar size={14} />
+                                        </div>
+                                        <div className="progress-premium-stats">
+                                            {lastStatus?.note && (<>
+                                                <div className="progress-stat">
+                                                    <Notebook size={14} />
+                                                    <span>Notes:</span>
+                                                    {capsLetter(lastStatus?.note)}
+                                                </div>
+
+                                            </>
+                                        )}
+                                            <div className="progress-stat progress-date">
                                                 {/* <span>Remaining</span> */}
-                                                {new Date(lastStatus?.date).toLocaleString("en-GB", {
-                                                    day: "2-digit",
-                                                    month: 'short',
-                                                    year: 'numeric'
-                                                })}
+                                                {lastStatus?.date && !isNaN(new Date(lastStatus.date).getTime()) && (
+
+                                                    <>
+                                                        <Calendar size={14} />
+
+                                                        {new Date(lastStatus.date).toLocaleString("en-GB", {
+                                                            day: "2-digit",
+                                                            month: "short",
+                                                            year: "numeric",
+                                                        })}
+                                                    </>
+                                                )}
                                             </div>
-                                        {/* <div className="progress-stat">
+                                            {/* <div className="progress-stat">
                   <Clock size={14} />
                   <span>Remaining</span>
                  {100 - workProgress}
                 </div> */}
+                                        </div>
                                     </div>
-                                </div>
-
+                                )}
                             </div>
                         </div>
 
@@ -471,11 +521,29 @@ const Profile = () => {
                                         {/* <p className="warning-text">This action cannot be undone.</p> */}
                                     </div>
                                     <div className="confirmation-modal-footer">
-                                        <button className="confirmation-btn cancel" onClick={cancelDelete}>
+                                        <button className="confirmation-btn cancel" onClick={cancelDelete} disabled={isDeleting}>
                                             Cancel
                                         </button>
-                                        <button className="confirmation-btn delete" onClick={confirmDelete}>
-                                            Delete
+                                        <button
+                                            className="confirmation-btn delete"
+                                            onClick={confirmDelete}
+                                            disabled={isDeleting}
+                                        >
+                                            {isDeleting ? (
+                                                <span
+                                                    style={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        gap: "8px"
+                                                    }}
+                                                >
+                                                    <span className="btn-loader"></span>
+                                                    <span>Deleting...</span>
+                                                </span>
+                                            ) : (
+                                                "Delete"
+                                            )}
                                         </button>
                                     </div>
                                 </div>

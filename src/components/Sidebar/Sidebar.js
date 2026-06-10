@@ -73,10 +73,15 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
 
       <div className={sidebarClasses}>
         <div className="sidebar-header">
-          <div className="logo-container">
-            <div className="logo-icon">
-              <GraduationCap size={28} />
-            </div>
+          <div className="sidebar-logo-container">
+            <div className="sidebar-logo-icon">
+              <svg className="scholar-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3L1 9L12 15L23 9L12 3Z" />
+                <path d="M5 12V16L12 20L19 16V12" />
+                <path d="M19 12V19" />
+                <circle cx="19" cy="16" r="2" />
+                <path d="M9 9L12 11L15 9" />
+              </svg>            </div>
             {/* {(!collapsed || isMobile) && <img src={theme  === "dark" ? darkThemelogo : logo} alt="Logo" className="logo-image" />} */}
             {(!collapsed || isMobile) && <img src={companyLogo} alt="Logo"
               className={`logo-image ${theme === "dark" ? "logo-white" : ""}`}
