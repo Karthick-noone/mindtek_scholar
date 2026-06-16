@@ -245,6 +245,9 @@
 }
 
 @media (max-width: 768px) {
+  .payment-history-page {
+    padding: 0
+  }
 
   .payments-table th,
   .payments-table td {
@@ -639,6 +642,9 @@ flex-direction: column;
     max-width: 370px;
 
   }
+  .pagination-premium-controls {
+    zoom: .8;
+  }
 
   .receipt-content {
     padding: 10px;
@@ -653,11 +659,6 @@ flex-direction: column;
     text-align: center;
   }
 
-  .payment-detail-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
 
   .receipt-modal-footer {
     flex-direction: column;
@@ -865,8 +866,9 @@ flex-direction: column;
 /* Tablet */
 @media (max-width: 768px) {
   .payment-pagination-premium-controls.top {
-    flex-direction: column;
-    align-items: flex-start;
+    /* flex-direction: column;
+    align-items: flex-start; */
+    zoom:.7;
   }
 
   .payment-pagination-premium-controls.bottom {
@@ -878,9 +880,9 @@ flex-direction: column;
     justify-content: center;
   }
 
-  .payment-pagination-numbers-premium {
+  /* .payment-pagination-numbers-premium {
     order: 2;
-  }
+  } */
 
   .payment-pagination-btn-premium {
     padding: 6px 12px;
@@ -900,7 +902,7 @@ flex-direction: column;
   }
 
   .rows-per-page-premium {
-    width: 100%;
+    /* width: 100%; */
     justify-content: space-between;
   }
 
@@ -1562,10 +1564,10 @@ flex-direction: column;
 }
 
 @media (max-width: 640px) {
-  .payment-pagination-premium-controls.top {
+  /* .payment-pagination-premium-controls.top {
     flex-direction: column;
     align-items: stretch;
-  }
+  } */
   
   .rows-per-page-premium {
     justify-content: space-between;
@@ -1584,3 +1586,228 @@ flex-direction: column;
   align-items: center;
   gap: 10px;
 }
+
+
+
+
+/* Payment Table Wrapper - Exact same styles as complaint table */
+.payments-table-wrapper {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+/* .payments-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+} */
+
+.payments-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.payments-table-header {
+  background: var(--hover-bg);
+}
+
+.payments-table-head {
+  padding: 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.payments-table-body .payments-table-row:hover {
+  background: var(--hover-bg);
+}
+
+.payments-table-cell {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Amount Cell */
+.amount-cell {
+  font-weight: 600;
+  color: #10b981;
+}
+
+/* Status Badges - Using same colors as complaints */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.success,
+.status-badge.paid,
+.status-badge.completed {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-badge.pending,
+.status-badge.processing {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.failed,
+.status-badge.cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.refunded {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+/* Action Buttons - Same as complaint action buttons */
+.payments-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.payments-action-btn {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payments-view-btn {
+  color: var(--primary-color);
+}
+
+.payments-view-btn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.payments-receipt-btn {
+  color: #8b5cf6;
+}
+
+.payments-receipt-btn:hover {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* Loading State - Exact same as complaint loading */
+.payments-loading-row {
+  background: var(--card-bg);
+}
+
+.payments-loading-cell {
+  padding: 60px !important;
+  text-align: center !important;
+}
+
+.payments-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.payments-loading-state .loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.payments-loading-state p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* No Data State - Exact same as complaint */
+.payments-no-data-cell {
+  text-align: center;
+  padding: 48px !important;
+}
+
+.payments-no-data-text {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+/* Responsive Styles - EXACT same as complaint management */
+@media (max-width: 768px) {
+  .payments-table-wrapper {
+    zoom: 0.9;
+  }
+  
+  .payments-table-responsive {
+    width: 350px;
+  }
+  
+  .payments-table-cell,
+  .payments-table-head {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* .payments-table-wrapper {
+    max-width: 420px;
+    zoom: 0.9;
+  } */
+  
+  .payments-table-responsive {
+    width: 350px;
+  }
+  
+  .payments-data-table {
+    font-size: 12px;
+  }
+  
+  .payments-table-cell,
+  .payments-table-head {
+    padding: 8px;
+  }
+  
+  .payments-action-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Ensure table maintains structure during loading */
+.payments-data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.payments-table-body {
+  background: var(--card-bg);
+}
+

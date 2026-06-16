@@ -850,6 +850,11 @@
 @media (max-width: 768px) {
   .full-width-card {
     padding: 20px;
+    flex-direction: column;
+  }
+  .header-prof-img1 {
+    width: 30px;
+    height:30px;
   }
   
   .work-progress-header h3 {
@@ -941,8 +946,8 @@
 }
 
 .empty-icon {
-  width: 34px;
-  height: 34px;
+  /* width: 34px;
+  height: 34px; */
   background: var(--border-color);
   border-radius: 50%;
   display: flex;
@@ -951,6 +956,7 @@
   /* margin-bottom: 16px; */
   color: var(--text-muted);
   opacity: 0.5;
+  padding: 15px;
 }
 
 .empty-title {

@@ -22,6 +22,21 @@ const Profile = () => {
 
     const fileInputRef = useRef(null);
 
+      const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
+
+  
+
     const handleImageView = () => {
         if (scholarImage) {
             setShowImagePreview(true);
@@ -233,6 +248,12 @@ const Profile = () => {
         );
     }
 
+    console.log({
+  isMobile,
+  scholarImage,
+  hoverImage
+});
+
     return (
         <div className="profile-page">
             <div className="profile-header">
@@ -246,6 +267,13 @@ const Profile = () => {
                     onMouseEnter={() => setHoverImage(true)}
                     onMouseLeave={() => setHoverImage(false)}
                 >
+                    {(hoverImage || isMobile) && scholarImage && (
+                        <div className="avatar-delete-btn"
+                            onClick={handleDeleteImage}
+                        >
+                            <Trash2 size={15} />
+                        </div>
+                    )}
 
                     <div className="profile-avatar">
                         <div
@@ -287,13 +315,6 @@ const Profile = () => {
                             <span className="badge">{scholarData?.user_id || "Scholar Id"}</span>
                         </div>
                     </div>
-                    {scholarImage && hoverImage && (
-                        <div className="avatar-delete-btn"
-                            onClick={handleDeleteImage}
-                        >
-                            <Trash2 size={15} />
-                        </div>
-                    )}
 
                     <div className="profile-contact-info">
                         <h4>Personal Information</h4>

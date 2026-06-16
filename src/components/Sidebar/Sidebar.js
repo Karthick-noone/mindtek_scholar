@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import {
   LayoutDashboard,
   User,
@@ -73,6 +73,8 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
 
       <div className={sidebarClasses}>
         <div className="sidebar-header">
+          <Link to="/dashboard" className="logo-link">
+
           <div className="sidebar-logo-container">
             <div className="sidebar-logo-icon">
               <svg className="scholar-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -88,6 +90,7 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
             />}
             {/* {(!collapsed || isMobile) && <h2 className="logo-text">Sea Sense Scholar</h2>} */}
           </div>
+          </Link>
 
           {isMobile && (
             <button className="mobile-close" onClick={() => setMobileOpen(false)}>

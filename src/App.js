@@ -1,5 +1,5 @@
-// App.js - Fixed Version (No Loading Screen)
-import React, { useState, useEffect } from 'react';
+// App.js 
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
 import useInternetStatus from './hooks/useInternetStatus';
@@ -34,6 +34,33 @@ function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isAuthenticated = !!secureStorage.getToken();
+const [timer, setTimer] = useState(10);
+const [canRefresh, setCanRefresh] = useState(false);
+const timerRef = useRef(null);
+
+useEffect(() => {
+  if (showPopup && isServerError) {
+    setTimer(10);
+    setCanRefresh(false);
+    
+    timerRef.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          setCanRefresh(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }
+}, [showPopup, isServerError]);
 
   // Check status when app loads and on navigation
   useEffect(() => {
@@ -73,27 +100,45 @@ function App() {
 
   return (
     <div className={`app ${theme}`}>
-      {/* Status Popup */}
-      {showPopup && isServerError && (
-        <div className="deactivated-modal-overlay">
-          <div className="deactivated-modal-content">
-            <div className="deactivated-modal-header">
-              <div className="deactivated-icon">
-                <InfoIcon size={55} />
-              </div>
-              <h3>Server Issue</h3>
-            </div>
-            <div className="deactivated-modal-body">
-              <p>{message || "Server is currently unavailable. Please refresh the page."}</p>
-            </div>
-            <div className="deactivated-modal-footer">
-              <button className="deactivated-ok-btn" onClick={handleRefresh}>
-                <RefreshCw size={20}/> <span>Refresh</span>
-              </button>
-            </div>
+     {/* Status Popup */}
+{showPopup && isServerError && (
+  <div className="deactivated-modal-overlay">
+    <div className="deactivated-modal-content">
+      <div className="deactivated-modal-header">
+        <div className="deactivated-icon">
+          <InfoIcon size={55} />
+        </div>
+        <h3>Server Issue</h3>
+      </div>
+      <div className="deactivated-modal-body">
+        <p>{message || "Server is currently unavailable. Please refresh the page."}</p>
+        {/* Timer Display */}
+        <div className="timer-container">
+          {/* <div className="timer-circle">
+            <span className="timer-text">{timer}</span>
+            <span className="timer-label">seconds</span>
+          </div> */}
+          <div className="timer-progress">
+            <div 
+              className="timer-progress-bar" 
+              style={{ width: `${(10 - timer) * 10}%` }}
+            ></div>
           </div>
         </div>
-      )}
+      </div>
+      <div className="deactivated-modal-footer">
+        <button 
+          className={`deactivated-ok-btn ${!canRefresh ? 'disabled' : ''}`} 
+          onClick={canRefresh ? handleRefresh : null}
+          disabled={!canRefresh}
+        >
+          <RefreshCw size={20} className={!canRefresh ? 'spin-icon' : ''}/> 
+          <span>{canRefresh ? 'Refresh' : `Wait ${timer}s`}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {showPopup && !isServerError && (
         <div className="deactivated-modal-overlay">

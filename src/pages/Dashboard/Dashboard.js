@@ -472,7 +472,7 @@ const Dashboard = () => {
           </div>
             ) : (
                <div className="empty-progress-stats">
-                      <div className="empty-icon"><TrendingUp size={32} /></div>
+                      <div className="empty-icon"><TrendingUp size={25} /></div>
                       <p className="empty-title">Work progress data not available</p>
                       <p className="empty-description">Work status updates will appear here once available</p>
                     </div>

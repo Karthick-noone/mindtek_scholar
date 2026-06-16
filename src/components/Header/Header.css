@@ -927,7 +927,7 @@
   }
   
   .user-dropdown {
-    /* width: calc(100vw - 100px); */
+    width: calc(100vw - 100px);
     right: -10px;
     top: 57px;
     zoom: .9;

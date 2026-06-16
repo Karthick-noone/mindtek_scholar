@@ -566,7 +566,7 @@
   }
 
   .complaint-table-wrapper {
-    max-width: 365px;
+    /* max-width: 365px; */
     zoom: .9;
   }
 
@@ -614,7 +614,7 @@
   }
 
   .complaint-table-wrapper {
-    max-width: 420px;
+    /* max-width: 420px; */
     zoom: .9;
   }
 

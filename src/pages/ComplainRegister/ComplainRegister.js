@@ -385,39 +385,45 @@ const ComplainRegister = () => {
     }
   };
 
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5;
+ // Get page numbers to display - Maximum 4 pages
+const getPageNumbers = () => {
+  const pageNumbers = [];
+  const maxPagesToShow = 4; // Changed to 4
 
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-      }
-    } else {
-      let startPage = Math.max(1, currentPage - 2);
-      let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-      if (endPage - startPage + 1 < maxPagesToShow) {
-        startPage = Math.max(1, endPage - maxPagesToShow + 1);
-      }
-
-      if (startPage > 1) {
-        pageNumbers.push(1);
-        if (startPage > 2) pageNumbers.push('...');
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        pageNumbers.push(i);
-      }
-
-      if (endPage < totalPages) {
-        if (endPage < totalPages - 1) pageNumbers.push('...');
-        pageNumbers.push(totalPages);
-      }
+  if (totalPages <= maxPagesToShow) {
+    // If 4 pages or less, show all pages
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
     }
+  } else {
+    // For more than 4 pages
+    if (currentPage <= 2) {
+      // Current page is 1 or 2
+      // Show: 1, 2, 3, ..., last
+      pageNumbers.push(1, 2, 3);
+      pageNumbers.push('...');
+      pageNumbers.push(totalPages);
+    } 
+    else if (currentPage >= totalPages - 1) {
+      // Current page is last or second last
+      // Show: 1, ..., last-2, last-1, last
+      pageNumbers.push(1);
+      pageNumbers.push('...');
+      pageNumbers.push(totalPages - 2, totalPages - 1, totalPages);
+    }
+    else {
+      // Current page is in the middle
+      // Show: 1, ..., current, ..., last
+      pageNumbers.push(1);
+      pageNumbers.push('...');
+      pageNumbers.push(currentPage);
+      pageNumbers.push('...');
+      pageNumbers.push(totalPages);
+    }
+  }
 
-    return pageNumbers;
-  };
+  return pageNumbers;
+};
 
   // Calculate showing entries info
   const startEntry = (currentPage - 1) * rowsPerPage + 1;
