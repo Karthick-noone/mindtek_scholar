@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Calendar, Tag, IndianRupeeIcon, InfoIcon, Building2, Users } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
 import html2canvas from 'html2canvas';
@@ -9,6 +9,7 @@ import { secureStorage } from '../../utils/secureStorage';
 import logo from './../../assets/img/logo.png'
 import { useScholar } from '../../hooks/useScholar';
 import Loader from '../../components/Loader/Loader';
+import { FaUsers } from 'react-icons/fa';
 
 const PaymentHistory = () => {
   const [loading, setLoading] = useState(true);
@@ -20,9 +21,11 @@ const PaymentHistory = () => {
     isFetching,
     refetch
   } = usePayments();
-  // console.log("Payment data:", paymentData)
+  // console.log("downloadReceipt:", downloadReceipt)
   const payment = paymentData[0];
-  // const payment = paymentData[paymentData?.length - 1];
+  const totalReferralAmount = Number(
+    paymentData?.overall_referral_amount ?? paymentData?.[0]?.overall_referral_amount ?? 0
+  );  // const payment = paymentData[paymentData?.length - 1];
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -32,6 +35,8 @@ const PaymentHistory = () => {
   // const scholarDetails = secureStorage.getScholar()
   const { data: scholarDetails, isLoading: scholarLoading } = useScholar()
   const { data: companyDetails, isLoading: companyLoading } = useScholar()
+
+  console.log("scholarDetails", scholarDetails)
   // const companyLogo = `http://scholarapi.seasense.in/${companyDetails?.com_logo}`;
   // console.log("scholarDetails", scholarDetails)
   // if (loading) {
@@ -765,6 +770,18 @@ const PaymentHistory = () => {
     );
   }
 
+  // Add this function before the return statement
+  const getUniqueReferralData = (payment) => {
+    if (!payment.referral_data || payment.referral_data.length === 0) {
+      return [];
+    }
+    return payment.referral_data;
+  };
+
+  const hasReferral = (payment) => {
+    return payment.referral_data && payment.referral_data.length > 0;
+  };
+
   return (
     <div className="payment-history-page">
       <div className="payment-limit">
@@ -802,6 +819,17 @@ const PaymentHistory = () => {
               <span className="stat-value">₹{payment?.bal_amt}</span>
             </div>
           </div>
+          {totalReferralAmount > 0 && (
+            <div className="stat-card referral-stat">
+              <div className="stat-icon referral">
+                <Users size={24} />
+              </div>
+              <div className="stat-info">
+                <span className="stat-label">Total Referral Amount</span>
+                <span className="stat-value card-referral-amount">₹{totalReferralAmount.toLocaleString()}</span>
+              </div>
+            </div>
+          )}
           <div className="stat-card">
             <div className="stat-icon violet">
               <Wallet size={24} />
@@ -890,11 +918,23 @@ const PaymentHistory = () => {
                         })}
                       </td>
                       <td className="payments-table-cell" data-label="Payment Purpose">
-                        {payment.purpose.pay_purpose}
+                        {payment.purpose?.pay_purpose}
                       </td>
-                      <td className="payments-table-cell amount-cell" data-label="Paid Amount">
-                        ₹{payment.pay_received.toLocaleString()}
-                      </td>
+<td className="payments-table-cell amount-cell" data-label="Paid Amount">
+  <div className="amount-wrapper">
+    <div className="paid-amount">
+      ₹{payment.pay_received.toLocaleString()}
+    </div>
+    {payment.referral_data && payment.referral_data.length > 0 && (
+      <div className="referral-amount-wrapper">
+        <FaUsers className="referral-icon" />
+        <span className="referral-amount">
+          ₹{payment.referral_data[0]?.referral_amount?.toLocaleString() || 0}
+        </span>
+      </div>
+    )}
+  </div>
+</td>
                       <td className="payments-table-cell" data-label="Bank">
                         {payment.bank.bank_nm}
                       </td>
@@ -996,72 +1036,179 @@ const PaymentHistory = () => {
         )}
 
         {selectedPayment && (
-          <div className="modal-overlay" onClick={() => setSelectedPayment(null)}>
-            <div
-              className={`modal-content ${selectedPayment?.pay_status === 'completed' ? 'payment-completed-watermark' : ''}`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="modal-header">
-                <h3>Payment Details </h3>
-                <button className="complaint-modal-close-btn" onClick={() => setSelectedPayment(null)}>
-                  <XCircle size={24} />
+          <div className="payment-modal-overlay" onClick={() => setSelectedPayment(null)}>
+            <div className="payment-modal-container" onClick={(e) => e.stopPropagation()}>
+              <div className="payment-modal-header">
+                <h3 className="payment-modal-title">Payment Details</h3>
+                <button className="payment-modal-close" onClick={() => setSelectedPayment(null)}>
+                  <XCircle size={20} />
                 </button>
               </div>
-              <div className="modal-details">
-                {/* <div className="payment-detail-row">
-                  <span className="detail-label">Receipt Number:</span>
-                  <span>{selectedPayment.receipt}</span>
-                </div> */}
-                <div className="payment-detail-row">
-                  <span className="detail-label">Date:</span>
-                  <span className='detail-value'>{new Date(selectedPayment.pay_dt_tm).toLocaleDateString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric"
-                  })}</span>
-                </div>
-                <div className="payment-detail-row">
-                  <span className="detail-label">Payment Purpose:</span>
-                  <span className='detail-value'>{selectedPayment.purpose.pay_purpose}</span>
-                </div>
-                <div className="payment-detail-row">
-                  <span className="detail-label">Total Amount:</span>
-                  <span className='detail-value'>₹{payment?.total_amount}</span>
-                </div>
-                <div className="payment-detail-row paid-amount-row" >
-                  <span className="detail-label">Last Payment Amount:</span>
-                  <span className='detail-value'>₹{selectedPayment.pay_received}</span>
-                </div>
-                <div className="payment-detail-row">
-                  <span className="detail-label">Total Paid Amount:</span>
-                  <div className='detail-value-wrapper'>
-                    <span className='detail-value'>₹{selectedPayment.tot_paid}</span>
 
+              <div className="payment-modal-body">
+                {/* Grid Layout for Payment Details - 3 columns */}
+                <div className="payment-details-grid">
+                  {/* Date */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Calendar size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Transaction Date</span>
+                      <span className="payment-detail-value">
+                        {new Date(selectedPayment.pay_dt_tm).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric"
+                        })}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                {selectedPayment?.bal_amt > 0 && (
-                  <div className="payment-detail-row balance-amount-row">
-                    <span className="detail-label">Balance Amount:</span>
-                    <span className='detail-value'>₹{selectedPayment.bal_amt}</span>
+
+                  {/* Payment Purpose */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Tag size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Payment Purpose</span>
+                      <span className="payment-detail-value">{selectedPayment.purpose.pay_purpose}</span>
+                    </div>
                   </div>
-                )}
-                <div className="payment-detail-row">
-                  <span className="detail-label">Payment Bank:</span>
-                  <span className='detail-value'>{selectedPayment.bank.bank_nm}</span>
+
+                  {/* Total Amount */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Wallet size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Total Amount</span>
+                      <span className="payment-detail-value">₹{payment?.total_amount}</span>
+                    </div>
+                  </div>
+
+                  {/* Last Payment Amount */}
+                  <div className="payment-detail-item highlight-item">
+                    <div className="payment-detail-icon">
+                      <IndianRupeeIcon size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Last Payment Amount</span>
+                      <span className="payment-detail-value highlight-value">₹{selectedPayment.pay_received}</span>
+                    </div>
+                  </div>
+
+                  {/* Total Paid */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <CheckCircle size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Total Paid</span>
+                      <span className="payment-detail-value">₹{selectedPayment?.tot_paid}</span>
+                    </div>
+                  </div>
+
+                  {/* Balance Amount */}
+                  <div className="payment-detail-item balance-item">
+                    <div className="payment-detail-icon">
+                      <InfoIcon size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Balance Amount</span>
+                      <span className="payment-detail-value balance-value">₹{selectedPayment?.bal_amt}</span>
+                    </div>
+                  </div>
+
+                  {/* Bank */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Building2 size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Bank</span>
+                      <span className="payment-detail-value">{selectedPayment.bank.bank_nm}</span>
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <CreditCard size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Status</span>
+                      <span className={`payment-status payment-status-${selectedPayment.pay_status}`}>
+                        {capsLetter(selectedPayment.pay_status)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Payment Completed */}
+                  {selectedPayment?.total_amount === selectedPayment?.tot_paid && (
+                    <div className="payment-detail-item completed-item">
+                      <div className="payment-detail-icon">
+                        <CheckCircle size={16} />
+                      </div>
+                      <div className="payment-detail-content">
+                        <span className="payment-detail-label">Payment Status</span>
+                        <span className="payment-completed-badge">✓ Completed</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div className="payment-detail-row">
-                  <span className="detail-label">Status:</span>
-                  <span className={`payment-status-badge-${selectedPayment.pay_status}`}>
-                    {capsLetter(selectedPayment.pay_status)}
-                  </span>
-                </div>
-                {selectedPayment?.total_amount === selectedPayment?.tot_paid && (
-                  <div className="payment-completed-container"><span className="payment-completed-message">✓ Payment Completed</span></div>
+
+                {/* Referral Section - Show only if referral exists */}
+                {hasReferral(selectedPayment) && (
+                  <>
+                    <div className="referral-header-section">
+                      <div className="referral-header-left">
+                        <Users size={18} className="referral-header-icon" />
+                        <span className="referral-header-title">Referral Details</span>
+                      </div>
+                      <div className="referral-header-right">
+                        <span className="referral-total-label">Total:</span>
+                        <span className="referral-total-amount">₹{selectedPayment.total_referral_amt || 0}</span>
+                      </div>
+                    </div>
+
+                    <div className="referral-table-wrapper">
+                      <table className="referral-details-table">
+                        <thead>
+                          <tr>
+                            <th>S.No.</th>
+                            <th>Referred Person</th>
+                            <th>Referral Amount</th>
+                            <th>Reason</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedPayment.referral_data.map((referral, index) => (
+                            <tr key={referral.id}>
+                              <td>{index + 1}</td>
+                              <td>{referral.referred_person}</td>
+                              <td>₹{referral.referral_amount}</td>
+                              <td>{referral.referral_reason || 'N/A'}</td>
+                              <td>{new Date(referral.referral_date).toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric"
+                              })}</td>
+                              <td>
+                                <span className={`referral-status-badge ${referral.referral_status}`}>
+                                  {capsLetter(referral.referral_status)}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 )}
               </div>
-              {/* <button className="close-modal" onClick={() => setSelectedPayment(null)}>
-              Close
-            </button> */}
             </div>
           </div>
         )}
@@ -1080,20 +1227,13 @@ const PaymentHistory = () => {
               {/* Body */}
               <div className="receipt-premium-body">
                 <div className="receipt-premium-content" id="receipt-content">
-
-
-                  {/* <div className="receipt-premium-badge">
-              <FileText size={18} />
-              <span>RECEIPT</span>
-            </div> */}
                   <div className='receipt-company-logo-container'>
-                    <img src={logo} className='receipt-company-logo' />
+                    <img src={logo} className='receipt-company-logo' alt="Logo" />
                   </div>
 
                   <div className="receipt-premium-company">
                     <h3>{companyDetails?.company.company_name}</h3>
                     <p>{companyDetails?.company.address}</p>
-                    {/* <p>{companyDetails.location}, India</p> */}
                     <p>Email: {companyDetails?.company.email_id} | Contact: {companyDetails?.company.com_contact}</p>
                   </div>
 
@@ -1107,7 +1247,9 @@ const PaymentHistory = () => {
                       })}
                     </strong>
                     <div>
-                      <span className={`receipt-premium-status ${downloadReceipt.pay_status}`}>{capsLetter(downloadReceipt.pay_status)}</span>
+                      <span className={`receipt-premium-status ${downloadReceipt.pay_status}`}>
+                        {capsLetter(downloadReceipt.pay_status)}
+                      </span>
                     </div>
                   </div>
 
@@ -1119,23 +1261,23 @@ const PaymentHistory = () => {
                     <div className="receipt-premium-info-row">
                       <div className="receipt-premium-info-item">
                         <label>Scholar Name</label>
-                        <p>{scholarDetails.user_name}</p>
+                        <p>{scholarDetails?.user_name}</p>
                       </div>
                       <div className="receipt-premium-info-item">
                         <label>Scholar ID</label>
-                        <p>{scholarDetails.user_id}</p>
+                        <p>{scholarDetails?.user_id}</p>
                       </div>
                       <div className="receipt-premium-info-item">
                         <label>Email</label>
-                        <p>{scholarDetails.email}</p>
+                        <p>{scholarDetails?.email}</p>
                       </div>
                       <div className="receipt-premium-info-item">
                         <label>Contact Number</label>
-                        <p>{scholarDetails.contact}</p>
+                        <p>{scholarDetails?.contact}</p>
                       </div>
                       <div className="receipt-premium-info-item full-width">
                         <label>Work Description</label>
-                        <p>{scholarDetails.work_description}</p>
+                        <p>{scholarDetails?.work_description}</p>
                       </div>
                     </div>
                   </div>
@@ -1143,35 +1285,28 @@ const PaymentHistory = () => {
                   {/* Section 2: Payment Details */}
                   <div className="receipt-premium-section">
                     <h4>Payment Details</h4>
-
                     <table className="receipt-premium-table">
                       <tbody>
                         <tr>
                           <th>Payment Purpose</th>
                           <td>{downloadReceipt.purpose.pay_purpose}</td>
                         </tr>
-
                         <tr>
                           <th>Total Amount</th>
                           <td>₹{downloadReceipt.total_amount}</td>
                         </tr>
-
                         <tr className="highlight-row">
                           <th>Last Payment Amount</th>
                           <td>₹{downloadReceipt.pay_received}</td>
                         </tr>
-
                         <tr>
                           <th>Total Paid</th>
-                          <td>₹{downloadReceipt.tot_paid}</td>
+                          <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
-                        {/* {downloadReceipt?.bal_amt > 0 && ( */}
-                        <tr className='balance-row'>
+                        <tr className="balance-row">
                           <th>Balance Amount</th>
-                          <td className='balance-row-value'>₹{downloadReceipt.bal_amt}</td>
+                          <td>₹{downloadReceipt.bal_amt}</td>
                         </tr>
-                        {/* )} */}
-
                         <tr className="full-width-row">
                           <th>Last Payment Amount in Words</th>
                           <td>
@@ -1182,56 +1317,85 @@ const PaymentHistory = () => {
                     </table>
                   </div>
 
+                  {hasReferral(downloadReceipt) && (
+                    <>
+                      <div className="referral-header-section">
+                        <div className="referral-header-left">
+                          <Users size={18} className="referral-header-icon" />
+                          <span className="referral-header-title">Referral Details</span>
+                        </div>
+                        <div className="referral-header-right">
+                          <span className="referral-total-label">Total:</span>
+                          <span className="referral-total-amount">₹{downloadReceipt.total_referral_amt || 0}</span>
+                        </div>
+                      </div>
+
+                      <div className="referral-table-wrapper">
+                        <table className="referral-details-table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Referred Person</th>
+                              <th>Referral Amount</th>
+                              <th>Reason</th>
+                              <th>Date</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {downloadReceipt.referral_data.map((referral, index) => (
+                              <tr key={referral.id}>
+                                <td>{index + 1}</td>
+                                <td>{referral.referred_person}</td>
+                                <td>₹{referral.referral_amount}</td>
+                                <td>{referral.referral_reason || 'N/A'}</td>
+                                <td>{new Date(referral.referral_date).toLocaleDateString("en-GB", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric"
+                                })}</td>
+                                <td>
+                                  <span className={`referral-status-badge ${referral.referral_status}`}>
+                                    {capsLetter(referral.referral_status)}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+
                   {/* Section 3: Bank Details */}
                   <div className="receipt-premium-section">
                     <h4>Bank Details</h4>
                     <div className="receipt-bank-info-row">
                       <div className="receipt-premium-info-item">
                         <label>Payment Method</label>
-                        <p>Bank Transfer - {downloadReceipt.bank.bank_nm}</p>
+                        <p>Bank Transfer - {downloadReceipt.bank?.bank_nm}</p>
                       </div>
-                      {/* <div className="receipt-premium-info-item">
-                        <label>Transaction ID</label>
-                        <p>{downloadReceipt.id || 'N/A'}</p>
-                      </div> */}
                       <div className="receipt-premium-info-item">
                         <label>Account Status</label>
-                        <p>{scholarDetails.gst_status === "gst" ? "Account 1" : "Account 2"}</p>
+                        <p>{downloadReceipt.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Section 4: Status */}
-                  {/* <div className="receipt-premium-section status-section">
-            <div className={`receipt-premium-status ${downloadReceipt.pay_status}`}>
-              {downloadReceipt.pay_status === 'approved' ? '✓ PAYMENT SUCCESSFUL' : 
-               downloadReceipt.pay_status === 'pending' ? '⏳ PAYMENT PENDING' : '✗ PAYMENT FAILED'}
-            </div>
-          </div> */}
-
                   <div className="receipt-premium-divider"></div>
-
-                  {/* Footer */}
-                  {/* <div className="receipt-premium-footer">
-                    <div className="receipt-premium-signature">
-                      <p>Authorized Signature</p>
-                      <span>{companyDetails.company_name}</span>
-                    </div>
-
-                  </div> */}
                 </div>
               </div>
 
               {/* Footer Actions */}
               {/* <div className="receipt-premium-actions">
-                <button className="receipt-premium-cancel" onClick={() => setDownloadReceipt(null)}>
-                  Close
-                </button>
-                <button className="receipt-premium-download" onClick={() => handleDownloadReceipt()}>
-                  <Download size={16} />
-                  Download Receipt
-                </button>
-              </div> */}
+        <button className="receipt-premium-cancel" onClick={() => setDownloadReceipt(null)}>
+          Close
+        </button>
+        <button className="receipt-premium-download" onClick={handleDownloadReceipt}>
+          <Download size={16} />
+          Download Receipt
+        </button>
+      </div> */}
             </div>
           </div>
         )}

@@ -48,6 +48,9 @@ const Dashboard = () => {
   const [targetWorkProgress, setTargetWorkProgress] = useState(0);
   const navigate = useNavigate();
 
+// In your component
+const [activeTooltip, setActiveTooltip] = useState(null);
+const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const scholar = secureStorage.getScholar();
   const { data: paymentData = [] } = usePayments();
@@ -81,6 +84,38 @@ const Dashboard = () => {
     countsLoaded: false,
     scholarLoaded: false
   });
+
+
+  useEffect(() => {
+  const handleResize = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+  
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+
+const handleTooltipToggle = (id) => {
+  if (activeTooltip === id) {
+    setActiveTooltip(null);
+  } else {
+    setActiveTooltip(id);
+  }
+};
+
+// Close tooltip when clicking outside
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (!e.target.closest('.progress-list-note')) {
+      setActiveTooltip(null);
+    }
+  };
+  
+  document.addEventListener('click', handleClickOutside);
+  return () => document.removeEventListener('click', handleClickOutside);
+}, []);
+
+
 
   // Set target values when data arrives
   useEffect(() => {
@@ -252,7 +287,7 @@ const Dashboard = () => {
       value: resolvedComplaints,
       change: '+5',
       color: '#34d399',
-      path: "/complain-register",
+      path: "/complaint-register",
       status: 'resolved'
 
     },
@@ -265,7 +300,7 @@ const Dashboard = () => {
       change: '-2',
       color: '#ef4444',
       isZero: pendingComplaints === 0,
-      path: "/complain-register",
+      path: "/complaint-register",
       status: 'pending'
 
 
@@ -362,6 +397,23 @@ const Dashboard = () => {
   const getStatusClass = (status) =>
     status?.toLowerCase().replace(/\s+/g, '-');
 
+  // Helper function to truncate text at 50 characters with full words
+const truncateText = (text, maxLength = 50) => {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  
+  // Trim to maxLength and find the last space
+  let truncated = text.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  
+  // If there's a space, cut at the last space, otherwise cut at maxLength
+  if (lastSpace > 0) {
+    truncated = truncated.substring(0, lastSpace);
+  }
+  
+  return truncated + '...';
+};
+
 
   return (
     <div className="dashboard">
@@ -452,7 +504,7 @@ const Dashboard = () => {
             <div className="progress-stats-full">
               {lastStatus?.note && (
                 <>
-                  <span>Notes: {capsLetter(lastStatus?.note)}</span>
+                  <span className="overview-note"><b>Notes:</b> {capsLetter(lastStatus?.note)}</span>
 
                 </>
               )}
@@ -506,12 +558,39 @@ const Dashboard = () => {
                             }}
                           ></div>
                         </div>
-                        {item.note && (
-                          <div className="progress-list-note">
-                            <span>{capsLetter(item.note)}</span>
-                          </div>
-                        )}
-                      </div>
+        {item.note && (
+  <div 
+    className="progress-list-note"
+    onMouseEnter={() => !isMobile && setActiveTooltip(item.id || `note-${index}`)}
+    onMouseLeave={() => !isMobile && setActiveTooltip(null)}
+    onClick={() => isMobile && handleTooltipToggle(item.id || `note-${index}`)}
+  >
+    <span 
+      className="note-text" 
+      data-fulltext={capsLetter(item.note)}
+    >
+      {truncateText(capsLetter(item.note), 50)}
+    </span>
+    {(activeTooltip === (item.id || `note-${index}`)) && (
+      <div className="tooltip-popup">
+        {capsLetter(item.note)}
+        {isMobile && (
+          <button 
+            className="close-tooltip" 
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveTooltip(null);
+            }}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
+    </div>
                     ))}
                   </>
                 ) : (

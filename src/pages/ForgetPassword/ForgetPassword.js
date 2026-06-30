@@ -6,6 +6,7 @@ import './ForgetPassword.css';
 import { Link } from 'react-router-dom';
 import { useResetPassword, useSendOtp, useVerifyOtp, useVerifyOtpLocally } from '../../hooks/useForgotPassword';
 import { secureStorage } from '../../utils/secureStorage';
+import { getCompanyUrl } from '../../utils/getCompanyUrl';
 
 const ForgetPassword = () => {
   const [step, setStep] = useState(1);
@@ -60,6 +61,9 @@ const ForgetPassword = () => {
     }, 3000);
   };
 
+      // const currentUrl = window.location.origin; 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
@@ -69,7 +73,8 @@ const ForgetPassword = () => {
         {
           user_id: formData.scholarId,
           email: formData.email,
-          com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
+          com_url_code: getCompanyUrl()
+          // com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
         },
         {
           onSuccess: (response) => {

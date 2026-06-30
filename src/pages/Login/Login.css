@@ -378,7 +378,7 @@ html, body {
   }
   
   .login-card {
-    max-width: 100%;
+    max-width: 88%;
     padding: 20px 16px;
   }
   
@@ -436,7 +436,7 @@ html, body {
   }
   
   .login-card {
-    padding: 18px 14px;
+    padding: 18px 20px;
   }
   
   .logo-container {

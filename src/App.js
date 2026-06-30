@@ -214,7 +214,7 @@ function AppRoutes({ isAuthenticated }) {
       <Route path="/payment-history" element={
         <PrivateRoute><PaymentHistory /></PrivateRoute>
       } />
-      <Route path="/complain-register" element={
+      <Route path="/complaint-register" element={
         <PrivateRoute><ComplainRegister /></PrivateRoute>
       } />
       <Route

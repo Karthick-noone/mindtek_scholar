@@ -419,7 +419,7 @@ const Profile = () => {
                                     <label>Journal Index</label>
                                     <div className="field-value">
                                         <BookOpen size={16} />
-                                        <span>{scholarData?.journal_index.journal_index}</span>
+                                        <span>{scholarData?.journal_index?.journal_index || "N/A"}</span>
                                     </div>
                                 </div>
 

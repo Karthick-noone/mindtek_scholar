@@ -49,6 +49,11 @@
   background: rgba(16, 185, 129, 0.1);
   color: #10b981;
 }
+.stat-icon.referral {
+  background: rgba(236, 72, 153, 0.12);
+  color: #ec4899;
+}
+
 
 .stat-info {
   flex: 1;
@@ -1811,3 +1816,974 @@ flex-direction: column;
   background: var(--card-bg);
 }
 
+/* Payment Modal - Grid Layout */
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.payment-modal-container {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Header */
+.payment-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+}
+
+.payment-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  /* color: var(--text-primary, #1e293b); */
+  margin: 0;
+}
+.payment-status {
+  color: #1e293b;
+  font-size: 13px;
+}
+.payment-completed-badge {
+  color: #1e293b;
+}
+.payment-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.payment-modal-close:hover {
+  background: var(--bg-hover, #f1f5f9);
+  color: var(--danger, #ef4444);
+}
+.payment-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Payment Details Grid - 3 columns */
+.payment-details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.payment-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+}
+
+.payment-detail-item:hover {
+  border-color: #d1d9e6;
+  background: #f0f4ff;
+}
+
+.payment-detail-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  border-radius: 8px;
+  color: #4f46e5;
+  flex-shrink: 0;
+}
+
+.payment-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.payment-detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.payment-detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a2e;
+  word-break: break-word;
+}
+
+/* Highlight Item - Last Payment */
+.payment-detail-item.highlight-item {
+  background: #f0f7ff;
+  border-color: #bfdbfe;
+}
+
+.payment-detail-item.highlight-item .payment-detail-icon {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.highlight-value {
+  color: #2563eb;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Dark Theme Variables */
+[data-theme="dark"] .payment-modal-container,
+.dark .payment-modal-container {
+  --bg-primary: #1e293b;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: #334155;
+  --bg-hover: #334155;
+  --bg-highlight: #064e3b;
+  --success: #10b981;
+  --success-dark: #6ee7b7;
+  --success-light: #064e3b;
+  --warning-light: #78350f;
+  --warning-dark: #fbbf24;
+  --danger-light: #7f1d1d;
+  --danger-dark: #fca5a5;
+  --info-light: #1e3a8a;
+  --info-dark: #93c5fd;
+}
+
+/* Dark theme specific overrides */
+
+
+[data-theme="dark"] .paid-amount-row,
+.dark .paid-amount-row {
+  background: #064e3b;
+}
+
+[data-theme="dark"] .balance-amount-row,
+.dark .balance-amount-row {
+  background: #7f1d1d;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .payment-modal-container {
+    max-width: 95%;
+    margin: 16px;
+  }
+
+  .payment-modal-header {
+    padding: 16px 20px;
+  }
+
+  .payment-modal-body {
+    padding: 16px 12px;
+  }
+
+  /* .payment-info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  } */
+
+  .payment-info-left {
+    width: 100%;
+  }
+
+  .payment-info-right {
+    width: 100%;
+    text-align: left;
+    padding-left: 40px;
+  }
+
+  .paid-amount-row {
+    margin: 8px 0;
+  }
+}
+
+/* Print All Button */
+.print-all-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.print-all-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.print-all-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.print-all-btn svg {
+  stroke: white;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .print-all-btn {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+[data-theme="dark"] .print-all-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857, #065f46);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .print-all-btn {
+    padding: 6px 16px;
+    font-size: 12px;
+  }
+  .payment-info-label {
+  font-size: 12px;
+  }
+  .payment-info-value {
+  font-size: 12px
+  }
+  .print-all-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .payment-pagination-premium-controls.top {
+    /* flex-direction: column;
+    align-items: stretch; */
+    zoom:.7;
+  }
+  
+  .rows-per-page-premium {
+    justify-content: space-between;
+  }
+  
+  .print-all-btn {
+    justify-content: center;
+  }
+  
+  .pagination-info-premium {
+    text-align: center;
+  }
+}
+.row-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+/* Payment Table Wrapper - Exact same styles as complaint table */
+.payments-table-wrapper {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
+}
+
+/* .payments-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+} */
+
+.payments-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.payments-table-header {
+  background: var(--hover-bg);
+}
+
+.payments-table-head {
+  padding: 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.payments-table-body .payments-table-row:hover {
+  background: var(--hover-bg);
+}
+
+.payments-table-cell {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Amount Cell */
+.amount-cell {
+  font-weight: 600;
+  color: #10b981;
+}
+
+/* Status Badges - Using same colors as complaints */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.success,
+.status-badge.paid,
+.status-badge.completed {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.status-badge.pending,
+.status-badge.processing {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.failed,
+.status-badge.cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.refunded {
+  background: #e0e7ff;
+  color: #4f46e5;
+}
+
+/* Action Buttons - Same as complaint action buttons */
+.payments-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.payments-action-btn {
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payments-view-btn {
+  color: var(--primary-color);
+}
+
+.payments-view-btn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+.payments-receipt-btn {
+  color: #8b5cf6;
+}
+
+.payments-receipt-btn:hover {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* Loading State - Exact same as complaint loading */
+.payments-loading-row {
+  background: var(--card-bg);
+}
+
+.payments-loading-cell {
+  padding: 60px !important;
+  text-align: center !important;
+}
+
+.payments-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.payments-loading-state .loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.payments-loading-state p {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* No Data State - Exact same as complaint */
+.payments-no-data-cell {
+  text-align: center;
+  padding: 48px !important;
+}
+
+.payments-no-data-text {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+/* Responsive Styles - EXACT same as complaint management */
+@media (max-width: 768px) {
+  .payments-table-wrapper {
+    zoom: 0.9;
+  }
+  
+  .payments-table-responsive {
+    width: 350px;
+  }
+  
+  .payments-table-cell,
+  .payments-table-head {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* .payments-table-wrapper {
+    max-width: 420px;
+    zoom: 0.9;
+  } */
+  
+  .payments-table-responsive {
+    width: 350px;
+  }
+  
+  .payments-data-table {
+    font-size: 12px;
+  }
+  
+  .payments-table-cell,
+  .payments-table-head {
+    padding: 8px;
+  }
+  
+  .payments-action-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Ensure table maintains structure during loading */
+.payments-data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.payments-table-body {
+  background: var(--card-bg);
+}
+/* Referral Header Section */
+.referral-header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f0f7ff;
+  border-radius: 10px;
+  border: 1px solid #bfdbfe;
+  margin: 16px 0 12px 0;
+}
+
+.referral-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.referral-header-icon {
+  color: #4f46e5;
+}
+
+.referral-header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.referral-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Referral Section Styles */
+.referral-header-row {
+  background: #f0f7ff;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 8px;
+}
+
+.referral-total-amount {
+  font-weight: 600;
+  color: #4f46e5;
+  font-size: 14px;
+}
+/* Referral Table Wrapper - With max height and scroll */
+.referral-table-wrapper {
+  margin: 12px 0 16px 0;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  max-height: 250px;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  zoom: .9;
+}
+
+.referral-table-wrapper::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.referral-table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.referral-table-wrapper::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 20px;
+}
+
+.referral-table-wrapper:hover::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+}
+
+.referral-table-wrapper:hover {
+  scrollbar-color: #c7d2fe transparent;
+}
+
+.referral-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 500px;
+}
+
+.referral-details-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.referral-details-table thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 11;
+}
+
+.referral-details-table tbody td {
+  padding: 10px 14px;
+  color: #1a1a2e;
+  border-bottom: 1px solid #f0f2f5;
+  background: #ffffff;
+}
+
+.referral-details-table tbody tr:hover td {
+  background: #f8f9fa;
+}
+
+.referral-details-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Receipt Referral Section Styles */
+.receipt-premium-section.referral-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 2px dashed #e9ecef;
+}
+
+.receipt-premium-section.referral-section h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.receipt-premium-section.referral-section h4::before {
+  /* content: '👥'; */
+  font-size: 18px;
+}
+
+/* Referral Summary */
+.referral-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e8f0fe 100%);
+  border-radius: 8px;
+  border: 1px solid #bfdbfe;
+  margin-bottom: 12px;
+}
+
+.referral-total-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.referral-total-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+/* Referral Table */
+.receipt-premium-table.referral-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.receipt-premium-table.referral-table thead {
+  background: #f8f9fa;
+}
+
+.receipt-premium-table.referral-table thead th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+  background: #f8f9fa;
+}
+
+.receipt-premium-table.referral-table tbody td {
+  padding: 10px 14px;
+  color: #1a1a2e;
+  border-bottom: 1px solid #f0f2f5;
+  background: #ffffff;
+  font-size: 12px;
+}
+
+.receipt-premium-table.referral-table tbody tr:hover td {
+  background: #fafcff;
+}
+
+.receipt-premium-table.referral-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Referral Status Badge in Receipt */
+.receipt-premium-table.referral-table .referral-status-badge {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.receipt-premium-table.referral-table .referral-status-badge.approved {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.receipt-premium-table.referral-table .referral-status-badge.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.receipt-premium-table.referral-table .referral-status-badge.rejected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Receipt - Referral Table with Scroll */
+.receipt-premium-section.referral-section .referral-table-wrapper {
+  margin: 8px 0 0 0;
+  max-height: 300px;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.receipt-premium-section.referral-section .referral-table-wrapper::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.receipt-premium-section.referral-section .referral-table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.receipt-premium-section.referral-section .referral-table-wrapper::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 20px;
+}
+
+.receipt-premium-section.referral-section .referral-table-wrapper:hover::-webkit-scrollbar-thumb {
+  background: #c7d2fe;
+}
+
+.receipt-premium-section.referral-section .referral-table-wrapper:hover {
+  scrollbar-color: #c7d2fe transparent;
+}
+
+.receipt-premium-section.referral-section .receipt-premium-table.referral-table {
+  border: none;
+  border-radius: 0;
+}
+
+.receipt-premium-section.referral-section .receipt-premium-table.referral-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.receipt-premium-section.referral-section .receipt-premium-table.referral-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 11;
+  background: #f8f9fa;
+}
+
+/* Print Styles for Referral Section */
+@media print {
+  .receipt-premium-section.referral-section {
+    page-break-inside: avoid;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .receipt-premium-section.referral-section .referral-table-wrapper {
+    max-height: none;
+    overflow: visible;
+    border: 1px solid #e9ecef;
+  }
+
+  .receipt-premium-section.referral-section .receipt-premium-table.referral-table thead {
+    position: static;
+  }
+
+  .receipt-premium-section.referral-section .receipt-premium-table.referral-table thead th {
+    position: static;
+  }
+
+  .receipt-premium-section.referral-section .referral-table-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .receipt-premium-table.referral-table tbody tr {
+    page-break-inside: avoid;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .referral-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 8px 14px;
+  }
+
+  .referral-total-value {
+    font-size: 16px;
+  }
+
+  .receipt-premium-table.referral-table {
+    font-size: 11px;
+  }
+
+  .receipt-premium-table.referral-table thead th,
+  .receipt-premium-table.referral-table tbody td {
+    padding: 6px 10px;
+  }
+
+  .receipt-premium-section.referral-section .referral-table-wrapper {
+    max-height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .receipt-premium-table.referral-table {
+    font-size: 10px;
+    min-width: 400px;
+  }
+
+  .receipt-premium-table.referral-table thead th,
+  .receipt-premium-table.referral-table tbody td {
+    padding: 4px 8px;
+  }
+
+  .receipt-premium-table.referral-table .referral-status-badge {
+    font-size: 9px;
+    padding: 1px 8px;
+  }
+
+  .referral-total-value {
+    font-size: 14px;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .payment-detail-item {
+        padding: 10px 12px;
+        gap: 8px;
+        border-radius: 8px;
+    }
+.payment-details-grid {
+    grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .payment-detail-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .payment-detail-label {
+        font-size: 10px;
+    }
+    
+    .payment-detail-value {
+        font-size: 12px;
+    }
+}
+
+.amount-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.paid-amount {
+  font-weight: 600;
+  /* color: #1a1a2e; */
+}
+.referral-amount-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 1px 6px;
+    background: #fef3c7;
+    border-radius: 3px;
+    font-size: 11px;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    margin-top: 2px;
+    width: fit-content;
+}
+
+.referral-icon {
+    font-size: 10px;
+    color: #92400e;
+}
+
+.card-referral-amount {
+    font-weight: 600;
+    color: #10b981;
+    /* font-size: 11px; */
+}
+
+.referral-amount {
+    font-weight: 600;
+    color: #92400e;
+    /* font-size: 11px; */
+}
+/* If you want to keep the old referral-badge style as well */
+.referral-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #fef3c7;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  margin-left: 4px;
+}

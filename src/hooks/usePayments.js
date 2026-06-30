@@ -8,8 +8,12 @@ const fetchScholar = async () => {
   if (!scholar?.id) throw new Error("No scholar ID");
 
   const res = await apiClient.get(`/sclr/payments/${scholar.id}`);
+  const paymentList = Array.isArray(res.data?.data) ? res.data.data : [];
 
-  return res.data.data || []; 
+  paymentList.overall_referral_amount = Number(res.data?.overall_referral_amount ?? 0);
+  paymentList.total_payments = Number(res.data?.total_payments ?? 0);
+
+  return paymentList;
 };
 
 export const usePayments = () => {

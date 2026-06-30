@@ -463,6 +463,8 @@
     /* position: static; */
     /* width: 100%; */
     padding: 24px;
+    position: relative;
+    margin-bottom: 20px;
   }
 
   .profile-actions {

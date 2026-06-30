@@ -52,7 +52,7 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/profile', icon: User, label: 'Profile' },
     { path: '/payment-history', icon: IndianRupee, label: 'Payment History' },
-    { path: '/complain-register', icon: FileText, label: 'Complain Register' },
+    { path: '/complaint-register', icon: FileText, label: 'Complaint Register' },
     { path: '/change-password', icon: Lock, label: 'Change Password' },
 
   ];

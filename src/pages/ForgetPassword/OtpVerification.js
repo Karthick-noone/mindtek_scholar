@@ -3,6 +3,7 @@ import { Mail, User, RefreshCw, Clock, ArrowLeft, CheckCircle, AlertCircle, Shie
 import './ForgetPassword.css';
 import { useSendOtp } from '../../hooks/useForgotPassword';
 import { secureStorage } from '../../utils/secureStorage';
+import { getCompanyUrl } from '../../utils/getCompanyUrl';
 
 const OtpVerification = ({
   email,
@@ -89,6 +90,8 @@ const handleVerify = async () => {
     setLocalError(error?.message || 'Verification failed. Please try again.');
   }
 };
+    // const currentUrl = window.location.origin; // Gets http://localhost:3000 or your domain
+
 
   const handleResendOnExpiry = () => {
     if (onClearError) onClearError();
@@ -97,7 +100,8 @@ const handleVerify = async () => {
       {
         user_id: scholarId,
         email: email,
-        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
+        com_url_code: getCompanyUrl()
+        // com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
       },
       {
         onSuccess: (response) => {
@@ -125,8 +129,9 @@ const handleVerify = async () => {
     resendOtpMutation(
       {
         user_id: scholarId,
-        email: email,
-        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
+        email: email, 
+        com_url_code: getCompanyUrl()
+        // com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in/"
 
       },
       {

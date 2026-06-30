@@ -976,3 +976,221 @@
 .progress-stats:has(.empty-progress-stats) .stats-header {
   display: none;
 }
+
+.progress-list-note {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  cursor: help;
+}
+
+.note-text {
+  display: block;
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+/* Custom Tooltip */
+.tooltip-popup {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #ffffff;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  white-space: normal;
+  max-width: 800px;
+  min-width: 300px;
+  width: auto;
+  word-wrap: break-word;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 1002;
+  animation: tooltipFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  pointer-events: none;
+}
+
+.tooltip-popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  /* border-top-color: #1e293b; */
+}
+/* ============================================ */
+/* TOOLTIP STYLES - Fixed White Edges */
+/* ============================================ */
+
+.tooltip-popup {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: #ffffff;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  white-space: normal;
+  max-width: 500px;
+  /* min-width: 400px; */
+  width: 100%;
+  word-wrap: break-word;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 1003 !important;
+  animation: tooltipFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  pointer-events: none;
+  border: none;
+  outline: none;
+  overflow: hidden;
+}
+
+.tooltip-popup::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #1e293b;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+/* Hover state for desktop - tooltip stays open */
+@media (min-width: 769px) {
+  .progress-list-note:hover .tooltip-popup {
+    display: block;
+    animation: tooltipFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* ============================================ */
+/* MOBILE RESPONSIVE - Fixed White Edges */
+/* ============================================ */
+@media (max-width: 768px) {
+  .progress-list-note {
+    cursor: pointer;
+  }
+  
+  .progress-list-note .tooltip-popup {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: calc(100% - 40px);
+    min-width: 300px;
+    bottom: auto;
+    border-radius: 20px;
+    padding: 20px 24px;
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: none;
+    outline: none;
+    overflow: hidden;
+  }
+  
+  .tooltip-popup::after {
+    display: none;
+  }
+  
+  /* Mobile overlay - Clean no white edges */
+  .tooltip-popup::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: overlayFadeIn 0.25s ease;
+  }
+  
+  /* Close button for mobile */
+  .tooltip-popup .close-tooltip {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  
+  .tooltip-popup .close-tooltip:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+  
+  .tooltip-popup .close-tooltip:focus {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .progress-list-note .tooltip-popup {
+    max-width: calc(100% - 30px);
+    font-size: 13px;
+    padding: 18px 20px;
+    border-radius: 18px;
+    min-width: 250px;
+  }
+  
+  .tooltip-popup .close-tooltip {
+    top: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.progress-list-note .tooltip-popup {
+  border: none !important;
+  outline: none !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
+}
+
