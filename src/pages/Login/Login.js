@@ -34,8 +34,9 @@ const Login = ({ onLogin }) => {
       const res = await loginUser({
         user_id: scholarId,
         pwd: password,
-        // com_url_code: getCompanyUrl()
-        com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in"
+        com_url_code: getCompanyUrl()
+        // com_url_code: process.env.REACT_APP_COMPANY_CODE || "scholarhub.seasensegroup.com"
+        // com_url_code: process.env.REACT_APP_COMPANY_CODE || "http://mindtekscholar.seasense.in"
       });
 
       const { token, user, scholar, company_details, last_work_details } = res.data;

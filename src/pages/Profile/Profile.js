@@ -8,6 +8,7 @@ import { useUploadProfileImage } from "../../hooks/useProfile";
 import { useLastWorkStatus } from "../../hooks/useWorkDetails";
 import ImagePreviewModal from './ImagePreviewModal';
 import Loader from '../../components/Loader/Loader';
+import { getAssetUrl } from '../../utils/getCompanyUrl';
 
 const Profile = () => {
     const [loading, setLoading] = useState(true);
@@ -51,9 +52,9 @@ const Profile = () => {
     // console.log("SCholar data", scholar)
     // console.log("SCholar datafhdfhdfd", scholarData)
 
-    const scholarImage = scholarData?.scholar_profile
-        ? `http://scholarapi.seasense.in/${scholarData.scholar_profile}`
-        : null;
+   const scholarImage = scholarData?.scholar_profile
+    ? getAssetUrl(scholarData.scholar_profile)
+    : null;
 
     const [formData, setFormData] = useState();
     const [workProgress, setWorkProgress] = useState(0);

@@ -920,21 +920,21 @@ const PaymentHistory = () => {
                       <td className="payments-table-cell" data-label="Payment Purpose">
                         {payment.purpose?.pay_purpose}
                       </td>
-<td className="payments-table-cell amount-cell" data-label="Paid Amount">
-  <div className="amount-wrapper">
-    <div className="paid-amount">
-      ₹{payment.pay_received.toLocaleString()}
-    </div>
-    {payment.referral_data && payment.referral_data.length > 0 && (
-      <div className="referral-amount-wrapper">
-        <FaUsers className="referral-icon" />
-        <span className="referral-amount">
-          ₹{payment.referral_data[0]?.referral_amount?.toLocaleString() || 0}
-        </span>
-      </div>
-    )}
-  </div>
-</td>
+                      <td className="payments-table-cell amount-cell" data-label="Paid Amount">
+                        <div className="amount-wrapper">
+                          <div className="paid-amount">
+                            ₹{payment.pay_received.toLocaleString()}
+                          </div>
+                          {payment.referral_data && payment.referral_data.length > 0 && (
+                            <div className="referral-amount-wrapper">
+                              <FaUsers className="referral-icon" />
+                              <span className="referral-amount">
+                                ₹{payment.referral_data[0]?.referral_amount?.toLocaleString() || 0}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
                       <td className="payments-table-cell" data-label="Bank">
                         {payment.bank.bank_nm}
                       </td>
@@ -1303,6 +1303,13 @@ const PaymentHistory = () => {
                           <th>Total Paid</th>
                           <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
+                        {hasReferral(downloadReceipt) && (
+
+                          <tr className="highlight-row">
+                            <th>Discount</th>
+                            <td>₹{downloadReceipt.total_referral_amt || 0}</td>
+                          </tr>
+                        )}
                         <tr className="balance-row">
                           <th>Balance Amount</th>
                           <td>₹{downloadReceipt.bal_amt}</td>
@@ -1316,7 +1323,7 @@ const PaymentHistory = () => {
                       </tbody>
                     </table>
                   </div>
-
+                  {/*
                   {hasReferral(downloadReceipt) && (
                     <>
                       <div className="referral-header-section">
@@ -1365,8 +1372,8 @@ const PaymentHistory = () => {
                         </table>
                       </div>
                     </>
-                  )}
-
+                  )} 
+                   */}
                   {/* Section 3: Bank Details */}
                   <div className="receipt-premium-section">
                     <h4>Bank Details</h4>

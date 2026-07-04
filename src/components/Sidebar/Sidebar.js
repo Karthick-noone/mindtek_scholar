@@ -20,6 +20,7 @@ import { useLogout } from "../../hooks/useLogout";
 import { secureStorage } from '../../utils/secureStorage';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useScholar } from '../../hooks/useScholar';
+import { getAssetUrl } from '../../utils/getCompanyUrl';
 
 const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
   const location = useLocation();
@@ -34,7 +35,7 @@ const Sidebar = ({ collapsed, onToggle, mobileOpen, setMobileOpen }) => {
 
   // console.log("Comny dtls", scholarData)
 
-  const companyLogo = `http://scholarapi.seasense.in/${scholarData?.company?.com_logo} ` || logo;
+  const companyLogo = getAssetUrl(scholarData?.company?.com_logo) || logo;
 
   useEffect(() => {
     const handleResize = () => {

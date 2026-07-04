@@ -1,8 +1,9 @@
 import axios from "axios";
 import { secureStorage } from "../utils/secureStorage";
+import { getBaseUrl } from "../utils/getCompanyUrl";
 
 const apiClient = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || "http://scholarapi.seasense.in/api",
+    baseURL: process.env.REACT_APP_API_URL || `${getBaseUrl()}/api`,
     headers: {
         "Content-Type": "application/json",
     },
