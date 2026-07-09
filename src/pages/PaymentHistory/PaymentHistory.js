@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Calendar, Tag, IndianRupeeIcon, InfoIcon, Building2, Users } from 'lucide-react';
+import { AlertCircle, CheckCircle, landMark, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Calendar, Tag, IndianRupeeIcon, InfoIcon, Building2, Users } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
 import html2canvas from 'html2canvas';
@@ -926,17 +926,17 @@ const PaymentHistory = () => {
                             ₹{payment.pay_received.toLocaleString()}
                           </div>
                           {payment.referral_data && payment.referral_data.length > 0 && (
-                            <div className="referral-amount-wrapper">
+                            <div className="referral-amount-wrapper" title={`Referral Amount: ₹${payment.total_referral_amt?.toLocaleString() || 0}`}>
                               <FaUsers className="referral-icon" />
                               <span className="referral-amount">
-                                ₹{payment.referral_data[0]?.referral_amount?.toLocaleString() || 0}
+                                ₹{payment.total_referral_amt?.toLocaleString() || 0}
                               </span>
                             </div>
                           )}
                         </div>
                       </td>
                       <td className="payments-table-cell" data-label="Bank">
-                        {payment.bank.bank_nm}
+                        {payment.bank?.bank_nm}
                       </td>
                       <td className="payments-table-cell" data-label="Status">
                         <span className={`status-badge ${payment.pay_status}`}>
@@ -1123,11 +1123,21 @@ const PaymentHistory = () => {
                   {/* Bank */}
                   <div className="payment-detail-item">
                     <div className="payment-detail-icon">
-                      <Building2 size={16} />
+                      <landMark size={16} />
                     </div>
                     <div className="payment-detail-content">
                       <span className="payment-detail-label">Bank</span>
                       <span className="payment-detail-value">{selectedPayment.bank.bank_nm}</span>
+                    </div>
+                  </div>
+
+                   <div className="payment-detail-item">
+                    <div className="payment-detail-icon">
+                      <Building2 size={16} />
+                    </div>
+                    <div className="payment-detail-content">
+                      <span className="payment-detail-label">Account Type</span>
+                      <span className="payment-detail-value">{selectedPayment.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</span>
                     </div>
                   </div>
 
@@ -1190,7 +1200,7 @@ const PaymentHistory = () => {
                               <td>{index + 1}</td>
                               <td>{referral.referred_person}</td>
                               <td>₹{referral.referral_amount}</td>
-                              <td>{referral.referral_reason || 'N/A'}</td>
+                              <td>{referral.referral_reason || '-'}</td>
                               <td>{new Date(referral.referral_date).toLocaleDateString("en-GB", {
                                 day: "2-digit",
                                 month: "short",
@@ -1383,7 +1393,7 @@ const PaymentHistory = () => {
                         <p>Bank Transfer - {downloadReceipt.bank?.bank_nm}</p>
                       </div>
                       <div className="receipt-premium-info-item">
-                        <label>Account Status</label>
+                        <label>Account Type</label>
                         <p>{downloadReceipt.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</p>
                       </div>
                     </div>
