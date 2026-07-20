@@ -1,4 +1,5 @@
 // Dashboard.js - Fixed with proper animation timing
+// Dashboard.js - Clean version without loader logic
 import React, { useState, useEffect, useRef } from 'react';
 import {
   BookOpen,
@@ -30,15 +31,13 @@ import { usePayments } from '../../hooks/usePayments';
 import { useWorkDetails, useLastWorkStatus } from "../../hooks/useWorkDetails";
 import { useScholar } from '../../hooks/useScholar';
 import { Link, useNavigate } from 'react-router-dom';
-import Loader from './../../components/Loader/Loader';
+// import Loader from './../../components/Loader/Loader'; // Removed
 
 const Dashboard = () => {
-  const [loading, setLoading] = useState(true);
   const [pendingPayment, setPendingPayment] = useState(0);
   const [totalPaid, setTotalPaid] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
   const [workProgress, setWorkProgress] = useState(0);
-  const [isDataReady, setIsDataReady] = useState(false);
 
   // Store actual values for animation targets
   const [targetPendingPayment, setTargetPendingPayment] = useState(0);
@@ -46,11 +45,12 @@ const Dashboard = () => {
   const [targetResolvedComplaints, setTargetResolvedComplaints] = useState(0);
   const [targetPendingComplaints, setTargetPendingComplaints] = useState(0);
   const [targetWorkProgress, setTargetWorkProgress] = useState(0);
-  const navigate = useNavigate();
 
-// In your component
-const [activeTooltip, setActiveTooltip] = useState(null);
-const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const navigate = useNavigate();
+  
+  // Mobile detection and tooltip states
+  const [activeTooltip, setActiveTooltip] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const scholar = secureStorage.getScholar();
   const { data: paymentData = [] } = usePayments();
@@ -76,145 +76,37 @@ const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const { data: companyData } = useScholar();
 
-  // Track data loading states
-  const [dataStates, setDataStates] = useState({
-    paymentsLoaded: false,
-    complaintsLoaded: false,
-    workLoaded: false,
-    countsLoaded: false,
-    scholarLoaded: false
-  });
+  // Refs for animations
+  const progressRef = useRef(null);
 
-
+  // Handle responsive
   useEffect(() => {
-  const handleResize = () => {
-    setIsMobile(window.innerWidth <= 768);
-  };
-  
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
-
-const handleTooltipToggle = (id) => {
-  if (activeTooltip === id) {
-    setActiveTooltip(null);
-  } else {
-    setActiveTooltip(id);
-  }
-};
-
-// Close tooltip when clicking outside
-useEffect(() => {
-  const handleClickOutside = (e) => {
-    if (!e.target.closest('.progress-list-note')) {
-      setActiveTooltip(null);
-    }
-  };
-  
-  document.addEventListener('click', handleClickOutside);
-  return () => document.removeEventListener('click', handleClickOutside);
-}, []);
-
-
-
-  // Set target values when data arrives
-  useEffect(() => {
-    if (counts) {
-      setTargetResolvedComplaints(counts.resolved || 0);
-      setTargetPendingComplaints(counts.pending || 0);
-      setDataStates(prev => ({ ...prev, countsLoaded: true }));
-    }
-  }, [counts]);
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const scholarData = secureStorage.getScholar();
-        if (!scholarData?.id) {
-          setLoading(false);
-          return;
-        }
-
-        const res = await getPaymentData(scholarData.id);
-        const response = res.data;
-        const paymentDataFromApi = response.data?.[0];
-
-        setTargetPendingPayment(Number(paymentDataFromApi?.bal_amt) || 0);
-        setTargetTotalPaid(Number(paymentDataFromApi?.tot_paid) || 0);
-
-        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
-      } catch (err) {
-        console.error("Dashboard API Error:", err);
-        setDataStates(prev => ({ ...prev, paymentsLoaded: true }));
-      }
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
     };
-
-    fetchDashboard();
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Set target work progress when data arrives
+  // Tooltip handlers
+  const handleTooltipToggle = (id) => {
+    setActiveTooltip(activeTooltip === id ? null : id);
+  };
+
+  // Close tooltip when clicking outside
   useEffect(() => {
-    if (lastWorkStatus !== undefined) {
-      setTargetWorkProgress(Number(lastWorkStatus) || 0);
-      setDataStates(prev => ({ ...prev, workLoaded: true }));
-    }
-  }, [lastWorkStatus]);
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.progress-list-note')) {
+        setActiveTooltip(null);
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
-  // Track other data loading states
-  useEffect(() => {
-    if (apiResponse !== undefined) {
-      setDataStates(prev => ({ ...prev, complaintsLoaded: true }));
-    }
-  }, [apiResponse]);
-
-  useEffect(() => {
-    if (work !== undefined) {
-      setDataStates(prev => ({ ...prev, workLoaded: true }));
-    }
-  }, [work]);
-
-  useEffect(() => {
-    if (companyData !== undefined) {
-      setDataStates(prev => ({ ...prev, scholarLoaded: true }));
-    }
-  }, [companyData]);
-
-  // Check when all data is loaded and start animations
-  useEffect(() => {
-    const allDataLoaded =
-      dataStates.paymentsLoaded &&
-      dataStates.complaintsLoaded &&
-      dataStates.workLoaded &&
-      dataStates.countsLoaded &&
-      dataStates.scholarLoaded;
-
-    if (allDataLoaded && !isDataReady) {
-      // First hide the loader
-      setLoading(false);
-      setIsDataReady(true);
-
-      // Small delay to ensure DOM is ready, then start animations
-      setTimeout(() => {
-        // Animate counts
-        animateCount(setResolvedComplaints, targetResolvedComplaints, 1200);
-        animateCount(setPendingComplaints, targetPendingComplaints, 1200);
-        animateCount(setTotalPaid, targetTotalPaid, 1200);
-        animateCount(setPendingPayment, targetPendingPayment, 1200);
-
-        // Animate progress bar
-        animateProgress(targetWorkProgress);
-      }, 100);
-    }
-  }, [dataStates, isDataReady, targetResolvedComplaints, targetPendingComplaints, targetTotalPaid, targetPendingPayment, targetWorkProgress]);
-
-  const progressRef = useRef(null);
-  const countRefs = useRef({
-    resolved: null,
-    pending: null,
-    totalPaid: null,
-    pendingPayment: null
-  });
-
+  // Animation functions
   const animateProgress = (end) => {
     if (progressRef.current) {
       clearInterval(progressRef.current);
@@ -255,31 +147,102 @@ useEffect(() => {
     return timer;
   };
 
+  // Set target values when complaint counts arrive
+  useEffect(() => {
+    if (counts) {
+      const resolved = counts.resolved || 0;
+      const pending = counts.pending || 0;
+      setTargetResolvedComplaints(resolved);
+      setTargetPendingComplaints(pending);
+      animateCount(setResolvedComplaints, resolved, 1200);
+      animateCount(setPendingComplaints, pending, 1200);
+    }
+  }, [counts]);
 
+  // Fetch payment data
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const scholarData = secureStorage.getScholar();
+        if (!scholarData?.id) return;
+
+        const res = await getPaymentData(scholarData.id);
+        const response = res.data;
+        const paymentDataFromApi = response.data?.[0];
+
+        const pending = Number(paymentDataFromApi?.bal_amt) || 0;
+        const total = Number(paymentDataFromApi?.tot_paid) || 0;
+        setTargetPendingPayment(pending);
+        setTargetTotalPaid(total);
+        animateCount(setPendingPayment, pending, 1200);
+        animateCount(setTotalPaid, total, 1200);
+      } catch (err) {
+        console.error("Dashboard API Error:", err);
+      }
+    };
+
+    fetchDashboard();
+  }, []);
+
+  // Set target work progress when data arrives
+  useEffect(() => {
+    if (lastWorkStatus !== undefined) {
+      const progress = Number(lastWorkStatus) || 0;
+      setTargetWorkProgress(progress);
+      animateProgress(progress);
+    }
+  }, [lastWorkStatus]);
+
+  // Helper functions
+  const capsLetter = (str) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  const getShortDescription = (description) => {
+    if (!description) return '';
+    if (description.length <= 30) return description;
+    const trimmed = description.substring(0, 55);
+    if (!trimmed.includes(' ')) {
+      return trimmed + '...';
+    }
+    return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
+  };
+
+  const truncateText = (text, maxLength = 50) => {
+    if (!text) return '';
+    if (text.length <= maxLength) return text;
+    let truncated = text.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    if (lastSpace > 0) {
+      truncated = truncated.substring(0, lastSpace);
+    }
+    return truncated + '...';
+  };
+
+  const getStatusClass = (status) => status?.toLowerCase().replace(/\s+/g, '-');
+  const statusClass = complaint?.status?.toLowerCase().replace(/\s+/g, '-');
+
+  // Stats cards configuration
   const stats = [
     {
       icon: CheckCircle,
-      label: 'Total Paid',
+      label: 'Amount Paid',
       value: `₹${totalPaid.toLocaleString()}`,
       change: '+₹15,000',
       color: '#10b981',
       path: "/payment-history"
-
     },
-
     {
       icon: IndianRupee,
-      label: 'Pending Payment',
-      value: pendingPayment === 0
-        ? 'No pending payment'
-        : `₹${pendingPayment}`,
+      label: 'Balance Payment',
+      value: pendingPayment === 0 ? 'No balance payment' : `₹${pendingPayment}`,
       change: '+12.5%',
       trend: 'up',
       color: '#f59e0b',
       bgColor: 'rgba(245, 158, 11, 0.1)',
       isZero: pendingPayment === 0,
       path: "/payment-history"
-
     },
     {
       icon: ThumbsUp,
@@ -289,130 +252,54 @@ useEffect(() => {
       color: '#34d399',
       path: "/complaint-register",
       status: 'resolved'
-
     },
     {
       icon: AlertCircle,
       label: 'Pending Complaints',
-      value: pendingComplaints === 0
-        ? 'No pending complaints'
-        : `₹${pendingComplaints.toLocaleString()}`,
+      value: pendingComplaints === 0 ? 'No pending complaints' : pendingComplaints,
       change: '-2',
       color: '#ef4444',
       isZero: pendingComplaints === 0,
       path: "/complaint-register",
       status: 'pending'
-
-
     },
   ];
 
+  // Recent activities
   const recentActivities = [
-    //  Payment Activity (only if exists)
-    ...(payment
-      ? [{
-        id: 1,
-        activity: `Payment Paid for ${payment?.purpose?.pay_purpose || ''}`,
-        date: new Date(payment?.pay_dt_tm).toLocaleString("en-GB", {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          // hour: '2-digit',
-          // minute: '2-digit',
-          // hour12: true
-        }),
-        status: payment?.pay_status,
-        amount: payment?.pay_received || 0,
-
-
-      }]
-      : []),
-
-    //  Complaint Activity (ONLY if complaint exists)
-    ...(complaint?.complaint
-      ? [{
-        id: 2,
-        activity: `Complaint ${complaint?.resolve_status === "resolved" && complaint?.reply_content
-          ? 'Resolved'
-          : complaint?.resolve_status === null && !complaint?.reply_content
-            ? 'Pending'
-            : 'In-Progress'
-          } - Last Submission`,
-        date: new Date(complaint?.complt_reg_dt).toLocaleString("en-GB", {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          // hour: '2-digit',
-          // minute: '2-digit',
-          // hour12: true
-        }),
-        status:
-          complaint?.resolve_status === "resolved" && complaint?.reply_content
-            ? 'Resolved'
-            : complaint?.resolve_status === null && complaint?.reply_content
-              ? 'In Progress'
-              : 'Pending',
-        complaint: complaint?.complaint
-      }]
-      : [])
+    ...(payment ? [{
+      id: 1,
+      activity: `Payment Paid for ${payment?.purpose?.pay_purpose || ''}`,
+      date: new Date(payment?.pay_dt_tm).toLocaleString("en-GB", {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      status: payment?.pay_status,
+      amount: payment?.pay_received || 0
+    }] : []),
+    ...(complaint?.complaint ? [{
+      id: 2,
+      activity: `Complaint ${complaint?.resolve_status === "resolved" && complaint?.reply_content
+        ? 'Resolved'
+        : complaint?.resolve_status === null && !complaint?.reply_content
+          ? 'Pending'
+          : 'In-Progress'
+        } - Last Submission`,
+      date: new Date(complaint?.complt_reg_dt).toLocaleString("en-GB", {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }),
+      status: complaint?.resolve_status === "resolved" && complaint?.reply_content
+        ? 'Resolved'
+        : complaint?.resolve_status === null && complaint?.reply_content
+          ? 'In Progress'
+          : 'Pending',
+      complaint: complaint?.complaint
+    }] : [])
   ];
 
-  if (loading) {
-    return (
-      <div className="dashboard-loader-wrapper">
-        <Loader
-          type="scholar"
-          size="large"
-          text="Loading dashboard data...."
-        />
-      </div>
-    );
-  }
-  const capsLetter = (str) => {
-    if (!str) return;
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-
-  const getShortDescription = (description) => {
-    if (!description) return '';
-
-    if (description.length <= 30) return description;
-
-    const trimmed = description.substring(0, 55);
-
-    //  If no space (single word), just cut directly
-    if (!trimmed.includes(' ')) {
-      return trimmed + '...';
-    }
-
-    //  Otherwise cut at last full word
-    return trimmed.substring(0, trimmed.lastIndexOf(' ')) + '...';
-  };
-
-  const statusClass = complaint?.status
-    ?.toLowerCase()
-    .replace(/\s+/g, '-'); // "In Progress" → "in-progress"
-
-
-  const getStatusClass = (status) =>
-    status?.toLowerCase().replace(/\s+/g, '-');
-
-  // Helper function to truncate text at 50 characters with full words
-const truncateText = (text, maxLength = 50) => {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  
-  // Trim to maxLength and find the last space
-  let truncated = text.substring(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
-  
-  // If there's a space, cut at the last space, otherwise cut at maxLength
-  if (lastSpace > 0) {
-    truncated = truncated.substring(0, lastSpace);
-  }
-  
-  return truncated + '...';
-};
 
 
   return (
@@ -652,12 +539,12 @@ const truncateText = (text, maxLength = 50) => {
               <strong>₹{(totalPaid + pendingPayment).toLocaleString()}</strong>
             </div>
             <div className="payment-item">
-              <span>Total Paid</span>
+              <span>Amount Paid</span>
               <strong className="paid-amount">₹{totalPaid.toLocaleString()}</strong>
             </div>
             {pendingPayment > 0 && (
               <div className="payment-item">
-                <span>Pending Payment</span>
+                <span>Balance Payment</span>
                 <strong className="pending-amount">₹{pendingPayment.toLocaleString()}</strong>
               </div>
             )}

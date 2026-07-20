@@ -4,16 +4,16 @@ import { secureStorage } from "../utils/secureStorage";
 
 // Fetch complaints with pagination, filters, search
 // In your useComplaints hook
-export const useComplaints = (page = 1, perPage = 10, status = 'all', search = '') => {
+export const useComplaints = (page = 1, perPage = 10, status = 'all', search = '', enabled = true) => {
   const scholar = secureStorage.getScholar();
 
   return useQuery({
     queryKey: ["complaints", scholar?.id, page, perPage, status, search],
     queryFn: () => getComplaints(scholar?.id, page, perPage, status, search).then(res => res.data),
-    enabled: !!scholar?.id,
+    enabled: !!scholar?.id && enabled,
     keepPreviousData: true,
     staleTime: 5 * 60 * 1000,
-    refetchOnMount: 'always',
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });

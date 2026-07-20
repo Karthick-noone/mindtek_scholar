@@ -1,29 +1,83 @@
+// Profile.js - Updated with Enhanced Loader
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Mail, Phone, MapPin, Calendar, Edit2, Save, X, Camera, Award, FolderOpen, GraduationCap, Building, Users, FileText, Briefcase, BriefcaseBusiness, Trash2, AlertCircle, XCircle, Notebook, Globe, BookOpen, UserCog } from 'lucide-react';
-import Shimmer from '../../components/Shimmer/Shimmer';
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  BookOpen,
+  Award,
+  GraduationCap,
+  Building,
+  Users,
+  FileText,
+  BriefcaseBusiness,
+  Camera,
+  Clock,
+  CheckCircle,
+  TrendingUp,
+  Star,
+  Github,
+  Twitter,
+  X,
+  Trash,
+  Trash2,
+  AlertCircle,
+  XCircle,
+  Notebook,
+  Globe,
+  UserCog,
+  UserCog2,
+  UserPen
+} from 'lucide-react';
 import './Profile.css';
-import { useScholar } from '../../hooks/useScholar';
 import { secureStorage } from '../../utils/secureStorage';
-import { useUploadProfileImage } from "../../hooks/useProfile";
+import { useScholar } from '../../hooks/useScholar';
+import { useUploadProfileImage, useDeleteProfileImage } from "../../hooks/useProfile";
 import { useLastWorkStatus } from "../../hooks/useWorkDetails";
 import ImagePreviewModal from './ImagePreviewModal';
-import Loader from '../../components/Loader/Loader';
+import Loader from './../../components/Loader/Loader';
 import { getAssetUrl } from '../../utils/getCompanyUrl';
 
 const Profile = () => {
-    const [loading, setLoading] = useState(true);
-    const [editing, setEditing] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
-    const [profileImage, setProfileImage] = useState(null);
-    const [hoverImage, setHoverImage] = useState(false);
-    const [showImagePreview, setShowImagePreview] = useState(false);
-    const [, setScholarImage] = useState(null); // Your image state
-    const [isDataReady, setIsDataReady] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [hoverImage, setHoverImage] = useState(false);
+  const [hoverCamera, setHoverCamera] = useState(false);
+  const [showImagePreview, setShowImagePreview] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-    const fileInputRef = useRef(null);
+  const handleImageView = () => {
+    if (scholarImage) {
+      setShowImagePreview(true);
+    } else {
+      fileInputRef.current.click();
+    }
+  };
 
-      const [isMobile, setIsMobile] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const scholar = secureStorage.getScholar();
+  const { data: scholarData, isLoading: scholarLoading } = useScholar();
+  const { data: lastStatus, isLoading: lastStatusLoading } = useLastWorkStatus();
+
+  const scholarImage = scholarData?.scholar_profile
+    ? getAssetUrl(scholarData.scholar_profile)
+    : null;
+
+  // console.log("Scholar Image", scholarImage)
+
+  const [workProgress, setWorkProgress] = useState(0);
+  const lastWorkStatus = lastStatus?.status;
+
+  useEffect(() => {
+    if (lastWorkStatus !== undefined) {
+      setWorkProgress(Number(lastWorkStatus) || 0);
+    }
+  }, [lastWorkStatus]);
+
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const checkScreen = () => {
@@ -36,88 +90,34 @@ const Profile = () => {
     return () => window.removeEventListener("resize", checkScreen);
   }, []);
 
-  
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
 
-    const handleImageView = () => {
-        if (scholarImage) {
-            setShowImagePreview(true);
-        } else {
-            // Open file picker if no image
-            fileInputRef.current.click();
-        }
-    };
+  const { mutate: uploadImage } = useUploadProfileImage();
 
-    const scholar = secureStorage.getScholar();
-    const { data: scholarData, isLoading: scholarLoading } = useScholar();
-    // console.log("SCholar data", scholar)
-    // console.log("SCholar datafhdfhdfd", scholarData)
+  // Toast function
+  const showToast = (message, type = 'error') => {
+    const existingToast = document.querySelector('.custom-toast-notification');
+    if (existingToast) {
+      existingToast.remove();
+    }
 
-   const scholarImage = scholarData?.scholar_profile
-    ? getAssetUrl(scholarData.scholar_profile)
-    : null;
+    const toast = document.createElement('div');
+    toast.className = `custom-toast-notification ${type}`;
 
-    const [formData, setFormData] = useState();
-    const [workProgress, setWorkProgress] = useState(0);
-
-    //   useEffect(() => {
-    //     setTimeout(() => {
-    //       setLoading(false);
-    //     }, 1500);
-    //   }, []);
-
-    const { data: lastStatus, isLoading: lastStatusLoading } = useLastWorkStatus();
-
-    const lastWorkStatus = lastStatus?.status;
-    // Track loading states
-    useEffect(() => {
-        // Check if both hooks have finished loading
-        if (!scholarLoading && !lastStatusLoading) {
-            // Small delay for smooth transition
-            setTimeout(() => {
-                setLoading(false);
-                setIsDataReady(true);
-            }, 100);
-        }
-    }, [scholarLoading, lastStatusLoading]);
-
-    useEffect(() => {
-        if (lastWorkStatus !== undefined) {
-            setWorkProgress(Number(lastWorkStatus) || 0);
-        }
-    }, [lastWorkStatus]);
-
-
-    const handleImageClick = () => {
-        fileInputRef.current.click();
-    };
-
-    const { mutate: uploadImage } = useUploadProfileImage();
-
-    // Toast function without X icon, auto-closes after 3 seconds
-    const showToast = (message, type = 'error') => {
-        // Remove any existing toast
-        const existingToast = document.querySelector('.custom-toast-notification');
-        if (existingToast) {
-            existingToast.remove();
-        }
-
-        // Create toast element
-        const toast = document.createElement('div');
-        toast.className = `custom-toast-notification ${type}`;
-
-        // Set icon based on type
-        let iconSvg = '';
-        if (type === 'success') {
-            iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-        } else if (type === 'error') {
-            iconSvg = `
+    let iconSvg = '';
+    if (type === 'success') {
+      iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    } else if (type === 'error') {
+      iconSvg = `
       <circle cx="12" cy="12" r="10" stroke="white" fill="none" stroke-width="2"/>
       <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
       <line x1="12" y1="16" x2="12.01" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     `;
-        }
+    }
 
-        toast.innerHTML = `
+    toast.innerHTML = `
     <div class="toast-content">
       <svg class="toast-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         ${iconSvg}
@@ -130,131 +130,105 @@ const Profile = () => {
     <div class="toast-progress-bar"></div>
   `;
 
-        document.body.appendChild(toast);
+    document.body.appendChild(toast);
 
-        // Auto remove after 4 seconds
+    setTimeout(() => {
+      if (toast && toast.parentNode) {
+        toast.classList.add('fade-out');
         setTimeout(() => {
-            if (toast && toast.parentNode) {
-                toast.classList.add('fade-out');
-                setTimeout(() => {
-                    if (toast && toast.parentNode) {
-                        toast.remove();
-                    }
-                }, 300);
-            }
-        }, 4000);
-    };
+          if (toast && toast.parentNode) {
+            toast.remove();
+          }
+        }, 300);
+      }
+    }, 4000);
+  };
 
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-        // File size validation (2MB = 2 * 1024 * 1024 bytes)
-        const maxSize = 2 * 1024 * 1024;
-        if (file.size > maxSize) {
-            const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-            showToast(`File must be within 2 MB (selected: ${fileSizeInMB} MB)`, 'error');
-            e.target.value = "";
-            return;
-        }
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+      showToast(`File must be within 2 MB (selected: ${fileSizeInMB} MB)`, 'error');
+      e.target.value = "";
+      return;
+    }
 
-        // File type validation
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        if (!allowedTypes.includes(file.type)) {
-            showToast('Invalid file type! Please select JPEG, JPG, or PNG format.', 'error');
-            e.target.value = "";
-            return;
-        }
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      showToast('Invalid file type! Please select JPEG, JPG, or PNG format.', 'error');
+      e.target.value = "";
+      return;
+    }
 
-        // Proceed with upload (no loading toast)
-        const formData = new FormData();
-        formData.append("scholar_profile", file);
-        setIsUploading(true);
-        uploadImage(formData, {
-            onSuccess: () => {
-                e.target.value = "";
-                showToast('Profile image uploaded successfully!', 'success');
-                setIsUploading(false);
+    const formData = new FormData();
+    formData.append("scholar_profile", file);
+    setIsUploading(true)
+    uploadImage(formData, {
+      onSuccess: () => {
+        e.target.value = "";
+        showToast('Profile image uploaded successfully!', 'success');
+        setIsUploading(false);
 
-            },
-            onError: (error) => {
-                showToast('Failed to upload image. Please try again.', 'error');
-                e.target.value = "";
-                setIsUploading(false);
+      },
+      onError: (error) => {
+        showToast('Failed to upload image. Please try again.', 'error');
+        e.target.value = "";
+        setIsUploading(false);
 
-            }
-        });
-    };
+      }
+    });
+  };
 
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    const handleDeleteImage = () => {
-        setShowDeleteConfirm(true);
-    };
+  const handleDeleteImage = () => {
+    setShowDeleteConfirm(true);
+  };
 
-    const confirmDelete = () => {
-        const formData = new FormData();
-        formData.append("remove", 1);
-        setIsDeleting(true)
-        uploadImage(formData, {
-            onSuccess: () => {
-                showToast('Profile image deleted successfully!', 'success');
-                setShowDeleteConfirm(false);
-                setIsDeleting(false)
-            },
-            onError: (error) => {
-                showToast('Failed to delete image. Please try again.', 'error');
-                setShowDeleteConfirm(false);
-                setIsDeleting(false)
-            }
-        });
-    };
-
-    const cancelDelete = () => {
+  const confirmDelete = () => {
+    const formData = new FormData();
+    formData.append("remove", 1);
+    setIsDeleting(true)
+    uploadImage(formData, {
+      onSuccess: () => {
+        showToast('Profile image deleted successfully!', 'success');
         setShowDeleteConfirm(false);
         setIsDeleting(false)
 
-    };
+      },
+      onError: (error) => {
+        showToast('Failed to delete image. Please try again.', 'error');
+        setShowDeleteConfirm(false);
+        setIsDeleting(false)
 
+      }
+    });
+  };
 
+  const cancelDelete = () => {
+    setShowDeleteConfirm(false);
+    setIsDeleting(false)
+  };
 
-    //   if (loading) {
-    //     return (
-    //       <div className="profile-page">
-    //         <div className="profile-header">
-    //           <Shimmer width="250px" height="32px" marginBottom="16px" />
-    //           <Shimmer width="350px" height="20px" marginBottom="32px" />
-    //         </div>
-    //         <div className="profile-container">
-    //           <Shimmer height="500px" borderRadius="16px" />
-    //         </div>
-    //       </div>
-    //     );
-    //   }
+  const capsLetter = (name) => {
+    if (!name) return '';
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  }
 
-    const capsLetter = (str) => {
-        if (!str) return;
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    if (loading) {
-        return (
-            <div className="dashboard-loader-wrapper">
-                <Loader
-                    type="scholar"
-                    size="large"
-                    text="Loading profile data...."
-                />
-            </div>
-        );
-    }
-
-    console.log({
-  isMobile,
-  scholarImage,
-  hoverImage
-});
-
+  if (scholarLoading) {
+    return (
+      <div className="dashboard-loader-wrapper">
+        <Loader
+          type="scholar"
+          size="large"
+          text="Loading profile data...."
+        />
+      </div>
+    );
+  }
     return (
         <div className="profile-page">
             <div className="profile-header">

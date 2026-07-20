@@ -806,7 +806,7 @@ const PaymentHistory = () => {
               <CheckCircle size={24} />
             </div>
             <div className="stat-info">
-              <span className="stat-label">Total Paid</span>
+              <span className="stat-label">Amount Paid</span>
               <span className="stat-value">₹{payment?.tot_paid}</span>
             </div>
           </div>
@@ -815,7 +815,7 @@ const PaymentHistory = () => {
               <AlertCircle size={24} />
             </div>
             <div className="stat-info">
-              <span className="stat-label">Pending Payment</span>
+              <span className="stat-label">Balance Payment</span>
               <span className="stat-value">₹{payment?.bal_amt}</span>
             </div>
           </div>
@@ -891,8 +891,8 @@ const PaymentHistory = () => {
                   <th className="payments-table-head">Date</th>
                   <th className="payments-table-head">Payment Purpose</th>
                   <th className="payments-table-head">Paid Amount</th>
-                  <th className="payments-table-head">Bank</th>
-                  <th className="payments-table-head">Status</th>
+                  {/* <th className="payments-table-head">Bank</th> */}
+                  {/* <th className="payments-table-head">Status</th> */}
                   <th className="payments-table-head">View</th>
                   <th className="payments-table-head">Receipt</th>
                 </tr>
@@ -935,14 +935,14 @@ const PaymentHistory = () => {
                           )}
                         </div>
                       </td>
-                      <td className="payments-table-cell" data-label="Bank">
+                      {/* <td className="payments-table-cell" data-label="Bank">
                         {payment.bank?.bank_nm}
-                      </td>
-                      <td className="payments-table-cell" data-label="Status">
+                      </td> */}
+                      {/* <td className="payments-table-cell" data-label="Status">
                         <span className={`status-badge ${payment.pay_status}`}>
                           {capsLetter(payment.pay_status)}
                         </span>
-                      </td>
+                      </td> */}
                       <td className="payments-table-cell" data-label="View">
                         <div className="payments-action-buttons">
                           <button
@@ -1104,7 +1104,7 @@ const PaymentHistory = () => {
                       <CheckCircle size={16} />
                     </div>
                     <div className="payment-detail-content">
-                      <span className="payment-detail-label">Total Paid</span>
+                      <span className="payment-detail-label">Amount Paid</span>
                       <span className="payment-detail-value">₹{selectedPayment?.tot_paid}</span>
                     </div>
                   </div>
@@ -1121,7 +1121,7 @@ const PaymentHistory = () => {
                   </div>
 
                   {/* Bank */}
-                  <div className="payment-detail-item">
+                  {/* <div className="payment-detail-item">
                     <div className="payment-detail-icon">
                       <landMark size={16} />
                     </div>
@@ -1129,9 +1129,9 @@ const PaymentHistory = () => {
                       <span className="payment-detail-label">Bank</span>
                       <span className="payment-detail-value">{selectedPayment.bank.bank_nm}</span>
                     </div>
-                  </div>
+                  </div> */}
 
-                   <div className="payment-detail-item">
+                   {/* <div className="payment-detail-item">
                     <div className="payment-detail-icon">
                       <Building2 size={16} />
                     </div>
@@ -1139,10 +1139,10 @@ const PaymentHistory = () => {
                       <span className="payment-detail-label">Account Type</span>
                       <span className="payment-detail-value">{selectedPayment.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</span>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Status */}
-                  <div className="payment-detail-item">
+                  {/* <div className="payment-detail-item">
                     <div className="payment-detail-icon">
                       <CreditCard size={16} />
                     </div>
@@ -1152,7 +1152,7 @@ const PaymentHistory = () => {
                         {capsLetter(selectedPayment.pay_status)}
                       </span>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Payment Completed */}
                   {selectedPayment?.total_amount === selectedPayment?.tot_paid && (
@@ -1310,7 +1310,7 @@ const PaymentHistory = () => {
                           <td>₹{downloadReceipt.pay_received}</td>
                         </tr>
                         <tr>
-                          <th>Total Paid</th>
+                          <th>Amount Paid</th>
                           <td>₹{downloadReceipt?.tot_paid}</td>
                         </tr>
                         {hasReferral(downloadReceipt) && (
@@ -1385,7 +1385,7 @@ const PaymentHistory = () => {
                   )} 
                    */}
                   {/* Section 3: Bank Details */}
-                  <div className="receipt-premium-section">
+                  {/* <div className="receipt-premium-section">
                     <h4>Bank Details</h4>
                     <div className="receipt-bank-info-row">
                       <div className="receipt-premium-info-item">
@@ -1397,7 +1397,7 @@ const PaymentHistory = () => {
                         <p>{downloadReceipt.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</p>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
 
                   <div className="receipt-premium-divider"></div>
                 </div>
