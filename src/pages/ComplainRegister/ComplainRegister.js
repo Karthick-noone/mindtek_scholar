@@ -22,7 +22,8 @@ import {
   Trash2,
   X,
   Award,
-  Meh
+  Meh,
+  Search
 } from 'lucide-react';
 import { BsStarFill } from 'react-icons/bs';
 import './ComplainRegister.css';
@@ -158,8 +159,8 @@ const ComplainRegister = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!formData.description.trim()) newErrors.description = 'Complaint is required';
-    if (formData.description.length < 20) newErrors.description = 'Complaint must be at least 20 characters';
-    if (formData.description.length > 500) newErrors.description = 'Complaint must be at most 500 characters';
+    if (formData.description.length < 10) newErrors.description = 'Complaint must be at least 10 characters';
+    // if (formData.description.length > 500) newErrors.description = 'Complaint must be at most 500 characters';
     return newErrors;
   };
 
@@ -502,12 +503,14 @@ const getPageNumbers = () => {
               Resolved
             </button>
           </div>
-          {searchTerm && (
+          {/* {searchTerm && (
             <div className='search-term'>
               <p>Searching: <span>"{searchTerm}"</span></p>
             </div>
-          )}
+          )} */}
           <div className="complaint-search-wrapper">
+
+            <Search className="search-icon" size={18} />
             <input
               type="text"
               placeholder="Search complaints..."
@@ -520,6 +523,25 @@ const getPageNumbers = () => {
               <X size={15} className="search-clear-icon" onClick={() => setSearchTerm('')} />
             )}
           </div>
+
+              <div className="rows-per-page-premium">
+            <label>Rows per page:</label>
+            <select
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+              className="rows-select-premium"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+               <div className="pagination-info-premium">
+            Showing {startEntry} to {endEntry} of {totalCount} entries
+          </div>
+
         </div>
 
 
@@ -649,22 +671,9 @@ const getPageNumbers = () => {
         </div>
 
         {/* Pagination Controls */}
-        {/* {totalPages > 1 && ( */}
+        {totalPages > 1 && (
         <div className="pagination-premium-controls">
-          <div className="rows-per-page-premium">
-            <label>Rows per page:</label>
-            <select
-              value={rowsPerPage}
-              onChange={handleRowsPerPageChange}
-              className="rows-select-premium"
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
-          </div>
+      
 
           <div className="pagination-buttons-premium">
             <button
@@ -715,11 +724,9 @@ const getPageNumbers = () => {
             </button>
           </div>
 
-          <div className="pagination-info-premium">
-            Showing {startEntry} to {endEntry} of {totalCount} entries
-          </div>
+     
         </div>
-        {/* )} */}
+         )}
 
 
         {/* Success Toast */}
@@ -755,9 +762,9 @@ const getPageNumbers = () => {
                       autoFocus
                     ></textarea>
                     {errors.description && <span className="complaint-error-text">{errors.description}</span>}
-                    <div className="complaint-character-count">
+                    {/* <div className="complaint-character-count">
                       {formData.description.length}/500 characters
-                    </div>
+                    </div> */}
                   </div>
 
                   <div className="complaint-form-info">

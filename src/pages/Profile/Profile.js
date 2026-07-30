@@ -1,35 +1,36 @@
 // Profile.js - Updated with Enhanced Loader
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Calendar,
-  BookOpen,
-  Award,
-  GraduationCap,
-  Building,
-  Users,
-  FileText,
-  BriefcaseBusiness,
-  Camera,
-  Clock,
-  CheckCircle,
-  TrendingUp,
-  Star,
-  Github,
-  Twitter,
-  X,
-  Trash,
-  Trash2,
-  AlertCircle,
-  XCircle,
-  Notebook,
-  Globe,
-  UserCog,
-  UserCog2,
-  UserPen
+    User,
+    Mail,
+    Phone,
+    MapPin,
+    Calendar,
+    BookOpen,
+    Award,
+    GraduationCap,
+    Building,
+    Users,
+    FileText,
+    BriefcaseBusiness,
+    Camera,
+    Clock,
+    CheckCircle,
+    TrendingUp,
+    Star,
+    Github,
+    Twitter,
+    X,
+    Trash,
+    Trash2,
+    AlertCircle,
+    XCircle,
+    Notebook,
+    Globe,
+    UserCog,
+    UserCog2,
+    UserPen,
+    PhoneCall
 } from 'lucide-react';
 import './Profile.css';
 import { secureStorage } from '../../utils/secureStorage';
@@ -41,83 +42,83 @@ import Loader from './../../components/Loader/Loader';
 import { getAssetUrl } from '../../utils/getCompanyUrl';
 
 const Profile = () => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
-  const [hoverImage, setHoverImage] = useState(false);
-  const [hoverCamera, setHoverCamera] = useState(false);
-  const [showImagePreview, setShowImagePreview] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const [profileImage, setProfileImage] = useState(null);
+    const [hoverImage, setHoverImage] = useState(false);
+    const [hoverCamera, setHoverCamera] = useState(false);
+    const [showImagePreview, setShowImagePreview] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleImageView = () => {
-    if (scholarImage) {
-      setShowImagePreview(true);
-    } else {
-      fileInputRef.current.click();
-    }
-  };
-
-  const fileInputRef = useRef(null);
-
-  const scholar = secureStorage.getScholar();
-  const { data: scholarData, isLoading: scholarLoading } = useScholar();
-  const { data: lastStatus, isLoading: lastStatusLoading } = useLastWorkStatus();
-
-  const scholarImage = scholarData?.scholar_profile
-    ? getAssetUrl(scholarData.scholar_profile)
-    : null;
-
-  // console.log("Scholar Image", scholarImage)
-
-  const [workProgress, setWorkProgress] = useState(0);
-  const lastWorkStatus = lastStatus?.status;
-
-  useEffect(() => {
-    if (lastWorkStatus !== undefined) {
-      setWorkProgress(Number(lastWorkStatus) || 0);
-    }
-  }, [lastWorkStatus]);
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkScreen = () => {
-      setIsMobile(window.innerWidth <= 768);
+    const handleImageView = () => {
+        if (scholarImage) {
+            setShowImagePreview(true);
+        } else {
+            fileInputRef.current.click();
+        }
     };
 
-    checkScreen();
-    window.addEventListener("resize", checkScreen);
+    const fileInputRef = useRef(null);
 
-    return () => window.removeEventListener("resize", checkScreen);
-  }, []);
+    const scholar = secureStorage.getScholar();
+    const { data: scholarData, isLoading: scholarLoading } = useScholar();
+    const { data: lastStatus, isLoading: lastStatusLoading } = useLastWorkStatus();
 
-  const handleImageClick = () => {
-    fileInputRef.current.click();
-  };
+    const scholarImage = scholarData?.scholar_profile
+        ? getAssetUrl(scholarData.scholar_profile)
+        : null;
 
-  const { mutate: uploadImage } = useUploadProfileImage();
+    // console.log("Scholar Image", scholarImage)
 
-  // Toast function
-  const showToast = (message, type = 'error') => {
-    const existingToast = document.querySelector('.custom-toast-notification');
-    if (existingToast) {
-      existingToast.remove();
-    }
+    const [workProgress, setWorkProgress] = useState(0);
+    const lastWorkStatus = lastStatus?.status;
 
-    const toast = document.createElement('div');
-    toast.className = `custom-toast-notification ${type}`;
+    useEffect(() => {
+        if (lastWorkStatus !== undefined) {
+            setWorkProgress(Number(lastWorkStatus) || 0);
+        }
+    }, [lastWorkStatus]);
 
-    let iconSvg = '';
-    if (type === 'success') {
-      iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
-    } else if (type === 'error') {
-      iconSvg = `
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkScreen = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkScreen();
+        window.addEventListener("resize", checkScreen);
+
+        return () => window.removeEventListener("resize", checkScreen);
+    }, []);
+
+    const handleImageClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const { mutate: uploadImage } = useUploadProfileImage();
+
+    // Toast function
+    const showToast = (message, type = 'error') => {
+        const existingToast = document.querySelector('.custom-toast-notification');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        const toast = document.createElement('div');
+        toast.className = `custom-toast-notification ${type}`;
+
+        let iconSvg = '';
+        if (type === 'success') {
+            iconSvg = '<path d="M20 6L9 17l-5-5" stroke="white" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+        } else if (type === 'error') {
+            iconSvg = `
       <circle cx="12" cy="12" r="10" stroke="white" fill="none" stroke-width="2"/>
       <line x1="12" y1="8" x2="12" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
       <line x1="12" y1="16" x2="12.01" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
     `;
-    }
+        }
 
-    toast.innerHTML = `
+        toast.innerHTML = `
     <div class="toast-content">
       <svg class="toast-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         ${iconSvg}
@@ -130,105 +131,105 @@ const Profile = () => {
     <div class="toast-progress-bar"></div>
   `;
 
-    document.body.appendChild(toast);
+        document.body.appendChild(toast);
 
-    setTimeout(() => {
-      if (toast && toast.parentNode) {
-        toast.classList.add('fade-out');
         setTimeout(() => {
-          if (toast && toast.parentNode) {
-            toast.remove();
-          }
-        }, 300);
-      }
-    }, 4000);
-  };
+            if (toast && toast.parentNode) {
+                toast.classList.add('fade-out');
+                setTimeout(() => {
+                    if (toast && toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 4000);
+    };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-    const maxSize = 2 * 1024 * 1024;
-    if (file.size > maxSize) {
-      const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-      showToast(`File must be within 2 MB (selected: ${fileSizeInMB} MB)`, 'error');
-      e.target.value = "";
-      return;
-    }
+        const maxSize = 2 * 1024 * 1024;
+        if (file.size > maxSize) {
+            const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+            showToast(`File must be within 2 MB (selected: ${fileSizeInMB} MB)`, 'error');
+            e.target.value = "";
+            return;
+        }
 
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!allowedTypes.includes(file.type)) {
-      showToast('Invalid file type! Please select JPEG, JPG, or PNG format.', 'error');
-      e.target.value = "";
-      return;
-    }
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowedTypes.includes(file.type)) {
+            showToast('Invalid file type! Please select JPEG, JPG, or PNG format.', 'error');
+            e.target.value = "";
+            return;
+        }
 
-    const formData = new FormData();
-    formData.append("scholar_profile", file);
-    setIsUploading(true)
-    uploadImage(formData, {
-      onSuccess: () => {
-        e.target.value = "";
-        showToast('Profile image uploaded successfully!', 'success');
-        setIsUploading(false);
+        const formData = new FormData();
+        formData.append("scholar_profile", file);
+        setIsUploading(true)
+        uploadImage(formData, {
+            onSuccess: () => {
+                e.target.value = "";
+                showToast('Profile image uploaded successfully!', 'success');
+                setIsUploading(false);
 
-      },
-      onError: (error) => {
-        showToast('Failed to upload image. Please try again.', 'error');
-        e.target.value = "";
-        setIsUploading(false);
+            },
+            onError: (error) => {
+                showToast('Failed to upload image. Please try again.', 'error');
+                e.target.value = "";
+                setIsUploading(false);
 
-      }
-    });
-  };
+            }
+        });
+    };
 
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleDeleteImage = () => {
-    setShowDeleteConfirm(true);
-  };
+    const handleDeleteImage = () => {
+        setShowDeleteConfirm(true);
+    };
 
-  const confirmDelete = () => {
-    const formData = new FormData();
-    formData.append("remove", 1);
-    setIsDeleting(true)
-    uploadImage(formData, {
-      onSuccess: () => {
-        showToast('Profile image deleted successfully!', 'success');
+    const confirmDelete = () => {
+        const formData = new FormData();
+        formData.append("remove", 1);
+        setIsDeleting(true)
+        uploadImage(formData, {
+            onSuccess: () => {
+                showToast('Profile image deleted successfully!', 'success');
+                setShowDeleteConfirm(false);
+                setIsDeleting(false)
+
+            },
+            onError: (error) => {
+                showToast('Failed to delete image. Please try again.', 'error');
+                setShowDeleteConfirm(false);
+                setIsDeleting(false)
+
+            }
+        });
+    };
+
+    const cancelDelete = () => {
         setShowDeleteConfirm(false);
         setIsDeleting(false)
+    };
 
-      },
-      onError: (error) => {
-        showToast('Failed to delete image. Please try again.', 'error');
-        setShowDeleteConfirm(false);
-        setIsDeleting(false)
+    const capsLetter = (name) => {
+        if (!name) return '';
+        return name.charAt(0).toUpperCase() + name.slice(1);
+    }
 
-      }
-    });
-  };
-
-  const cancelDelete = () => {
-    setShowDeleteConfirm(false);
-    setIsDeleting(false)
-  };
-
-  const capsLetter = (name) => {
-    if (!name) return '';
-    return name.charAt(0).toUpperCase() + name.slice(1);
-  }
-
-  if (scholarLoading) {
-    return (
-      <div className="dashboard-loader-wrapper">
-        <Loader
-          type="scholar"
-          size="large"
-          text="Loading profile data...."
-        />
-      </div>
-    );
-  }
+    if (scholarLoading) {
+        return (
+            <div className="dashboard-loader-wrapper">
+                <Loader
+                    type="scholar"
+                    size="large"
+                    text="Loading profile data...."
+                />
+            </div>
+        );
+    }
     return (
         <div className="profile-page">
             <div className="profile-header">
@@ -317,6 +318,20 @@ const Profile = () => {
                                     {scholarData.secondary_emails.map((email, index) => (
                                         <div className="contact-item" key={index}>
                                             <Mail size={16} />
+                                            <span>{email}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {scholarData?.secondary_contacts?.length > 0 && (
+                            <>
+                                <h4 style={{ marginTop: "15px" }}>Secondary Contacts</h4>
+                                <div className="contact-premium-list">
+                                    {scholarData.secondary_contacts.map((email, index) => (
+                                        <div className="contact-item" key={index}>
+                                            <PhoneCall size={16} />
                                             <span>{email}</span>
                                         </div>
                                     ))}
@@ -465,7 +480,7 @@ const Profile = () => {
                                                 </div>
 
                                             </>
-                                        )}
+                                            )}
                                             <div className="progress-stat progress-date">
                                                 {/* <span>Remaining</span> */}
                                                 {lastStatus?.date && !isNaN(new Date(lastStatus.date).getTime()) && (
