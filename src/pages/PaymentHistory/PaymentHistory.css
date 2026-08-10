@@ -2787,3 +2787,702 @@ flex-direction: column;
   border: 1px solid #fcd34d;
   margin-left: 4px;
 }
+
+
+/* ========== POPUP OVERLAY ========== */
+.billPopupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ========== POPUP CONTAINER ========== */
+.billPopupContainer {
+  background-color: #ffffff;
+  border-radius: 20px;
+  width: 92%;
+  max-width: 850px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 
+    0 20px 60px rgba(15, 23, 42, 0.15),
+    0 0 0 1px rgba(15, 23, 42, 0.04);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ========== POPUP HEADER ========== */
+.billPopupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  flex-shrink: 0;
+}
+
+.billPopupTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.billPopupTitleIcon {
+  color: #0f172a;
+  font-size: 1.25rem;
+}
+
+.billPopupClose {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.billPopupClose:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+/* ========== POPUP CONTENT ========== */
+.billPopupContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: #f8fafc;
+}
+
+.billPopupContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.billPopupContent::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.billPopupContent::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.billPopupContent::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ========== PRINT WRAPPER ========== */
+.printWrapper {
+  max-width: 100%;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+/* ========== BILL CONTAINER ========== */
+.billContainer {
+  background-color: #ffffff;
+  padding: 2.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ========== BILL HEADER ========== */
+.billHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.billHeaderCenter {
+  text-align: center;
+  width: 100%;
+}
+
+.billCompanyName {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0.25rem 0;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.billCompanyDetails {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0.25rem 0;
+  line-height: 1.6;
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+/* ========== RECEIPT BADGE ========== */
+.billReceiptBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding: 0.3rem 1.2rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  /* color-adjust: exact !important; */
+}
+
+/* ========== COMPANY LOGO ========== */
+.receipt-company-logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.receipt-company-logo {
+  max-height: 80px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ========== RECEIPT NUMBER ========== */
+.billReceiptNumber {
+  text-align: right;
+  color: #94a3b8;
+}
+
+.billReceiptNumber div:first-child {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #94a3b8;
+}
+
+.billReceiptNumber div:last-child {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 0.15rem;
+  letter-spacing: -0.3px;
+}
+
+/* ========== DIVIDER ========== */
+.billDivider {
+  height: 1px;
+  margin: 1rem 0;
+  background: #f1f5f9;
+}
+
+/* ========== INFO GRID ========== */
+.billInfoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 0.3rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.billInfoLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.billInfoRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+/* ========== INFO ITEMS ========== */
+.billInfoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+}
+
+.billInfoLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.billInfoDateLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 25px;
+  flex-shrink: 0;
+}
+
+.billInfoDateLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 20px;
+  flex-shrink: 0;
+}
+
+.billInfoValue {
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+/* ========== STATUS BADGE ========== */
+.receipt-premium-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.receipt-premium-status.success {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.receipt-premium-status.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.receipt-premium-status.failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.receipt-premium-status.cancelled {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.receipt-premium-status.completed {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* ========== AMOUNT SECTION ========== */
+.billAmountSection {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  padding: 1.75rem 1.75rem;
+  margin: 1rem 0 1.5rem 0;
+  border: 1px solid #e2e8f0;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  /* color-adjust: exact !important; */
+}
+
+.billAmountRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.billAmountLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.billAmountValue {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+/* ========== AMOUNT IN WORDS ========== */
+.billAmountWords {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0 0.25rem 0;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 0.75rem;
+}
+
+.billAmountWordsLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 100px;
+  flex-shrink: 0;
+  padding-top: 0.15rem;
+}
+
+.billAmountWordsValue {
+  font-size: 0.9rem;
+  color: #334155;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* ========== WORK DESCRIPTION ========== */
+.billWorkDescription {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid #f1f5f9;
+  margin: 0.5rem 0 1rem 0;
+}
+
+.billWorkDescriptionLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 100px;
+  flex-shrink: 0;
+  padding-top: 0.15rem;
+}
+
+.billWorkDescriptionValue {
+  font-size: 0.95rem;
+  color: #0f172a;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ========== FOOTER ========== */
+.billFooter {
+  margin-top: auto;
+  padding: 1.5rem 0 0.5rem 0;
+  border-top: 2px solid #f1f5f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.billFooterMessage {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ========== SIGNATURE ========== */
+.billSignature {
+  text-align: right;
+}
+
+.billSignatureLine {
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 500;
+  padding-top: 0.5rem;
+  border-top: 2px solid #e2e8f0;
+  min-width: 150px;
+}
+
+/* ========== POPUP FOOTER ========== */
+.billPopupFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+  border-radius: 0 0 20px 20px;
+  flex-shrink: 0;
+}
+
+/* ========== BUTTONS ========== */
+.billPopupButtonPrimary,
+.billPopupButtonSecondary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.billPopupButtonPrimary {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.15);
+}
+
+.billPopupButtonPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.25);
+}
+
+.billPopupButtonPrimary:active {
+  transform: translateY(0);
+}
+
+.billPopupButtonSecondary {
+  background: transparent;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.billPopupButtonSecondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.billPopupButtonIcon {
+  font-size: 1rem;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+  .billPopupContainer {
+    width: 96%;
+    max-height: 96vh;
+    border-radius: 16px;
+  }
+
+  .billPopupHeader {
+    padding: 1rem 1.25rem;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .billPopupContent {
+    padding: 1rem;
+  }
+
+  .billPopupFooter {
+    padding: 0.75rem 1.25rem;
+    flex-direction: column-reverse;
+    border-radius: 0 0 16px 16px;
+  }
+
+  .billPopupButtonPrimary,
+  .billPopupButtonSecondary {
+    width: 100%;
+    justify-content: center;
+    padding: 0.625rem 1rem;
+  }
+
+  .billContainer {
+    padding: 1.5rem;
+  }
+
+  .billHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .billReceiptNumber {
+    text-align: left;
+    width: 100%;
+  }
+
+  .billInfoGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .billInfoRight {
+    align-items: flex-start;
+  }
+
+  .billCompanyDetails {
+    font-size: 0.8rem;
+  }
+
+  .billCompanyName {
+    font-size: 1.25rem;
+  }
+
+  .billAmountValue {
+    font-size: 1.75rem;
+  }
+
+  .billAmountSection {
+    padding: 1.25rem;
+  }
+
+  .billFooter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .billSignature {
+    text-align: left;
+    width: 100%;
+  }
+
+  .billSignatureLine {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .printWrapper {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .billContainer {
+    padding: 1rem;
+  }
+
+  .billAmountValue {
+    font-size: 1.5rem;
+  }
+
+  .billInfoLabel {
+    min-width: 80px;
+    font-size: 0.7rem;
+  }
+
+  .billAmountWordsLabel,
+  .billWorkDescriptionLabel {
+    min-width: 80px;
+  }
+}
+
+/* ========== PRINT STYLES ========== */
+@media print {
+  .billPopupOverlay {
+    position: absolute;
+    background: none;
+    backdrop-filter: none;
+    animation: none;
+    padding: 0;
+  }
+
+  .billPopupContainer {
+    box-shadow: none;
+    max-height: none;
+    width: 100%;
+    border-radius: 0;
+    animation: none;
+  }
+
+  .billPopupHeader,
+  .billPopupFooter {
+    display: none !important;
+  }
+
+  .billPopupContent {
+    padding: 0;
+    overflow: visible;
+    background: white;
+    border-radius: 0;
+  }
+
+  .printWrapper {
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .billContainer {
+    padding: 1.5rem 2rem;
+    max-width: 100%;
+    border: none;
+    border-radius: 0;
+  }
+
+  .billAmountSection {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    /* color-adjust: exact !important; */
+  }
+
+  .billHeader {
+    border-bottom-color: #e2e8f0 !important;
+  }
+
+  .billFooter {
+    border-top-color: #e2e8f0 !important;
+  }
+
+  .billReceiptBadge {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    /* color-adjust: exact !important; */
+  }
+}
+

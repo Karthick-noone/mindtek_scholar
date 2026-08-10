@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, landMark, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Calendar, Tag, IndianRupeeIcon, InfoIcon, Building2, Users } from 'lucide-react';
+import { AlertCircle, Printer, X, CheckCircle, landMark, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, CreditCard, Download, Eye, FileText, IndianRupee, Wallet, XCircle, Calendar, Tag, IndianRupeeIcon, InfoIcon, Building2, Users } from 'lucide-react';
 import Shimmer from '../../components/Shimmer/Shimmer';
 import './PaymentHistory.css';
 import html2canvas from 'html2canvas';
@@ -22,10 +22,49 @@ const PaymentHistory = () => {
     refetch
   } = usePayments();
   // console.log("downloadReceipt:", downloadReceipt)
-  const payment = paymentData[0];
+  // const payment = paymentData[0];
+  const payment = paymentData[paymentData.length - 1];
   const totalReferralAmount = Number(
     paymentData?.overall_referral_amount ?? paymentData?.[0]?.overall_referral_amount ?? 0
   );  // const payment = paymentData[paymentData?.length - 1];
+
+
+
+  // Inside your component, add these event handlers
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    return false;
+  };
+
+  const handleKeyDown = (e) => {
+    // Prevent Ctrl+P (Print)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+    // Prevent Ctrl+Shift+P (Print using system dialog)
+    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  };
+
+  // Add this useEffect to manage event listeners
+  useEffect(() => {
+    if (downloadReceipt) {
+      // Disable right-click on the entire document
+      document.addEventListener('contextmenu', handleContextMenu);
+      document.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        document.removeEventListener('contextmenu', handleContextMenu);
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [downloadReceipt]);
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -888,6 +927,7 @@ const PaymentHistory = () => {
             <table className="payments-data-table">
               <thead className="payments-table-header">
                 <tr>
+                  <th className="payments-table-head">#</th>
                   <th className="payments-table-head">Date</th>
                   <th className="payments-table-head">Payment Purpose</th>
                   <th className="payments-table-head">Paid Amount</th>
@@ -908,8 +948,11 @@ const PaymentHistory = () => {
                     </td>
                   </tr>
                 ) : (currentRows.length > 0 ? (
-                  currentRows.map(payment => (
+                  currentRows.map((payment, index) => (
                     <tr key={payment.id} className="payments-table-row">
+                      <td className="payments-table-cell" data-label="#">
+                        {(currentPage - 1) * rowsPerPage + index + 1}
+                      </td>
                       <td className="payments-table-cell" data-label="Date">
                         {new Date(payment.pay_dt_tm).toLocaleDateString("en-GB", {
                           day: "2-digit",
@@ -1036,8 +1079,14 @@ const PaymentHistory = () => {
         )}
 
         {selectedPayment && (
-          <div className="payment-modal-overlay" onClick={() => setSelectedPayment(null)}>
-            <div className="payment-modal-container" onClick={(e) => e.stopPropagation()}>
+          <div className="payment-modal-overlay" onClick={() => setSelectedPayment(null)}
+            onContextMenu={handleContextMenu}
+
+          >
+            <div className="payment-modal-container" onClick={(e) => e.stopPropagation()}
+              onContextMenu={handleContextMenu}
+
+            >
               <div className="payment-modal-header">
                 <h3 className="payment-modal-title">Payment Details</h3>
                 <button className="payment-modal-close" onClick={() => setSelectedPayment(null)}>
@@ -1045,7 +1094,10 @@ const PaymentHistory = () => {
                 </button>
               </div>
 
-              <div className="payment-modal-body">
+              <div className="payment-modal-body"
+                onContextMenu={handleContextMenu}
+                onKeyDown={handleKeyDown}
+              >
                 {/* Grid Layout for Payment Details - 3 columns */}
                 <div className="payment-details-grid">
                   {/* Date */}
@@ -1131,7 +1183,7 @@ const PaymentHistory = () => {
                     </div>
                   </div> */}
 
-                   {/* <div className="payment-detail-item">
+                  {/* <div className="payment-detail-item">
                     <div className="payment-detail-icon">
                       <Building2 size={16} />
                     </div>
@@ -1223,193 +1275,125 @@ const PaymentHistory = () => {
           </div>
         )}
 
-        {downloadReceipt && (
-          <div className="receipt-premium-overlay" onClick={() => setDownloadReceipt(null)}>
-            <div className="receipt-premium-container" onClick={(e) => e.stopPropagation()}>
+         {downloadReceipt && (
+          <div className="billPopupOverlay" onClick={() => setDownloadReceipt(null)}>
+            <div
+              className="billPopupContainer"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Header */}
-              <div className="receipt-premium-header">
-                <h3>Payment Receipt</h3>
-                <button className="receipt-premium-close" onClick={() => setDownloadReceipt(null)}>
-                  <XCircle size={22} />
+              <div className="billPopupHeader">
+                <h2 className="billPopupTitle">
+                  <Printer className="billPopupTitleIcon" />
+                  Payment Receipt
+                </h2>
+                <button
+                  className="billPopupClose"
+                  onClick={() => setDownloadReceipt(null)}
+                >
+                  <X size={22} />
                 </button>
               </div>
 
               {/* Body */}
-              <div className="receipt-premium-body">
-                <div className="receipt-premium-content" id="receipt-content">
-                  <div className='receipt-company-logo-container'>
-                    <img src={logo} className='receipt-company-logo' alt="Logo" />
-                  </div>
-
-                  <div className="receipt-premium-company">
-                    <h3>{companyDetails?.company.company_name}</h3>
-                    <p>{companyDetails?.company.address}</p>
-                    <p>Email: {companyDetails?.company.email_id} | Contact: {companyDetails?.company.com_contact}</p>
-                  </div>
-
-                  {/* Date Row */}
-                  <div className="receipt-premium-row date-row">
-                    <strong>
-                      {new Date(downloadReceipt.pay_dt_tm).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric'
-                      })}
-                    </strong>
-                    <div>
-                      <span className={`receipt-premium-status ${downloadReceipt.pay_status}`}>
-                        {capsLetter(downloadReceipt.pay_status)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="receipt-premium-divider"></div>
-
-                  {/* Section 1: Customer Details */}
-                  <div className="receipt-premium-section">
-                    <h4>Scholar Details</h4>
-                    <div className="receipt-premium-info-row">
-                      <div className="receipt-premium-info-item">
-                        <label>Scholar Name</label>
-                        <p>{scholarDetails?.user_name}</p>
-                      </div>
-                      <div className="receipt-premium-info-item">
-                        <label>Scholar ID</label>
-                        <p>{scholarDetails?.user_id}</p>
-                      </div>
-                      <div className="receipt-premium-info-item">
-                        <label>Email</label>
-                        <p>{scholarDetails?.email}</p>
-                      </div>
-                      <div className="receipt-premium-info-item">
-                        <label>Contact Number</label>
-                        <p>{scholarDetails?.contact}</p>
-                      </div>
-                      <div className="receipt-premium-info-item full-width">
-                        <label>Work Description</label>
-                        <p>{scholarDetails?.work_description}</p>
+              <div className="billPopupContent">
+                <div className="printWrapper">
+                  <div className="billContainer" id="receipt-content">
+                    {/* Company Header */}
+                    <div className="billHeader">
+                      <div className="billHeaderCenter">
+                        {/* <div className='receipt-company-logo-container'>
+                  <img src={logo} className='receipt-company-logo' alt="Logo" />
+                </div> */}
+                        <h1 className="billCompanyName">
+                          {companyDetails?.company.company_name || "Company Name"}
+                        </h1>
+                        <p className="billCompanyDetails">
+                          {companyDetails?.company.address}
+                        </p>
+                        <span className="billReceiptBadge">
+                          Payment Receipt
+                        </span>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Section 2: Payment Details */}
-                  <div className="receipt-premium-section">
-                    <h4>Payment Details</h4>
-                    <table className="receipt-premium-table">
-                      <tbody>
-                        <tr>
-                          <th>Payment Purpose</th>
-                          <td>{downloadReceipt.purpose.pay_purpose}</td>
-                        </tr>
-                        <tr>
-                          <th>Total Amount</th>
-                          <td>₹{downloadReceipt.total_amount}</td>
-                        </tr>
-                        <tr className="highlight-row">
-                          <th>Last Payment Amount</th>
-                          <td>₹{downloadReceipt.pay_received}</td>
-                        </tr>
-                        <tr>
-                          <th>Amount Paid</th>
-                          <td>₹{downloadReceipt?.tot_paid}</td>
-                        </tr>
-                        {hasReferral(downloadReceipt) && (
-
-                          <tr className="highlight-row">
-                            <th>Discount</th>
-                            <td>₹{downloadReceipt.total_referral_amt || 0}</td>
-                          </tr>
-                        )}
-                        <tr className="balance-row">
-                          <th>Balance Amount</th>
-                          <td>₹{downloadReceipt.bal_amt}</td>
-                        </tr>
-                        <tr className="full-width-row">
-                          <th>Last Payment Amount in Words</th>
-                          <td>
-                            {numberToWords(downloadReceipt.pay_received)} Rupees Only
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  {/*
-                  {hasReferral(downloadReceipt) && (
-                    <>
-                      <div className="referral-header-section">
-                        <div className="referral-header-left">
-                          <Users size={18} className="referral-header-icon" />
-                          <span className="referral-header-title">Referral Details</span>
+                    {/* Scholar Details & Date */}
+                    <div className="billInfoGrid">
+                      <div className="billInfoLeft">
+                        <div className="billInfoItem">
+                          <span className="billInfoLabel">Scholar Name</span>
+                          <span className="billInfoValue">{scholarDetails?.user_name}</span>
                         </div>
-                        <div className="referral-header-right">
-                          <span className="referral-total-label">Total:</span>
-                          <span className="referral-total-amount">₹{downloadReceipt.total_referral_amt || 0}</span>
+                        <div className="billInfoItem">
+                          <span className="billInfoLabel">Scholar ID</span>
+                          <span className="billInfoValue">{scholarDetails?.user_id}</span>
                         </div>
                       </div>
-
-                      <div className="referral-table-wrapper">
-                        <table className="referral-details-table">
-                          <thead>
-                            <tr>
-                              <th>#</th>
-                              <th>Referred Person</th>
-                              <th>Referral Amount</th>
-                              <th>Reason</th>
-                              <th>Date</th>
-                              <th>Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {downloadReceipt.referral_data.map((referral, index) => (
-                              <tr key={referral.id}>
-                                <td>{index + 1}</td>
-                                <td>{referral.referred_person}</td>
-                                <td>₹{referral.referral_amount}</td>
-                                <td>{referral.referral_reason || 'N/A'}</td>
-                                <td>{new Date(referral.referral_date).toLocaleDateString("en-GB", {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric"
-                                })}</td>
-                                <td>
-                                  <span className={`referral-status-badge ${referral.referral_status}`}>
-                                    {capsLetter(referral.referral_status)}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </>
-                  )} 
-                   */}
-                  {/* Section 3: Bank Details */}
-                  {/* <div className="receipt-premium-section">
-                    <h4>Bank Details</h4>
-                    <div className="receipt-bank-info-row">
-                      <div className="receipt-premium-info-item">
-                        <label>Payment Method</label>
-                        <p>Bank Transfer - {downloadReceipt.bank?.bank_nm}</p>
-                      </div>
-                      <div className="receipt-premium-info-item">
-                        <label>Account Type</label>
-                        <p>{downloadReceipt.bank?.account_type === "gst" ? "Account 1" : "Account 2"}</p>
+                      <div className="billInfoRight">
+                        <div className="billInfoItem">
+                          <span className="billInfoDateLabel">Date</span>
+                          <span className="billInfoValue">
+                            {new Date(downloadReceipt.pay_dt_tm).toLocaleDateString('en-IN', {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div> */}
 
-                  <div className="receipt-premium-divider"></div>
+                    <div className="billDivider"></div>
+
+                    {/* Amount Section */}
+                    <div className="billAmountSection">
+                      <div className="billAmountRow">
+                        <span className="billAmountLabel">Amount Paid</span>
+                        <span className="billAmountValue">₹{downloadReceipt.pay_received}</span>
+                      </div>
+
+                      {/* Amount in Words */}
+                      <div className="billAmountWords">
+                        <span className="billAmountWordsLabel">Amount in Words</span>
+                        <span className="billAmountWordsValue">
+                          {numberToWords(downloadReceipt.pay_received)} Rupees Only
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Work Description */}
+                    <div className="billWorkDescription">
+                      <div className="billWorkDescriptionLabel">Description</div>
+                      <div className="billWorkDescriptionValue">
+                        {scholarDetails?.work_description || "N/A"}
+                      </div>
+                    </div>
+
+                    <div className="billDivider"></div>
+
+                    {/* Footer */}
+                    <div className="billFooter">
+                      <div className="billFooterMessage">
+                        This is a computer-generated bill and does not require a signature.
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Footer Actions */}
-              {/* <div className="receipt-premium-actions">
-        <button className="receipt-premium-cancel" onClick={() => setDownloadReceipt(null)}>
+              {/* <div className="billPopupFooter">
+        <button 
+          className="billPopupButtonSecondary" 
+          onClick={() => setDownloadReceipt(null)}
+        >
           Close
         </button>
-        <button className="receipt-premium-download" onClick={handleDownloadReceipt}>
-          <Download size={16} />
+        <button 
+          className="billPopupButtonPrimary" 
+          onClick={handleDownloadReceipt}
+        >
+          <FiPrinter className="billPopupButtonIcon" />
           Download Receipt
         </button>
       </div> */}

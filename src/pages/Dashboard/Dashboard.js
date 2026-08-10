@@ -47,14 +47,15 @@ const Dashboard = () => {
   const [targetWorkProgress, setTargetWorkProgress] = useState(0);
 
   const navigate = useNavigate();
-  
+
   // Mobile detection and tooltip states
   const [activeTooltip, setActiveTooltip] = useState(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const scholar = secureStorage.getScholar();
   const { data: paymentData = [] } = usePayments();
-  const payment = paymentData[0];
+  // const payment = paymentData[0];
+  const payment = paymentData[paymentData.length - 1];
 
   const { data: apiResponse } = useComplaints(1, 10, 'all', '');
   const complaint = apiResponse?.data?.[0];
@@ -84,7 +85,7 @@ const Dashboard = () => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
-    
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -101,7 +102,7 @@ const Dashboard = () => {
         setActiveTooltip(null);
       }
     };
-    
+
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
@@ -168,8 +169,9 @@ const Dashboard = () => {
 
         const res = await getPaymentData(scholarData.id);
         const response = res.data;
-        const paymentDataFromApi = response.data?.[0];
-
+        // const paymentDataFromApi = response.data?.[0];
+        const paymentDataFromApi =
+          response.data?.[response.data.length - 1];
         const pending = Number(paymentDataFromApi?.bal_amt) || 0;
         const total = Number(paymentDataFromApi?.tot_paid) || 0;
         setTargetPendingPayment(pending);
@@ -236,7 +238,7 @@ const Dashboard = () => {
     {
       icon: IndianRupee,
       label: 'Balance Payment',
-      value: pendingPayment === 0 ? 'No balance payment' : `₹${pendingPayment}`,
+      value: pendingPayment === 0 ? 'No balance payment' : `₹${pendingPayment.toLocaleString()}`,
       change: '+12.5%',
       trend: 'up',
       color: '#f59e0b',
@@ -247,11 +249,14 @@ const Dashboard = () => {
     {
       icon: ThumbsUp,
       label: 'Resolved Complaints',
-      value: resolvedComplaints,
+      // value: resolvedComplaints,
+      value: resolvedComplaints === 0 ? 'No resolved complaints' : resolvedComplaints,
       change: '+5',
       color: '#34d399',
       path: "/complaint-register",
-      status: 'resolved'
+      status: 'resolved',
+      isZero: resolvedComplaints === 0,
+
     },
     {
       icon: AlertCircle,
@@ -367,55 +372,55 @@ const Dashboard = () => {
               {/* <span className="badge"><TrendingUp size={18} /></span> */}
             </div>
           </div>
-            {workProgress > 0 ? (
+          {workProgress > 0 ? (
 
-          <div className="main-progress-container">
-            <div className="progress-label">
-              <span>Overall Progress</span>
-              <span className="progress-percentage" style={{ color: workProgress === 100 ? " #22c55e" : '' }}>{workProgress}%</span>
-            </div>
-            <div className="progress-bar-main">
-              <div
-                className="progress-fill-main"
-                style={{
-                  width: `${workProgress}%`,
-                  background:
-                    workProgress === 100
-                      ? "linear-gradient(90deg, #22c55e, #16a34a)"
-                      : ""
-                }}
-              >
-                <div className="progress-glow"></div>
+            <div className="main-progress-container">
+              <div className="progress-label">
+                <span>Overall Progress</span>
+                <span className="progress-percentage" style={{ color: workProgress === 100 ? " #22c55e" : '' }}>{workProgress}%</span>
               </div>
-            </div>
-            <div className="progress-stats-full">
-              {lastStatus?.note && (
+              <div className="progress-bar-main">
+                <div
+                  className="progress-fill-main"
+                  style={{
+                    width: `${workProgress}%`,
+                    background:
+                      workProgress === 100
+                        ? "linear-gradient(90deg, #22c55e, #16a34a)"
+                        : ""
+                  }}
+                >
+                  <div className="progress-glow"></div>
+                </div>
+              </div>
+              <div className="progress-stats-full">
+                {/* {lastStatus?.note && (
                 <>
                   <span className="overview-note"><b>Notes:</b> {capsLetter(lastStatus?.note)}</span>
 
                 </>
-              )}
-              {lastStatus?.date && !isNaN(new Date(lastStatus.date).getTime()) && (
-                <span>
-                  {new Date(lastStatus.date).toLocaleString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </span>
-              )}
-              {/* <span>Remaining: {100 - workProgress}%</span> */}
+              )} */}
+                {lastStatus?.date && !isNaN(new Date(lastStatus.date).getTime()) && (
+                  <span>
+                    {new Date(lastStatus.date).toLocaleString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                )}
+                {/* <span>Remaining: {100 - workProgress}%</span> */}
+              </div>
+
+
             </div>
-
-
-          </div>
-            ) : (
-               <div className="empty-progress-stats">
-                      <div className="empty-icon"><TrendingUp size={25} /></div>
-                      <p className="empty-title">Work progress data not available</p>
-                      <p className="empty-description">Work status updates will appear here once available</p>
-                    </div>
-            )}
+          ) : (
+            <div className="empty-progress-stats">
+              <div className="empty-icon"><TrendingUp size={25} /></div>
+              <p className="empty-title">Work progress data not available</p>
+              <p className="empty-description">Work status updates will appear here once available</p>
+            </div>
+          )}
         </div>
         {workStatusList && workStatusList.length > 1 && (
 
@@ -445,7 +450,7 @@ const Dashboard = () => {
                             }}
                           ></div>
                         </div>
-        {item.note && (
+                        {/* {item.note && (
   <div 
     className="progress-list-note"
     onMouseEnter={() => !isMobile && setActiveTooltip(item.id || `note-${index}`)}
@@ -475,9 +480,9 @@ const Dashboard = () => {
       </div>
     )}
   </div>
-)}
+)} */}
 
-    </div>
+                      </div>
                     ))}
                   </>
                 ) : (

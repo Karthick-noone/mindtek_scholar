@@ -611,7 +611,7 @@
   }
 
   .complaint-modal-container {
-    width: 95%;
+    width: 9%;
   }
 
   .complaint-form-row {
@@ -784,8 +784,9 @@
 /* Fix for responsive issues */
 @media (max-width: 768px) {
   .complaint-modal-container {
-    width: 95%;
-    max-width: 95%;
+    /* width: 90%; */
+    /* max-width: 95%; */
+    zoom: .8;
   }
 
   .complaint-modal-body {
@@ -1144,7 +1145,10 @@
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 8px;
-  text-align: right;
+  /* text-align: right; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* Rating Prompt */
@@ -1284,9 +1288,9 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .rating-options {
+  /* .rating-options {
     flex-direction: column;
-  }
+  } */
 
   .rating-option {
     justify-content: center;
@@ -1530,4 +1534,99 @@
 
 .complaint-table-body {
   background: var(--card-bg);
+}
+
+
+.rating-options {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.rating-option {
+  background: none;
+  border: none;
+  font-size: 35px;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  color: #ddd;
+}
+
+.rating-option:hover {
+  transform: scale(1.2);
+  color: #ffc107;
+}
+
+.rating-option.active {
+  color: #ffc107;
+}
+
+.rating-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.star-icon {
+  display: inline-block;
+}
+
+.rating-label {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-top: 15px;
+  min-height: 24px;
+  font-weight: 500;
+}
+
+.rating-options {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.rating-option {
+  background: none;
+  border: none;
+  font-size: 35px;
+  cursor: pointer;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  color: #ddd;
+}
+
+.rating-option:hover {
+  transform: scale(1.2);
+  color: #ffc107;
+}
+
+.rating-option.active {
+  color: #ffc107;
+}
+
+.rating-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.star-icon {
+  display: inline-block;
+}
+
+.rating-stars {
+  display: inline-flex;
+  gap: 2px;
+  font-size: 16px;
+  color: #ffc107;
+}
+
+.rating-stars .star-filled {
+  color: #ffc107;
+}
+
+.rating-stars .star-empty {
+  color: #ddd;
 }

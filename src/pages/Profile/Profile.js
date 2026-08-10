@@ -474,9 +474,9 @@ const Profile = () => {
                                         <div className="progress-premium-stats">
                                             {lastStatus?.note && (<>
                                                 <div className="progress-stat">
-                                                    <Notebook size={14} />
-                                                    <span>Notes:</span>
-                                                    {capsLetter(lastStatus?.note)}
+                                                    {/* <Notebook size={14} /> */}
+                                                    {/* <span>Notes:</span> */}
+                                                    {/* {capsLetter(lastStatus?.note)} */}
                                                 </div>
 
                                             </>
